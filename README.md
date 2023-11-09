@@ -11,6 +11,11 @@
 
 This repository contains a python library to build [Gridfinity](https://gridfinity.xyz) boxes, baseplates, and other objects based on the [CadQuery](https://github.com/CadQuery/cadquery) python library.  The Gridfinity system was created by [Zach Freedman](https://www.youtube.com/c/ZackFreedman) as a versatile system of modular organization and storage modules.  A vibrant community of user contributed modules and utilities has grown around the Gridfinity system.  This repository contains python classes to create gridfinity compatible parameterized components such as baseplates and boxes.
 
+Examples of how I am starting to use Gridfinity to organize my tools are shown below:
+
+<img src=./images/examples.png width=800>
+
+
 ## Installation
 
 **cq-gridfinity** has the following installation dependencies:
@@ -166,6 +171,8 @@ If the computed spacer width falls below a configurable threshold (default 4 mm)
     # Front/back spacers : 5U wide x 9.25 mm +0.25 mm tolerance
     # Left/right spacers : 5U deep x 17.75 mm +0.25 mm tolerance
 ```
+<img src=./images/drawer_photo.png width=400>
+
 
 A full set of components (optionally including a full baseplate) can be rendered with the `render_full_set()` method.  This method is mostly used to verify the fit and placement of the spacers.
 
