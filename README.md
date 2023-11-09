@@ -11,7 +11,7 @@
 
 This repository contains a python library to build [Gridfinity](https://gridfinity.xyz) boxes, baseplates, and other objects based on the [CadQuery](https://github.com/CadQuery/cadquery) python library.  The Gridfinity system was created by [Zach Freedman](https://www.youtube.com/c/ZackFreedman) as a versatile system of modular organization and storage modules.  A vibrant community of user contributed modules and utilities has grown around the Gridfinity system.  This repository contains python classes to create gridfinity compatible parameterized components such as baseplates and boxes.
 
-Examples of how I am starting to use Gridfinity to organize my tools are shown below:
+Examples of how I am starting to use Gridfinity to organize my tools are shown below using components built with this python library:
 
 <img src=./images/examples.png width=800>
 
@@ -171,17 +171,17 @@ If the computed spacer width falls below a configurable threshold (default 4 mm)
     # Front/back spacers : 5U wide x 9.25 mm +0.25 mm tolerance
     # Left/right spacers : 5U deep x 17.75 mm +0.25 mm tolerance
 ```
-<img src=./images/drawer_photo.png width=512>
+<img src=./images/drawer_photo.png width=600>
 
 
 A full set of components (optionally including a full baseplate) can be rendered with the `render_full_set()` method.  This method is mostly used to verify the fit and placement of the spacers.
 
-<img src=./images/full_set.png width=512>
+<img src=./images/full_set.png width=600>
 
 
 Normally, the `render_half_set()` method used to render half of the components compactly arranged conveniently for 3D printing.  This set can be printed twice to make a full set for a single drawer.
 
-<img src=./images/half_set.png width=512>
+<img src=./images/half_set.png width=600>
 
 ### Optional keyword arguments
 
@@ -208,7 +208,7 @@ An example use case to make a set of spacer components for a typical IKEA narrow
   cq.exporters.export(obj, "ikea_alex_half_set.stl", tolerance=1e-2, angularTolerance=0.15)
 ```
 
-<img src=./images/alexdrawer.png width=512>
+<img src=./images/alexdrawer.png width=600>
 
 
 ## `GridfinityObject`
