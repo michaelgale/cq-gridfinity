@@ -130,13 +130,31 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 ```
 <img src=./images/box_solid.png width=400>
 
+### Optional keyword arguments
+
+```python
+  length_div=0          # add dividing walls along length
+  width_div=0           # add dividing walls along width
+  holes=False           # add magnet holes to bottom
+  no_lip=False          # remove top mating lip feature
+  scoops=False          # add finger scoops
+  scoop_rad=11          # radius of optional interior scoops
+  labels=False          # add a label flange to the top
+  label_width=12        # width of the label strip
+  label_height=10       # thickness height of label overhang
+  label_lip_height=0.8  # thickness of label vertical lip
+  solid=False           # make a solid box
+  solid_ratio=1.0       # ratio of solid height range 0.0 to 1.0 (max height)
+  fillet_interior=True  # enable/disable internal fillet edges
+```
+
 ## Drawer Spacer (`GridfinityDrawerSpacer`)
 
 The `GridfinityDrawerSpacer` class can be used to make spacer components to fit a drawer with any arbitrary dimensions.  With a specified width and depth of the drawer, the best fit of integer gridfinity baseplate units is computed.  Rarely, integer multiples of 42 mm gridfinity baseplates fit perfectly inside a drawer; therefore, spacers are required to secure the baseplate snuggly inside the drawer.  Spacers consist of 4x identical corner sections, 2x spacers for the left and right sides and 2x spacers for the front and back edges.
 
 ```python
-    spacer = GridfinityDrawerSpacer()
-    spacer.best_fit_to_dim(582, 481, verbose=True)
+    # make drawer spacers for Craftsman tool chest drawer 23" wide x 19" deep
+    spacer = GridfinityDrawerSpacer(582, 481, verbose=True)
     # Best fit for 582.00 x 481.00 mm is 13U x 11U
     # with 18.00 mm margin each side and 9.50 mm margin front and back
     # Corner spacers     : 4U wide x 3U deep
@@ -152,6 +170,61 @@ A full set of components (optionally including a full baseplate) can be rendered
 Normally, the `render_half_set()` method used to render half of the components compactly arranged conveniently for 3D printing.  This set can be printed twice to make a full set for a single drawer.
 
 <img src=./images/half_set.png width=400>
+
+### Optional keyword arguments
+
+```python
+  thickness=GR_BASE_HEIGHT # thickness of spacers, default=5 mm
+  chamf_rad=1.0            # chamfer radius of spacer top/bottom edges
+  show_arrows=True         # show orientation arrows indicating drawer in/out direction
+  align_features=True      # add "jigsaw" interlocking feautures
+  align_tol=0.15           # tolerance of the interlocking joint
+  align_min=8              # minimum spacer width for adding interlocking feature
+  min_margin=4             # minimum size to make a spacer, nothing is made for smaller gaps
+  tolerance=GR_TOL         # overall tolerance for spacer components, default=0.5 mm
+```
+
+## `GridfinityObject`
+
+The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBaseplate`, etc. It has several useful methods and attributes including:
+
+### File export and naming
+
+`obj.filename(self, prefix=None, path=None)` returns a filename string with descriptive attributes such as the object size and enabled features.
+
+```python
+  box = GridfinityBox(3, 2, 5, holes=True)
+  box.filename()
+  # gf_box_3x2x5_holes
+  box.filename(prefix="MyBox")
+  # MyBox_3x2x5_holes
+  box.filename(path="./outputfiles")
+  # ./outputfiles/gf_box_3x2x5_holes
+  box = GridfinityBox(4, 3, 3, holes=True, length_div=2, width_div=1)
+  # gf_box_4x3x3_holes_div2x1
+```
+
+```python
+  # Export object to STEP or STL file
+  obj.save_step_file(self, filename=None, path=None, prefix=None)
+  obj.save_stl_file(self, filename=None, path=None, prefix=None)
+```
+
+### Useful properties
+
+```obj.cq_obj``` returns a rendered CadQuery Workplane object  
+```obj.length``` returns length in mm  
+```obj.width``` returns width in mm  
+```obj.height``` returns height in mm  
+```obj.top_ref_height``` returns the height of the top surface of a solid box or the floor height of an empty box.  This can be useful for making custom boxes with cutouts since the reference height can be used to orient the cutting solid to the correct height.
+
+## To-do
+
+- make a PyPI package release
+- add "minimal" box variant
+- convert bottom holes to "3D printer friendly", i.e. reduce post-print cleanup
+- add more baseplate variants, e.g. with holes, alignment features, etc.
+- add parameterized "rugged" toolbox
 
 ## Releases
 

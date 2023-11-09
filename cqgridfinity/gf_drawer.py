@@ -55,11 +55,13 @@ class GridfinityDrawerSpacer(GridfinityObject):
         self.align_tol = 0.15
         self.align_min = 8
         self.min_margin = 4
+        self.tolerance = GR_TOL
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
         if dr_width is not None and dr_depth is not None:
-            self.best_fit_to_dim(dr_width, dr_depth)
+            verbose = kwargs["verbose"] if "verbose" in kwargs else False
+            self.best_fit_to_dim(dr_width, dr_depth, verbose=verbose)
 
     def best_fit_to_dim(self, length, width, verbose=False):
         """Computes the best fit of Gridfinity units to fill a drawer dimensions.
@@ -70,7 +72,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
         lg, wg = (x * GRU for x in (lu, wu))
         lm, wm = (length - lg) / 2, (width - wg) / 2
         self.size_u = lu, wu
-        self.width_th, self.length_th = lm - GR_TOL / 2, wm - GR_TOL / 2
+        self.width_th, self.length_th = lm - self.tolerance, wm - self.tolerance
         self.length_u, self.width_u = math.floor(lu / 3), math.floor(wu / 3)
         self.length_fill, self.width_fill = lg - 2 * self.length, wg - 2 * self.width
         if self.wide_enough:
@@ -103,14 +105,14 @@ class GridfinityDrawerSpacer(GridfinityObject):
             if self.deep_enough:
                 print(
                     "Front/back spacers : %dU wide x %.2f mm +%.2f mm tolerance"
-                    % (self.length_fill / GRU, self.length_th, GR_TOL / 2)
+                    % (self.length_fill / GRU, self.length_th, self.tolerance)
                 )
             else:
                 print("Front/back spacers : not required")
             if self.wide_enough:
                 print(
                     "Left/right spacers : %dU deep x %.2f mm +%.2f mm tolerance"
-                    % (self.width_fill / GRU, self.width_th, GR_TOL / 2)
+                    % (self.width_fill / GRU, self.width_th, self.tolerance)
                 )
             else:
                 print("Left/right spacers : not required")
@@ -145,8 +147,8 @@ class GridfinityDrawerSpacer(GridfinityObject):
         """Renders a corner spacer component. This component can be used for any of
         the four corners due to symmetry.  Optional arrows can be cut into the 
         component on the top or bottom to show the drawer sliding/depth-wise direction"""
-        sp_length = self.length + self.width_th + GR_TOL / 2
-        sp_width = self.width + self.length_th + GR_TOL / 2
+        sp_length = self.length + self.width_th + self.tolerance
+        sp_width = self.width + self.length_th + self.tolerance
         r, rd = None, None
         if self.deep_enough:
             r = (

@@ -13,7 +13,7 @@ _EXPORT_STEP_FILES = False
 
 
 def test_spacer():
-    s0 = GridfinityDrawerSpacer(582, 481)
+    s0 = GridfinityDrawerSpacer(582, 481, tolerance=0.25)
     assert s0.size_u[0] == 13
     assert s0.size_u[1] == 11
     assert s0.length_u == 4
@@ -25,7 +25,7 @@ def test_spacer():
     assert _almost_same(s0.length_th, 9.25, tol=0.01)
     assert _almost_same(s0.width_th, 17.75, tol=0.01)
 
-    s1 = GridfinityDrawerSpacer()
+    s1 = GridfinityDrawerSpacer(tolerance=0.25)
     s1.best_fit_to_dim(582, 300)
     assert s1.size_u[0] == 13
     assert s1.size_u[1] == 7
