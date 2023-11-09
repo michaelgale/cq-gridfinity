@@ -1,8 +1,9 @@
-![CQ-Gridfinity Logo](./images/logo.png)
+<!-- <img src=./images/logo.png width=320> -->
+![cq-gridfinity Logo](./images/logo.png)
 
-# CQ-Gridfinity
+# cq-gridfinity
 
-![python version](https://img.shields.io/static/v1?label=python&message=3.8%2B&color=blue&style=flat&logo=python)
+![python version](https://img.shields.io/static/v1?label=python&message=3.9%2B&color=blue&style=flat&logo=python)
 ![https://github.com/CadQuery/cadquery](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
@@ -12,7 +13,11 @@ This repository contains a python library to build [Gridfinity](https://gridfini
 
 ## Installation
 
-Assuming **CadQuery** is installed, you can install **cq-gridfinity** using a [PyPI package](https://pypi.org/project/cqgridfinity/) as follows:
+**cq-gridfinity** has the following installation dependencies:
+- [CadQuery](https://github.com/CadQuery/cadquery)
+- [cq-kit](https://github.com/michaelgale/cq-kit)
+
+Assuming these dependencie are installed, you can install **cq-gridfinity** using a [PyPI package](https://pypi.org/project/cqgridfinity/) as follows:
 
 ```bash
 $ pip install cqgridfinity
