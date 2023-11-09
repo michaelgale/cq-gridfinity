@@ -51,8 +51,8 @@ An example of the package can be seen below:
     box = GridfinityBox(3, 2, 5, holes=True, no_lip=False, scoops=True, labels=True)
     fn = box.filename() + ".stl"
     exporters.export(r, fn, tolerance=1e-2, angularTolerance=0.15)
-    # Output a STL file of box named:
-    #   gf_box_3x2x5_holes_scoops_labels.svg
+    # Output a STL file of box:
+    #   gf_box_3x2x5_holes_scoops_labels.stl
 ```
 
 ## Baseplates (`GridfinityBaseplate`)
@@ -63,7 +63,10 @@ Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The bas
    # Create 4 x 3 baseplate
    baseplate = GridfinityBaseplate(4, 3)
    baseplate.save_step_file()
+   # gf_baseplate_4x3.step
 ```
+<img src=./images/baseplate4x3.png width=400>
+
 
 ## Boxes (`GridfinityBox`)
 
@@ -114,9 +117,9 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 
 ```python
     # add dividing walls
-    box = GridfinityBox(3, 2, 5, length_div=2, width_div=1)
+    box = GridfinityBox(3, 2, 5, length_div=2, width_div=1, scoops=True, labels=True)
     box.save_step_file()
-    # gf_box_3x2x5_div2x1.step
+    # gf_box_3x2x5_div2x1_scoops_labels.step
 ```
 <img src=./images/box_div.png width=400>
 
@@ -150,7 +153,9 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 
 ## Drawer Spacer (`GridfinityDrawerSpacer`)
 
-The `GridfinityDrawerSpacer` class can be used to make spacer components to fit a drawer with any arbitrary dimensions.  With a specified width and depth of the drawer, the best fit of integer gridfinity baseplate units is computed.  Rarely, integer multiples of 42 mm gridfinity baseplates fit perfectly inside a drawer; therefore, spacers are required to secure the baseplate snuggly inside the drawer.  Spacers consist of 4x identical corner sections, 2x spacers for the left and right sides and 2x spacers for the front and back edges.
+The `GridfinityDrawerSpacer` class can be used to make spacer components to fit a drawer with any arbitrary dimensions.  Initialize with specified width and depth of the drawer (in mm) and the best fit of integer gridfinity baseplate units is computed.  Rarely, integer multiples of 42 mm gridfinity baseplates fit perfectly inside a drawer; therefore, spacers are required to secure the baseplate snuggly inside the drawer.  Spacers consist of 4x identical corner sections, 2x spacers for the left and right sides and 2x spacers for the front and back edges.
+
+If the computed spacer width falls below a configurable threshold (default 4 mm), then no spacer component is made in that dimension.  The spacer components are made by default with interlocking "jigsaw" type features to assist with assembly and to secure the spacers within the drawer.  Also, alignment arrows (default but optional) are placed on the components to indicate the installation orientation in the direction of the drawer movement.
 
 ```python
     # make drawer spacers for Craftsman tool chest drawer 23" wide x 19" deep
@@ -183,6 +188,21 @@ Normally, the `render_half_set()` method used to render half of the components c
   min_margin=4             # minimum size to make a spacer, nothing is made for smaller gaps
   tolerance=GR_TOL         # overall tolerance for spacer components, default=0.5 mm
 ```
+### Example with IKEA ALEX narrow drawer
+
+An example use case to make a set of spacer components for a typical IKEA narrow ALEX drawer is as follows:
+
+```python
+  spacers = GridfinityDrawerSpacer(INCHES(11.5), INCHES(20.5), verbose=True)
+  obj = spacers.render_full_set(include_baseplate=True)
+  cq.exporters.export(obj, "ikea_alex_full_set.step")
+  # make a half set for 3D printing
+  obj = spacers.render_half_set()
+  cq.exporters.export(obj, "ikea_alex_half_set.stl", tolerance=1e-2, angularTolerance=0.15)
+```
+
+<img src=./images/alexdrawer.png width=400>
+
 
 ## `GridfinityObject`
 
