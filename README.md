@@ -259,6 +259,24 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 - v.0.1.0 - First release on PyPI
 - v.0.1.1 - Fixed release
 
+## References
+
+- [Zach Freedman's YouTube Channel](https://www.youtube.com/c/ZackFreedman)
+- [The video that started it all!](https://youtu.be/ra_9zU-mnl8?si=EOT1LFV65VZfiepi)
+- [Gridfinity Unofficial wiki](https://gridfinity.xyz)
+- Catalogs
+  - [gridfinity-catalog](https://github.com/jeffbarr/gridfinity-catalog)
+  - [Master Collection on Printables](https://www.printables.com/model/242711-gridfinity-master-collection)
+- Software/Tools
+  - [Gridfinity rebuilt OpenSCAD library](https://github.com/kennetek/gridfinity-rebuilt-openscad)
+  - [Gridfinity Fusion360 generator plugin](https://github.com/Le0Michine/FusionGridfinityGenerator)
+  - [Gridfinity eco (low-cost Gridfinity resources)](https://github.com/jrymk/gridfinity-eco)
+  - [Another CadQuery based Gridfinity script](https://github.com/kmeisthax/gridfinity-cadquery)
+- Videos
+  - [Zach Freedman's follow-up Jul 2022](https://youtu.be/Bd4NnHvTRAY?si=rvgb9geXnq83mhOv)
+  - [Zach Freedman's follow-up Dec 2022](https://youtu.be/7FCwMq-rVsY?si=tdqAe8MthGjfWEbR)
+  - [The Next Layer tips video](https://youtu.be/KtbKwAuwv9s?si=1hYPjOvqf8tb5NO9)
+
 ## Authors
 
 **cq-gridfinity** was written by [Michael Gale](https://github.com/michaelgale)
