@@ -169,12 +169,12 @@ If the computed spacer width falls below a configurable threshold (default 4 mm)
 
 A full set of components (optionally including a full baseplate) can be rendered with the `render_full_set()` method.  This method is mostly used to verify the fit and placement of the spacers.
 
-<img src=./images/full_set.png width=400>
+<img src=./images/full_set.png width=512>
 
 
 Normally, the `render_half_set()` method used to render half of the components compactly arranged conveniently for 3D printing.  This set can be printed twice to make a full set for a single drawer.
 
-<img src=./images/half_set.png width=400>
+<img src=./images/half_set.png width=512>
 
 ### Optional keyword arguments
 
@@ -201,7 +201,7 @@ An example use case to make a set of spacer components for a typical IKEA narrow
   cq.exporters.export(obj, "ikea_alex_half_set.stl", tolerance=1e-2, angularTolerance=0.15)
 ```
 
-<img src=./images/alexdrawer.png width=400>
+<img src=./images/alexdrawer.png width=512>
 
 
 ## `GridfinityObject`
