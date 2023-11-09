@@ -1,0 +1,54 @@
+# python intermediate files
+*.py[cod]
+
+# intermediate and cached 3D solid files
+/cache/*
+/tests/testfiles/*.step
+/tests/testfiles/*.iges
+/tests/testfiles/*.stl
+*.graffle
+
+# editors
+/.vscode
+
+# C extensions
+*.so
+
+# OS litter
+.DS_Store
+Desktop.ini
+._*
+Thumbs.db
+.Trashes
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
