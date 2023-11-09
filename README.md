@@ -171,7 +171,7 @@ If the computed spacer width falls below a configurable threshold (default 4 mm)
     # Front/back spacers : 5U wide x 9.25 mm +0.25 mm tolerance
     # Left/right spacers : 5U deep x 17.75 mm +0.25 mm tolerance
 ```
-<img src=./images/drawer_photo.png width=400>
+<img src=./images/drawer_photo.png width=512>
 
 
 A full set of components (optionally including a full baseplate) can be rendered with the `render_full_set()` method.  This method is mostly used to verify the fit and placement of the spacers.
