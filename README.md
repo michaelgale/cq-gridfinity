@@ -248,7 +248,7 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 
 ## To-do
 
-- make a PyPI package release
+- add example scripts
 - add "minimal" box variant
 - convert bottom holes to "3D printer friendly", i.e. reduce post-print cleanup
 - add more baseplate variants, e.g. with holes, alignment features, etc.
@@ -257,6 +257,7 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 ## Releases
 
 - v.0.1.0 - First release on PyPI
+- v.0.1.1 - Fixed release
 
 ## Authors
 
