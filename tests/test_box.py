@@ -3,7 +3,10 @@
 
 # my modules
 from cqgridfinity import *
-from cqkit.cq_helpers import size_3d
+
+# from cqkit.cq_helpers import size_3d
+from cqkit.cq_helpers import *
+from cqkit import *
 
 from common_test import _almost_same, _edges_match, _faces_match
 
@@ -19,6 +22,19 @@ def test_basic_box():
     assert _edges_match(r, ">Z", 16)
     assert _edges_match(r, "<Z", 48)
     assert b1.filename() == "gf_box_2x3x5_basic"
+    if _EXPORT_STEP_FILES:
+        b1.save_step_file(path="./testfiles")
+
+
+def test_lite_box():
+    b1 = GridfinityBox(2, 3, 5, lite_style=True)
+    r = b1.render()
+    assert _almost_same(size_3d(r), (83.5, 125.5, 38.8))
+    assert _faces_match(r, ">Z", 1)
+    assert _faces_match(r, "<Z", 6)
+    assert _edges_match(r, ">Z", 16)
+    assert _edges_match(r, "<Z", 48)
+    assert b1.filename() == "gf_box_lite_2x3x5"
     if _EXPORT_STEP_FILES:
         b1.save_step_file(path="./testfiles")
 

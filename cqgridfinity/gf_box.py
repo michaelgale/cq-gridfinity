@@ -69,6 +69,7 @@ class GridfinityBox(GridfinityObject):
         self.holes = False
         self.no_lip = False
         self.solid_ratio = 1.0
+        self.lite_style = False
         self.label_width = 12  # width of the label strip
         self.label_height = 10  # thickness of label overhang
         self.label_lip_height = 0.8  # thickness of label vertical lip
@@ -82,6 +83,25 @@ class GridfinityBox(GridfinityObject):
     def render(self):
         """Returns a CadQuery Workplane object representing this Gridfinity box."""
         self._int_shell = None
+        if self.lite_style:
+            if self.length_div > 0 and not self.length_div == self.length_u - 1:
+                raise ValueError(
+                    "length_div (%d) must be = length_u - 1 (%d)"
+                    % (self.length_div, self.length_u - 1)
+                )
+            if self.width_div > 0 and not self.width_div == self.width_u - 1:
+                raise ValueError(
+                    "width_div (%d) must be = width_u - 1 (%d)"
+                    % (self.width_div, self.width_u - 1)
+                )
+            if self.solid:
+                raise ValueError(
+                    "Cannot select both solid and lite box styles together"
+                )
+            if self.holes:
+                raise ValueError(
+                    "Cannot select both holes and lite box styles together"
+                )
         r = self.render_shell()
         rd = self.render_dividers()
         rs = self.render_scoops()
@@ -97,9 +117,13 @@ class GridfinityBox(GridfinityObject):
             bs = (
                 HasZCoordinateSelector(heights, min_points=1, tolerance=0.5)
                 + VerticalEdgeSelector(">5")
-                - HasZCoordinateSelector("<%.2f" % (GR_FLOOR))
+                - HasZCoordinateSelector("<%.2f" % (GR_LITE_FLOOR))
             )
-            r = r.edges(bs).fillet(GR_FILLET)
+            if len(r.edges(bs).vals()) > 0:
+                r = r.edges(bs).fillet(GR_FILLET)
+            if self.lite_style and self.width_div < 1 and self.length_div < 1:
+                bs = HasZCoordinateSelector(GR_LITE_FLOOR, min_points=1, tolerance=0.5)
+                r = r.edges(bs).fillet(0.75)
         if self.holes:
             r = self.render_holes(r)
         return r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
@@ -137,12 +161,8 @@ class GridfinityBox(GridfinityObject):
         if self._int_shell is not None:
             return self._int_shell
         ri = rounded_rect_sketch(*self.inner_dim, self.inner_rad)
-        rci = (
-            cq.Workplane("XY")
-            .placeSketch(ri)
-            .extrude(self.int_height)
-            .translate((*self.half_dim, GR_FLOOR))
-        )
+        rci = cq.Workplane("XY").placeSketch(ri).extrude(self.int_height)
+        rci = rci.translate((*self.half_dim, self.floor_h))
         if self.no_lip:
             rci = multi_extrude(rci, GR_NO_PROFILE)
         else:
@@ -150,7 +170,7 @@ class GridfinityBox(GridfinityObject):
         if self.solid:
             hs = self.max_height * self.solid_ratio
             rf = cq.Workplane("XY").placeSketch(ri).extrude(hs)
-            rf = rf.translate((*self.half_dim, GR_FLOOR))
+            rf = rf.translate((*self.half_dim, self.floor_h))
             rci = rci.cut(rf)
         if self.scoops and not self.no_lip:
             rf = (
@@ -158,10 +178,30 @@ class GridfinityBox(GridfinityObject):
                 .rect(self.inner_l, 2 * GR_UNDER_H)
                 .extrude(self.max_height)
             )
-            rf = rf.translate((self.half_l, -self.half_in, GR_FLOOR))
+            rf = rf.translate((self.half_l, -self.half_in, self.floor_h))
             rci = rci.cut(rf)
+        if self.lite_style:
+            rcu = self.base_interior()
+            pts = [
+                (x * GRU, y * GRU)
+                for x in range(self.length_u)
+                for y in range(self.width_u)
+            ]
+            r = composite_from_pts(rcu, pts)
+            rci = rci.union(r)
+
         self._int_shell = rci
         return self._int_shell
+
+    def base_interior(self):
+        rb = rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, GR_RAD)
+        r = cq.Workplane("XY").placeSketch(rb).extrude(GR_BASE_HEIGHT)
+        r = multi_extrude(r, GR_BASE_PROFILE)
+        rx = r.faces("<Z").shell(-GR_WALL)
+        r = r.cut(rx)
+        r = r.mirror(mirrorPlane="XY")
+        r = r.translate((0, 0, GR_BASE_HEIGHT))
+        return r
 
     def render_shell(self):
         rb = rounded_rect_sketch(GRU, GRU, GR_RAD)
@@ -200,7 +240,7 @@ class GridfinityBox(GridfinityObject):
                 cq.Workplane("XY")
                 .rect(GR_DIV_WALL, self.outer_w)
                 .extrude(self.max_height)
-                .translate((0, 0, GR_FLOOR))
+                .translate((0, 0, self.floor_h))
             )
             xl = self.inner_l / (self.length_div + 1)
             pts = [
@@ -214,7 +254,7 @@ class GridfinityBox(GridfinityObject):
                 cq.Workplane("XY")
                 .rect(self.outer_l, GR_DIV_WALL)
                 .extrude(self.max_height)
-                .translate((0, 0, GR_FLOOR))
+                .translate((0, 0, self.floor_h))
             )
             yl = self.inner_w / (self.width_div + 1)
             pts = [
@@ -229,7 +269,7 @@ class GridfinityBox(GridfinityObject):
         return r
 
     def render_scoops(self):
-        if not self.scoops or self.solid:
+        if not self.scoops or self.solid or self.lite_style:
             return None
         # front wall scoop
         # prevent the scoop radius exceeding the internal height
@@ -273,7 +313,7 @@ class GridfinityBox(GridfinityObject):
         )
         rsc = cq.Workplane("YZ").placeSketch(rs).extrude(self.inner_l)
         yo = -lw + self.outer_w / 2 + self.half_w + GR_WALL / 4
-        rs = rsc.translate((-self.half_in, yo, GR_FLOOR + self.max_height))
+        rs = rsc.translate((-self.half_in, yo, self.floor_h + self.max_height))
         # intersect to prevent solids sticking out of rounded corners
         r = rs.intersect(self.interior_solid)
         if self.width_div > 0:
@@ -290,7 +330,7 @@ class GridfinityBox(GridfinityObject):
                 .fillet(self.label_lip_height / 2)
             )
             rsc = cq.Workplane("YZ").placeSketch(rs).extrude(self.inner_l)
-            rsc = rsc.translate((0, -self.label_width, GR_FLOOR + self.max_height))
+            rsc = rsc.translate((0, -self.label_width, self.floor_h + self.max_height))
             yl = self.inner_w / (self.width_div + 1)
             pts = [
                 (-self.half_in, (y + 1) * yl - self.half_in + GR_DIV_WALL / 2)

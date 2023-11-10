@@ -68,11 +68,20 @@ class GridfinityObject:
 
     @property
     def int_height(self):
-        return self.height - GR_LIP_H - GR_BOT_H
+        h = self.height - GR_LIP_H - GR_BOT_H
+        if self.lite_style:
+            return h + GR_LITE_FLOOR
+        return h
 
     @property
     def max_height(self):
         return self.int_height + GR_UNDER_H + GR_TOPSIDE_H
+
+    @property
+    def floor_h(self):
+        if self.lite_style:
+            return GR_LITE_FLOOR
+        return GR_FLOOR
 
     @property
     def lip_width(self):
@@ -140,6 +149,8 @@ class GridfinityObject:
             prefix = "gf_baseplate_"
         elif isinstance(self, GridfinityBox):
             prefix = "gf_box_"
+            if self.lite_style:
+                prefix = prefix + "lite_"
         elif isinstance(self, GridfinityDrawerSpacer):
             prefix = "gf_corner_"
         else:

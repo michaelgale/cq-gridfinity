@@ -6,6 +6,7 @@
 ![https://pypi.org/project/cqgridfinity/](https://img.shields.io/pypi/v/cqgridfinity.svg)
 ![python version](https://img.shields.io/static/v1?label=python&message=3.9%2B&color=blue&style=flat&logo=python)
 ![https://github.com/CadQuery/cadquery](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)
+![https://github.com/michaelgale/cq-kit](https://img.shields.io/badge/CQ--kit-blue)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
@@ -61,7 +62,7 @@ An example of the package can be seen below:
     #   gf_box_3x2x5_holes_scoops_labels.stl
 ```
 
-## Baseplates (`GridfinityBaseplate`)
+## `GridfinityBaseplate`
 
 Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The baseplate style is the basic style initially proposed by Zach Freedman.  Therefore, it does not have magnet or mounting holes.  An example usage is as follows:
 
@@ -74,7 +75,7 @@ Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The bas
 <img src=./images/baseplate4x3.png width=400>
 
 
-## Boxes (`GridfinityBox`)
+## `GridfinityBox`
 
 Gridfinity boxes with many optional features can be created with the `GridfinityBox` class.  As a minimum, this class is initialized with basic 3D unit dimensions for length, width, and height.  The length and width are multiples of 42 mm Gridfinity intervals and height represents multiples of 7 mm.
 
@@ -88,6 +89,19 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
     #   gf_box_3x2x5.step
 ``` 
 <img src=./images/basic_box.png width=400>
+
+### Lite Style Box
+
+"Lite" style boxes are simplified for faster 3D printing with less material.  They remove the continuous floor at 7.2 mm and the box becomes a homogenous 1 mm thick walled shell. "lite" style boxes can include labels and dividers; however, the number of dividers must correspond to the same bottom partition ridges, i.e. `length_div` must be `length_u - 1` and `width_div` must be `width_u - 1`.  "lite" style cannot be combined with solid boxes, finger scoops, or magnet holes.
+
+```python
+    # Create a "lite" style 3 x 2 box, 5U high
+    box = GridfinityBox(3, 2, 5, lite_style=True)
+    box.save_step_file()
+    # Output a STEP file of box named:
+    #   gf_box_lite_3x2x5.step
+``` 
+<img src=./images/box_lite.png width=400>
 
 ### Magnet Holes
 
@@ -157,7 +171,7 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
   fillet_interior=True  # enable/disable internal fillet edges
 ```
 
-## Drawer Spacer (`GridfinityDrawerSpacer`)
+## `GridfinityDrawerSpacer`
 
 The `GridfinityDrawerSpacer` class can be used to make spacer components to fit a drawer with any arbitrary dimensions.  Initialize with specified width and depth of the drawer (in mm) and the best fit of integer gridfinity baseplate units is computed.  Rarely, integer multiples of 42 mm gridfinity baseplates fit perfectly inside a drawer; therefore, spacers are required to secure the baseplate snuggly inside the drawer.  Spacers consist of 4x identical corner sections, 2x spacers for the left and right sides and 2x spacers for the front and back edges.
 
@@ -249,7 +263,6 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 ## To-do
 
 - add example scripts
-- add "minimal" box variant
 - convert bottom holes to "3D printer friendly", i.e. reduce post-print cleanup
 - add more baseplate variants, e.g. with holes, alignment features, etc.
 - add parameterized "rugged" toolbox
