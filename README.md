@@ -166,6 +166,7 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
   label_width=12        # width of the label strip
   label_height=10       # thickness height of label overhang
   label_lip_height=0.8  # thickness of label vertical lip
+  lite_style=False      # make a "lite" version of box without elevated floor
   solid=False           # make a solid box
   solid_ratio=1.0       # ratio of solid height range 0.0 to 1.0 (max height)
   fillet_interior=True  # enable/disable internal fillet edges
@@ -271,6 +272,7 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 
 - v.0.1.0 - First release on PyPI
 - v.0.1.1 - Fixed release
+- v.0.2.0 - Added new "lite" style box
 
 ## References
 
