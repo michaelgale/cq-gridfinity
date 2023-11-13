@@ -84,16 +84,12 @@ class GridfinityBox(GridfinityObject):
         """Returns a CadQuery Workplane object representing this Gridfinity box."""
         self._int_shell = None
         if self.lite_style:
-            if self.length_div > 0 and not self.length_div == self.length_u - 1:
-                raise ValueError(
-                    "length_div (%d) must be = length_u - 1 (%d)"
-                    % (self.length_div, self.length_u - 1)
-                )
-            if self.width_div > 0 and not self.width_div == self.width_u - 1:
-                raise ValueError(
-                    "width_div (%d) must be = width_u - 1 (%d)"
-                    % (self.width_div, self.width_u - 1)
-                )
+            # just force the dividers to the desired quantity in both dimensions
+            # rather than raise a exception
+            if self.length_div:
+                self.length_div = self.length_u - 1
+            if self.width_div:
+                self.width_div = self.width_u - 1
             if self.solid:
                 raise ValueError(
                     "Cannot select both solid and lite box styles together"
@@ -163,10 +159,8 @@ class GridfinityBox(GridfinityObject):
         ri = rounded_rect_sketch(*self.inner_dim, self.inner_rad)
         rci = cq.Workplane("XY").placeSketch(ri).extrude(self.int_height)
         rci = rci.translate((*self.half_dim, self.floor_h))
-        if self.no_lip:
-            rci = multi_extrude(rci, GR_NO_PROFILE)
-        else:
-            rci = multi_extrude(rci, GR_LIP_PROFILE)
+        profile = GR_NO_PROFILE if self.no_lip else GR_LIP_PROFILE
+        rci = multi_extrude(rci, profile)
         if self.solid:
             hs = self.max_height * self.solid_ratio
             rf = cq.Workplane("XY").placeSketch(ri).extrude(hs)
@@ -177,8 +171,8 @@ class GridfinityBox(GridfinityObject):
                 cq.Workplane("XY")
                 .rect(self.inner_l, 2 * GR_UNDER_H)
                 .extrude(self.max_height)
+                .translate((self.half_l, -self.half_in, self.floor_h))
             )
-            rf = rf.translate((self.half_l, -self.half_in, self.floor_h))
             rci = rci.cut(rf)
         if self.lite_style:
             rcu = self.base_interior()
@@ -196,21 +190,18 @@ class GridfinityBox(GridfinityObject):
     def base_interior(self):
         rb = rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, GR_RAD)
         r = cq.Workplane("XY").placeSketch(rb).extrude(GR_BASE_HEIGHT)
-        r = multi_extrude(r, GR_BASE_PROFILE)
+        r = multi_extrude(r, GR_BOX_PROFILE)
         rx = r.faces("<Z").shell(-GR_WALL)
-        r = r.cut(rx)
-        r = r.mirror(mirrorPlane="XY")
-        r = r.translate((0, 0, GR_BASE_HEIGHT))
+        r = r.cut(rx).mirror(mirrorPlane="XY").translate((0, 0, GR_BASE_HEIGHT))
         return r
 
     def render_shell(self):
-        rb = rounded_rect_sketch(GRU, GRU, GR_RAD)
         r = (
             cq.Workplane("XY")
-            .placeSketch(rb)
-            .extrude(GR_BOX_TOP_CHAMF * SQRT2, taper=45)
+            .placeSketch(rounded_rect_sketch(GRU, GRU, GR_RAD))
+            .extrude(GR_BOX_PROFILE[0][0], taper=GR_BOX_PROFILE[0][1])
         )
-        r = multi_extrude(r, [GR_STR_H, (GR_BOX_CHAMF_H * SQRT2, 45)])
+        r = multi_extrude(r, GR_BOX_PROFILE[1:])
         r = r.mirror(mirrorPlane="XY")
         pts = [
             (x * GRU, y * GRU)
@@ -285,7 +276,7 @@ class GridfinityBox(GridfinityObject):
         # intersect to prevent solids sticking out of rounded corners
         r = rs.intersect(self.interior_solid)
         if self.width_div > 0:
-            # add scoops along each internal dividing wall
+            # add scoops along each internal dividing wall in the width dimension
             yl = self.inner_w / (self.width_div + 1)
             pts = [
                 (-self.half_in, (y + 1) * yl - self.half_in)

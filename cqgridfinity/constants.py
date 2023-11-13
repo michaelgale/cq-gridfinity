@@ -39,6 +39,11 @@ GR_BASE_HEIGHT = 5
 GR_BASE_CHAMF_H = 0.985 / SQRT2
 GR_STR_H = 1.8
 GR_BASE_TOP_CHAMF = GR_BASE_HEIGHT - GR_BASE_CHAMF_H - GR_STR_H
+GR_BASE_PROFILE = (
+    (GR_BASE_TOP_CHAMF * SQRT2, 45),
+    GR_STR_H,
+    (GR_BASE_CHAMF_H * SQRT2, 45),
+)
 
 GR_HOLE_D = 6.5
 GR_HOLE_H = 2.4
@@ -65,9 +70,14 @@ GR_LIP_PROFILE = (
     1.8,
     (1.3 * SQRT2, -45),
 )
-GR_LIP_H = GR_UNDER_H + GR_TOPSIDE_H + 0.7 + 1.8 + 1.3
+GR_LIP_H = 0
+for h in GR_LIP_PROFILE:
+    if isinstance(h, tuple):
+        GR_LIP_H += h[0] / SQRT2
+    else:
+        GR_LIP_H += h
 GR_NO_PROFILE = (GR_LIP_H,)
-GR_BASE_PROFILE = (
+GR_BOX_PROFILE = (
     (GR_BOX_TOP_CHAMF * SQRT2, 45),
     GR_STR_H,
     (GR_BOX_CHAMF_H * SQRT2, 45),

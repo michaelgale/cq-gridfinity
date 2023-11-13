@@ -191,8 +191,6 @@ class GridfinityObject:
         )
         if not fn.lower().endswith(".step"):
             fn = fn + ".step"
-
-        # exporters.export(self.cq_obj, fn)
         export_step_file(self.cq_obj, fn)
 
     def save_stl_file(self, filename=None, path=None, prefix=None):
