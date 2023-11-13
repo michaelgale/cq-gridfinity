@@ -278,6 +278,7 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 
 - [Zach Freedman's YouTube Channel](https://www.youtube.com/c/ZackFreedman)
 - [The video that started it all!](https://youtu.be/ra_9zU-mnl8?si=EOT1LFV65VZfiepi)
+- [Gridfinity Documentation repo](https://github.com/Stu142/Gridfinity-Documentation)
 - [Gridfinity Unofficial wiki](https://gridfinity.xyz)
 - Catalogs
   - [gridfinity-catalog](https://github.com/jeffbarr/gridfinity-catalog)
