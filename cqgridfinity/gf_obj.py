@@ -25,6 +25,9 @@
 
 import os
 
+from OCP.BRepMesh import BRepMesh_IncrementalMesh
+from OCP.StlAPI import StlAPI_Writer
+
 from cadquery import exporters
 
 from cqgridfinity import *
@@ -196,7 +199,9 @@ class GridfinityObject:
             fn = fn + ".step"
         export_step_file(self.cq_obj, fn)
 
-    def save_stl_file(self, filename=None, path=None, prefix=None):
+    def save_stl_file(
+        self, filename=None, path=None, prefix=None, tol=1e-2, ang_tol=0.1
+    ):
         fn = (
             filename
             if filename is not None
@@ -204,7 +209,11 @@ class GridfinityObject:
         )
         if not fn.lower().endswith(".stl"):
             fn = fn + ".stl"
-        exporters.export(self.cq_obj, fn, tolerance=1e-2, angularTolerance=0.15)
+        obj = self.cq_obj.val().wrapped
+        mesh = BRepMesh_IncrementalMesh(obj, tol, True, ang_tol, True)
+        mesh.Perform()
+        writer = StlAPI_Writer()
+        writer.Write(obj, fn)
 
     def save_svg_file(self, filename=None, path=None, prefix=None):
         fn = (
