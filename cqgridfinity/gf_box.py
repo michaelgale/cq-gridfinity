@@ -70,6 +70,7 @@ class GridfinityBox(GridfinityObject):
         self.no_lip = False
         self.solid_ratio = 1.0
         self.lite_style = False
+        self.no_support_hole = False
         self.label_width = 12  # width of the label strip
         self.label_height = 10  # thickness of label overhang
         self.label_lip_height = 0.8  # thickness of label vertical lip
@@ -122,7 +123,10 @@ class GridfinityBox(GridfinityObject):
                 r = r.edges(bs).fillet(0.75)
         if self.holes:
             r = self.render_holes(r)
-        return r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
+        r = r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
+        if self.no_support_hole:
+            r = self.render_no_support_holes(r)
+        return r
 
     @property
     def top_ref_height(self):
@@ -340,13 +344,30 @@ class GridfinityBox(GridfinityObject):
             for i in (-1, 1)
             for j in (-1, 1)
         ]
-        obj = (
+        h = GR_HOLE_H
+        if self.no_support_hole:
+            h += GR_HOLE_SLICE
+        return (
             obj.faces("<Z")
             .workplane()
             .pushPoints(hole_pts)
-            .cboreHole(GR_BOLT_D, GR_HOLE_D, GR_HOLE_H, depth=GR_BOLT_H)
+            .cboreHole(GR_BOLT_D, GR_HOLE_D, h, depth=GR_BOLT_H)
         )
-        return obj
+
+    def render_no_support_holes(self, obj):
+        hole_pts = [
+            (x * GRU - GR_HOLE_DIST * i, -(y * GRU - GR_HOLE_DIST * j),)
+            for x in range(self.length_u)
+            for y in range(self.width_u)
+            for i in (-1, 1)
+            for j in (-1, 1)
+        ]
+        rc = cq.Workplane("XY").rect(GR_HOLE_D / 2, GR_HOLE_D).extrude(GR_HOLE_SLICE)
+        xo = GR_HOLE_D / 2
+        zo = GR_HOLE_H - GR_HOLE_SLICE
+        rs = composite_from_pts(rc, [(-xo, 0, zo), (xo, 0, zo)])
+        rs = composite_from_pts(rs, hole_pts)
+        return obj.union(rs.translate((-self.half_l, self.half_w, 0)))
 
 
 class GridfinitySolidBox(GridfinityBox):
