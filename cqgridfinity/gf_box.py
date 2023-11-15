@@ -364,7 +364,7 @@ class GridfinityBox(GridfinityObject):
         ]
         rc = cq.Workplane("XY").rect(GR_HOLE_D / 2, GR_HOLE_D).extrude(GR_HOLE_SLICE)
         xo = GR_HOLE_D / 2
-        zo = GR_HOLE_H - GR_HOLE_SLICE
+        zo = GR_HOLE_H
         rs = composite_from_pts(rc, [(-xo, 0, zo), (xo, 0, zo)])
         rs = composite_from_pts(rs, hole_pts)
         return obj.union(rs.translate((-self.half_l, self.half_w, 0)))
