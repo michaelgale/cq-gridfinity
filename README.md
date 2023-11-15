@@ -71,7 +71,7 @@ Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The bas
    baseplate.save_step_file()
    # gf_baseplate_4x3.step
 ```
-<img src=./images/baseplate4x3.png width=400>
+<img src=./images/baseplate4x3.png width=512>
 
 
 ## `GridfinityBox`
@@ -87,7 +87,7 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
     # Output a STEP file of box named:
     #   gf_box_3x2x5.step
 ``` 
-<img src=./images/basic_box.png width=400>
+<img src=./images/basic_box.png width=512>
 
 ### Lite Style Box
 
@@ -100,7 +100,7 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
     # Output a STEP file of box named:
     #   gf_box_lite_3x2x5.step
 ``` 
-<img src=./images/box_lite.png width=400>
+<img src=./images/box_lite.png width=512>
 
 ### Magnet Holes
 
@@ -110,7 +110,7 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
     box.save_step_file()
     # gf_box_3x2x5_holes.step
 ```
-<img src=./images/box_holes.png width=400>
+<img src=./images/box_holes.png width=512>
 
 The `unsupported_holes` attribute can specify either regular holes or modified/unsupported holes which are more suitable for 3D-printing.  These modified holes include thin filler strips which allow the slicer to avoid using supports to render the underside holes.
 
@@ -120,7 +120,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
     box.save_step_file()
     # gf_box_1x1x5_holes.step
 ```
-<img src=./images/box_holetypes.png width=400>
+<img src=./images/box_holetypes.png width=512>
 
 ### Simple Box with No Top Lip
 
@@ -130,7 +130,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
     box.save_step_file()
     # gf_box_3x2x5_basic.step
 ```
-<img src=./images/box_nolip.png width=400>
+<img src=./images/box_nolip.png width=512>
 
 ### Scoops and Labels
 
@@ -140,7 +140,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
     box.save_step_file()
     # gf_box_3x2x5_scoops_labels.step
 ```
-<img src=./images/box_options.png width=400>
+<img src=./images/box_options.png width=512>
 
 ### Dividing Walls
 
@@ -150,7 +150,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
     box.save_step_file()
     # gf_box_3x2x5_div2x1_scoops_labels.step
 ```
-<img src=./images/box_div.png width=400>
+<img src=./images/box_div.png width=512>
 
 ### Solid Box
 
@@ -160,7 +160,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
     box.save_step_file()
     # gf_box_3x2x5_solid.step
 ```
-<img src=./images/box_solid.png width=400>
+<img src=./images/box_solid.png width=512>
 
 ### Optional keyword arguments
 
@@ -227,11 +227,11 @@ An example use case to make a set of spacer components for a typical IKEA narrow
 
 ```python
   spacers = GridfinityDrawerSpacer(INCHES(11.5), INCHES(20.5), verbose=True)
-  obj = spacers.render_full_set(include_baseplate=True)
-  cq.exporters.export(obj, "ikea_alex_full_set.step")
+  spacers.render_full_set(include_baseplate=True)
+  spacers.save_step_file("ikea_alex_full_set.step")
   # make a half set for 3D printing
-  obj = spacers.render_half_set()
-  cq.exporters.export(obj, "ikea_alex_half_set.stl", tolerance=1e-2, angularTolerance=0.15)
+  spacers.render_half_set()
+  spacers.save_stl_file("ikea_alex_half_set.stl")
 ```
 
 <img src=./images/alexdrawer.png width=600>
@@ -296,6 +296,7 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 - Software/Tools
   - [Gridfinity rebuilt OpenSCAD library](https://github.com/kennetek/gridfinity-rebuilt-openscad)
   - [Gridfinity Fusion360 generator plugin](https://github.com/Le0Michine/FusionGridfinityGenerator)
+  - [FreeCAD Gridfinity Parametric Files (on Printables)](https://www.printables.com/@Stu142_524934/collections/969910)
   - [Gridfinity eco (low-cost Gridfinity resources)](https://github.com/jrymk/gridfinity-eco)
   - [Another CadQuery based Gridfinity script](https://github.com/kmeisthax/gridfinity-cadquery)
 - Videos

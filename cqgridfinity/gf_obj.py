@@ -155,7 +155,7 @@ class GridfinityObject:
             if self.lite_style:
                 prefix = prefix + "lite_"
         elif isinstance(self, GridfinityDrawerSpacer):
-            prefix = "gf_corner_"
+            prefix = "gf_spacer_"
         else:
             prefix = ""
         fn = ""
@@ -205,6 +205,29 @@ class GridfinityObject:
         if not fn.lower().endswith(".stl"):
             fn = fn + ".stl"
         exporters.export(self.cq_obj, fn, tolerance=1e-2, angularTolerance=0.15)
+
+    def save_svg_file(self, filename=None, path=None, prefix=None):
+        fn = (
+            filename
+            if filename is not None
+            else self.filename(path=path, prefix=prefix)
+        )
+        if not fn.lower().endswith(".svg"):
+            fn = fn + ".svg"
+        r = self.cq_obj.rotate((0, 0, 0), (0, 0, 1), 75)
+        r = r.rotate((0, 0, 0), (1, 0, 0), -90)
+        exporters.export(
+            r,
+            fn,
+            opt={
+                "width": 600,
+                "height": 400,
+                "showAxes": False,
+                "marginTop": 20,
+                "marginLeft": 20,
+                "projectionDir": (1, 1, 1),
+            },
+        )
 
     @classmethod
     def to_step_file(
