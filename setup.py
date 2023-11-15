@@ -3,8 +3,8 @@
 
 import os
 import os.path
+from pathlib import Path
 import sys
-
 import setuptools
 
 PACKAGE_NAME = "cqgridfinity"
@@ -24,17 +24,8 @@ def read_package_variable(key, filename="__init__.py"):
                 return parts[-1].strip("'")
     sys.exit("'{0}' not found in '{1}'".format(key, module_path))
 
-
-def build_description():
-    """Build a description for the project from documentation files."""
-    try:
-        readme = open("README.md").read()
-        changelog = open("CHANGELOG.md").read()
-    except IOError:
-        return "<placeholder>"
-    else:
-        return readme + "\n" + changelog
-
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 setuptools.setup(
     name=read_package_variable("__project__"),
@@ -45,7 +36,7 @@ setuptools.setup(
     author_email="michael@fxbricks.com",
     python_requires=">=3.9",
     packages=setuptools.find_packages(),
-    long_description=build_description(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     license="MIT",
     classifiers=[
