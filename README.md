@@ -56,8 +56,7 @@ An example of the package can be seen below:
 
     # make a simple box
     box = GridfinityBox(3, 2, 5, holes=True, no_lip=False, scoops=True, labels=True)
-    fn = box.filename() + ".stl"
-    exporters.export(r, fn, tolerance=1e-2, angularTolerance=0.15)
+    box.save_stl_file()
     # Output a STL file of box:
     #   gf_box_3x2x5_holes_scoops_labels.stl
 ```
@@ -113,6 +112,16 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 ```
 <img src=./images/box_holes.png width=400>
 
+The `unsupported_holes` attribute can specify either regular holes or modified/unsupported holes which are more suitable for 3D-printing.  These modified holes include thin filler strips which allow the slicer to avoid using supports to render the underside holes.
+
+```python
+    # add magnet holes to the box
+    box = GridfinityBox(1, 1, 5, holes=True, unsupported_holes=True)
+    box.save_step_file()
+    # gf_box_1x1x5_holes.step
+```
+<img src=./images/box_holetypes.png width=400>
+
 ### Simple Box with No Top Lip
 
 ```python
@@ -156,20 +165,21 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 ### Optional keyword arguments
 
 ```python
-  length_div=0          # add dividing walls along length
-  width_div=0           # add dividing walls along width
-  holes=False           # add magnet holes to bottom
-  no_lip=False          # remove top mating lip feature
-  scoops=False          # add finger scoops
-  scoop_rad=11          # radius of optional interior scoops
-  labels=False          # add a label flange to the top
-  label_width=12        # width of the label strip
-  label_height=10       # thickness height of label overhang
-  label_lip_height=0.8  # thickness of label vertical lip
-  lite_style=False      # make a "lite" version of box without elevated floor
-  solid=False           # make a solid box
-  solid_ratio=1.0       # ratio of solid height range 0.0 to 1.0 (max height)
-  fillet_interior=True  # enable/disable internal fillet edges
+  length_div=0            # add dividing walls along length
+  width_div=0             # add dividing walls along width
+  holes=False             # add magnet holes to bottom
+  unsupported_holes=False # 3D-printer friendly hole style requiring no supports
+  no_lip=False            # remove top mating lip feature
+  scoops=False            # add finger scoops
+  scoop_rad=11            # radius of optional interior scoops
+  labels=False            # add a label flange to the top
+  label_width=12          # width of the label strip
+  label_height=10         # thickness height of label overhang
+  label_lip_height=0.8    # thickness of label vertical lip
+  lite_style=False        # make a "lite" version of box without elevated floor
+  solid=False             # make a solid box
+  solid_ratio=1.0         # ratio of solid height range 0.0 to 1.0 (max height)
+  fillet_interior=True    # enable/disable internal fillet edges
 ```
 
 ## `GridfinityDrawerSpacer`
@@ -264,7 +274,6 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 ## To-do
 
 - add example scripts
-- convert bottom holes to "3D printer friendly", i.e. reduce post-print cleanup
 - add more baseplate variants, e.g. with holes, alignment features, etc.
 - add parameterized "rugged" toolbox
 

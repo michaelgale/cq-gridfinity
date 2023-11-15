@@ -42,13 +42,16 @@ class GridfinityObject:
         self.length_u = 1
         self.width_u = 1
         self.height_u = 1
+        self._cq_obj = None
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
 
     @property
     def cq_obj(self):
-        return self.render()
+        if self._cq_obj is None:
+            return self.render()
+        return self._cq_obj
 
     @property
     def length(self):

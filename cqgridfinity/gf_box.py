@@ -58,6 +58,7 @@ class GridfinityBox(GridfinityObject):
     """
 
     def __init__(self, length_u, width_u, height_u, **kwargs):
+        super().__init__()
         self.length_u = length_u
         self.width_u = width_u
         self.height_u = height_u
@@ -70,7 +71,7 @@ class GridfinityBox(GridfinityObject):
         self.no_lip = False
         self.solid_ratio = 1.0
         self.lite_style = False
-        self.no_support_hole = False
+        self.unsupported_holes = False
         self.label_width = 12  # width of the label strip
         self.label_height = 10  # thickness of label overhang
         self.label_lip_height = 0.8  # thickness of label vertical lip
@@ -124,8 +125,8 @@ class GridfinityBox(GridfinityObject):
         if self.holes:
             r = self.render_holes(r)
         r = r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
-        if self.no_support_hole:
-            r = self.render_no_support_holes(r)
+        if self.unsupported_holes:
+            r = self.render_hole_fillers(r)
         return r
 
     @property
@@ -334,39 +335,33 @@ class GridfinityBox(GridfinityObject):
             r = r.union(composite_from_pts(rsc, pts))
         return r
 
-    def render_holes(self, obj):
-        if not self.holes:
-            return obj
-        hole_pts = [
+    def _hole_pts(self):
+        return [
             (x * GRU - GR_HOLE_DIST * i, -(y * GRU - GR_HOLE_DIST * j),)
             for x in range(self.length_u)
             for y in range(self.width_u)
             for i in (-1, 1)
             for j in (-1, 1)
         ]
+
+    def render_holes(self, obj):
+        if not self.holes:
+            return obj
         h = GR_HOLE_H
-        if self.no_support_hole:
+        if self.unsupported_holes:
             h += GR_HOLE_SLICE
         return (
             obj.faces("<Z")
             .workplane()
-            .pushPoints(hole_pts)
+            .pushPoints(self._hole_pts())
             .cboreHole(GR_BOLT_D, GR_HOLE_D, h, depth=GR_BOLT_H)
         )
 
-    def render_no_support_holes(self, obj):
-        hole_pts = [
-            (x * GRU - GR_HOLE_DIST * i, -(y * GRU - GR_HOLE_DIST * j),)
-            for x in range(self.length_u)
-            for y in range(self.width_u)
-            for i in (-1, 1)
-            for j in (-1, 1)
-        ]
+    def render_hole_fillers(self, obj):
         rc = cq.Workplane("XY").rect(GR_HOLE_D / 2, GR_HOLE_D).extrude(GR_HOLE_SLICE)
         xo = GR_HOLE_D / 2
-        zo = GR_HOLE_H
-        rs = composite_from_pts(rc, [(-xo, 0, zo), (xo, 0, zo)])
-        rs = composite_from_pts(rs, hole_pts)
+        rs = composite_from_pts(rc, [(-xo, 0, GR_HOLE_H), (xo, 0, GR_HOLE_H)])
+        rs = composite_from_pts(rs, self._hole_pts())
         return obj.union(rs.translate((-self.half_l, self.half_w, 0)))
 
 

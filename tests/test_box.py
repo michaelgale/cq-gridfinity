@@ -51,9 +51,7 @@ def test_empty_box():
     assert _almost_same(b1.top_ref_height, 7.2)
     if _EXPORT_STEP_FILES:
         b1.save_step_file(path="./testfiles")
-    b1 = GridfinityBox(4, 1, 5, holes=True, no_support_hole=True)
-    if _EXPORT_STEP_FILES:
-        b1.save_step_file(path="./testfiles")
+
 
 def test_solid_box():
     b1 = GridfinitySolidBox(4, 2, 3)

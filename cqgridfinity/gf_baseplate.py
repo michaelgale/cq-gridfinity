@@ -43,6 +43,7 @@ class GridfinityBaseplate(GridfinityObject):
     holes, magnet holes, weight slots, etc."""
 
     def __init__(self, length_u, width_u, **kwargs):
+        super().__init__()
         self.length_u = length_u
         self.width_u = width_u
         for k, v in kwargs.items():
