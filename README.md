@@ -61,6 +61,58 @@ An example of the package can be seen below:
     #   gf_box_3x2x5_holes_scoops_labels.stl
 ```
 
+# Console Generator Scripts
+
+This package can be used to make your own python scripts to generate Gridfinity objects.  This gives the flexibility to customize the object and combine with other code to add custom cutouts, add text labels, etc.
+
+However, for simple generation of standard objects such as baseplates and boxes, console scripts can be used for quick command line usage.  These console scripts are installed automatically into the path of your python environment and should be accessible from your terminal shell.
+
+## `gridfinitybox`
+
+Make a customized/parameterized Gridfinity compatible box with many optional features.
+
+```
+usage: gridfinitybox [-h] [-m] [-u] [-n] [-s] [-l] [-e] [-d] [-r RATIO] [-ld LENGTHDIV] [-wd WIDTHDIV]
+                        [-f FORMAT] [-o OUTPUT]
+                        length width height
+```
+Type `gridfinitybox -h` or `gridfinitybox --help` for details on optional arguments and usage.
+The section below describing the `GridfinityBox` class gives greater detail about the features that can be included with a generated box.
+
+Examples:
+
+```shell
+  # 2x3x5 box with magnet holes saved to STL file with default filename:
+  $ gridfinitybox 2 3 5 -m -f stl
+
+  # 1x3x4 box with scoops, label strip, 3 internal partitions and specified name:
+  $ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
+
+  # Solid 3x3x3 box with 50% fill, unsupported magnet holes and no top lip:
+  $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
+
+  # Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
+  $ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
+```
+
+## `gridfinitybase`
+
+Make a customized/parameterized Gridfinity compatible simple baseplate.
+
+```
+usage: gridfinitybase [-h] [-f FORMAT] [-o OUTPUT] length width
+```
+Type `gridfinitybase -h` or `gridfinitybase --help` for details on optional arguments and usage.
+
+Examples:
+
+```shell
+  # 6 x 3 baseplate to default STL file:
+  $ gridfinitybase 6 3 -f stl
+```
+
+# Classes
+
 ## `GridfinityBaseplate`
 
 Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The baseplate style is the basic style initially proposed by Zach Freedman.  Therefore, it does not have magnet or mounting holes.  An example usage is as follows:
@@ -253,14 +305,16 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
   # MyBox_3x2x5_holes
   box.filename(path="./outputfiles")
   # ./outputfiles/gf_box_3x2x5_holes
-  box = GridfinityBox(4, 3, 3, holes=True, length_div=2, width_div=1)
+  box2 = GridfinityBox(4, 3, 3, holes=True, length_div=2, width_div=1)
+  box2.filename()
   # gf_box_4x3x3_holes_div2x1
 ```
 
 ```python
-  # Export object to STEP or STL file
-  obj.save_step_file(self, filename=None, path=None, prefix=None)
-  obj.save_stl_file(self, filename=None, path=None, prefix=None)
+  # Export object to STEP, STL, or SVG file
+  obj.save_step_file(filename=None, path=None, prefix=None)
+  obj.save_stl_file(filename=None, path=None, prefix=None)
+  obj.save_svg_file(filename=None, path=None, prefix=None)
 ```
 
 ### Useful properties
@@ -271,13 +325,13 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 ```obj.height``` returns height in mm  
 ```obj.top_ref_height``` returns the height of the top surface of a solid box or the floor height of an empty box.  This can be useful for making custom boxes with cutouts since the reference height can be used to orient the cutting solid to the correct height.
 
-## To-do
+# To-do
 
 - add example scripts
 - add more baseplate variants, e.g. with holes, alignment features, etc.
 - add parameterized "rugged" toolbox
 
-## Releases
+# Releases
 
 - v.0.1.0 - First release on PyPI
 - v.0.1.1 - Fixed release
@@ -285,8 +339,9 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 - v.0.2.1 - Added new unsupported magnet hole types
 - v.0.2.2 - Added SVG export and integrated STL exporter
 - v.0.2.3 - Updated to python build tools to make distribution
+- v.0.3.0 - Added console generator scripts: gridfinitybox and gridfinitybase
 
-## References
+# References
 
 - [Zach Freedman's YouTube Channel](https://www.youtube.com/c/ZackFreedman)
 - [The video that started it all!](https://youtu.be/ra_9zU-mnl8?si=EOT1LFV65VZfiepi)
