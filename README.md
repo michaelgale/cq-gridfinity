@@ -75,9 +75,32 @@ Make a customized/parameterized Gridfinity compatible box with many optional fea
 usage: gridfinitybox [-h] [-m] [-u] [-n] [-s] [-l] [-e] [-d] [-r RATIO] [-ld LENGTHDIV] [-wd WIDTHDIV]
                         [-f FORMAT] [-o OUTPUT]
                         length width height
+positional arguments:
+  length                Box length in U (1U = 42 mm)
+  width                 Box width in U (1U = 42 mm)
+  height                Box height in U (1U = 7 mm)
+
+options:
+  -h, --help            show this help message and exit
+  -m, --magnetholes     Add bottom magnet/mounting holes
+  -u, --unsupported     Add bottom magnet holes with 3D printer friendly strips without support
+  -n, --nolip           Do not add mating lip to the top perimeter
+  -s, --scoops          Add finger scoops against each length-wise back wall
+  -l, --labels          Add label strips against each length-wise front wall
+  -e, --ecolite         Make economy / lite style box with no elevated floor
+  -d, --solid           Make solid (filled) box for customized storage
+  -r RATIO, --ratio RATIO
+                        Solid box fill ratio 0.0 = minimum, 1.0 = full height
+  -ld LENGTHDIV, --lengthdiv LENGTHDIV
+                        Split box length-wise with specified number of divider walls
+  -wd WIDTHDIV, --widthdiv WIDTHDIV
+                        Split box width-wise with specified number of divider walls
+  -f FORMAT, --format FORMAT
+                        Output file format (STEP, STL, SVG) default=STEP
+  -o OUTPUT, --output OUTPUT
+                        Output filename (inferred output file format with extension)
+
 ```
-Type `gridfinitybox -h` or `gridfinitybox --help` for details on optional arguments and usage.
-The section below describing the `GridfinityBox` class gives greater detail about the features that can be included with a generated box.
 
 Examples:
 
@@ -101,8 +124,18 @@ Make a customized/parameterized Gridfinity compatible simple baseplate.
 
 ```
 usage: gridfinitybase [-h] [-f FORMAT] [-o OUTPUT] length width
+
+positional arguments:
+  length                Box length in U (1U = 42 mm)
+  width                 Box width in U (1U = 42 mm)
+
+options:
+  -h, --help            show this help message and exit
+  -f FORMAT, --format FORMAT
+                        Output file format (STEP, STL, SVG) default=STEP
+  -o OUTPUT, --output OUTPUT
+                        Output filename (inferred output file format with extension)
 ```
-Type `gridfinitybase -h` or `gridfinitybase --help` for details on optional arguments and usage.
 
 Examples:
 

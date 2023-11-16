@@ -7,4 +7,3 @@
 - v.0.2.2 - Added SVG export and integrated STL exporter
 - v.0.2.3 - Updated to python build tools to make distribution
 - v.0.3.0 - Added console generator scripts: gridfinitybox and gridfinitybase
-- 
