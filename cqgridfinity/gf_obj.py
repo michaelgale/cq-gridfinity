@@ -92,8 +92,8 @@ class GridfinityObject:
     @property
     def lip_width(self):
         if self.no_lip:
-            return GR_WALL
-        return GR_UNDER_H + GR_WALL
+            return self.wall_th
+        return GR_UNDER_H + self.wall_th
 
     @property
     def outer_l(self):
@@ -109,11 +109,11 @@ class GridfinityObject:
 
     @property
     def inner_l(self):
-        return self.outer_l - 2 * GR_WALL
+        return self.outer_l - 2 * self.wall_th
 
     @property
     def inner_w(self):
-        return self.outer_w - 2 * GR_WALL
+        return self.outer_w - 2 * self.wall_th
 
     @property
     def inner_dim(self):
@@ -133,11 +133,21 @@ class GridfinityObject:
 
     @property
     def half_in(self):
-        return GRU2 - GR_WALL - GR_TOL / 2
+        return GRU2 - self.wall_th - GR_TOL / 2
 
     @property
     def inner_rad(self):
-        return GR_RAD - GR_WALL
+        return GR_RAD - self.wall_th
+
+    @property
+    def under_h(self):
+        return GR_UNDER_H - (self.wall_th - GR_WALL)
+
+    @property
+    def safe_fillet_rad(self):
+        if not any([self.scoops, self.labels, self.length_div, self.width_div]):
+            return GR_FILLET
+        return min(GR_FILLET, (GR_UNDER_H + GR_WALL) - self.wall_th - 0.05)
 
     @property
     def grid_centres(self):
@@ -156,6 +166,11 @@ class GridfinityObject:
             for i in (-1, 1)
             for j in (-1, 1)
         ]
+
+    def safe_fillet(self, obj, selector, rad):
+        if len(obj.edges(selector).vals()) > 0:
+            return obj.edges(selector).fillet(rad)
+        return obj
 
     def filename(self, prefix=None, path=None):
         """Returns a descriptive readable filename which represents a Gridfinity object.

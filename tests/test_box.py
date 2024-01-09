@@ -83,7 +83,7 @@ def test_divided_box():
     assert _edges_match(r, ">Z", 16)
     assert _edges_match(r, "<Z", 108)
     assert len(r.faces(FlatFaceSelector(21)).vals()) == 1
-    assert len(r.edges(FlatEdgeSelector(21)).vals()) == 42
+    assert len(r.edges(FlatEdgeSelector(21)).vals()) == 54
     assert b1.filename() == "gf_box_3x3x3_div2x1_holes"
     if _export_files("box"):
         b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
