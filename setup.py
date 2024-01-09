@@ -10,7 +10,7 @@ import setuptools
 PACKAGE_NAME = "cqgridfinity"
 
 
-required = ["cqkit"]
+required = ["cadquery", "cqkit"]
 dependency_links = []
 
 
@@ -53,6 +53,7 @@ setuptools.setup(
             "console_scripts": [
                 "gridfinitybox=cqgridfinity.scripts.gridfinitybox:main",
                 "gridfinitybase=cqgridfinity.scripts.gridfinitybase:main",
+                "ruggedbox=cqgridfinity.scripts.ruggedbox:main",
             ],
         },    
 )

@@ -58,12 +58,18 @@ def main():
     args = parser.parse_args()
     argsd = vars(args)
     base = GridfinityBaseplate(
-        length_u=int(argsd["length"]), width_u=int(argsd["width"]),
+        length_u=int(argsd["length"]),
+        width_u=int(argsd["width"]),
     )
     print(title)
     print(
         "Gridfinity baseplate: %dU x %dU (%.1f mm x %.1f mm)"
-        % (base.length_u, base.width_u, base.length, base.width,)
+        % (
+            base.length_u,
+            base.width_u,
+            base.length,
+            base.width,
+        )
     )
     if argsd["output"] is not None:
         fn = argsd["output"]

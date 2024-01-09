@@ -36,7 +36,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
     This class is used for making spacer elements which help fit Gridfinity baseplates
     snugly into a drawer.  The spacers consist of 4x corner elements plus a left/right
     pair and front/back pair. If the spacers are wide enough, they will include
-    interlocking alignment pegs/holes.    
+    interlocking alignment pegs/holes.
     """
 
     def __init__(self, dr_width=None, dr_depth=None, **kwargs):
@@ -66,7 +66,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
 
     def best_fit_to_dim(self, length, width, verbose=False):
         """Computes the best fit of Gridfinity units to fill a drawer dimensions.
-        The geometry of all the spacer elements is then computed to securely 
+        The geometry of all the spacer elements is then computed to securely
         centre the Gridfinity baseplate(s) inside the drawer footprint."""
         self.size = length, width
         lu, wu = (math.floor(x / GRU) for x in (length, width))
@@ -146,8 +146,9 @@ class GridfinityDrawerSpacer(GridfinityObject):
 
     def render(self, arrows_top=True, arrows_bottom=True):
         """Renders a corner spacer component. This component can be used for any of
-        the four corners due to symmetry.  Optional arrows can be cut into the 
-        component on the top or bottom to show the drawer sliding/depth-wise direction"""
+        the four corners due to symmetry.  Optional arrows can be cut into the
+        component on the top or bottom to show the drawer sliding/depth-wise direction
+        """
         sp_length = self.length + self.width_th + self.tolerance
         sp_width = self.width + self.length_th + self.tolerance
         r, rd = None, None
@@ -291,7 +292,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
 
     def render_full_set(self, include_baseplate=False):
         """Renders a complete set of spacer components including the four corners plus
-        left/right and front/back spacer pairs.  The components are placed in their 
+        left/right and front/back spacer pairs.  The components are placed in their
         respective installed position in the drawer so that the resulting object can
         be used to preview final composition of components."""
         # Four corners top/bottom left + top/bottom right

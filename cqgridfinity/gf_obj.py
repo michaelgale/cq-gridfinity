@@ -27,11 +27,11 @@ import os
 
 from OCP.BRepMesh import BRepMesh_IncrementalMesh
 from OCP.StlAPI import StlAPI_Writer
-
+import cadquery as cq
 from cadquery import exporters
 
 from cqgridfinity import *
-from cqkit import export_step_file
+from cqkit import export_step_file, multi_extrude
 
 
 class GridfinityObject:
@@ -139,14 +139,33 @@ class GridfinityObject:
     def inner_rad(self):
         return GR_RAD - GR_WALL
 
+    @property
+    def grid_centres(self):
+        return [
+            (x * GRU, y * GRU)
+            for x in range(self.length_u)
+            for y in range(self.width_u)
+        ]
+
+    @property
+    def hole_centres(self):
+        return [
+            (x * GRU - GR_HOLE_DIST * i, -(y * GRU - GR_HOLE_DIST * j))
+            for x in range(self.length_u)
+            for y in range(self.width_u)
+            for i in (-1, 1)
+            for j in (-1, 1)
+        ]
+
     def filename(self, prefix=None, path=None):
         """Returns a descriptive readable filename which represents a Gridfinity object.
-        The filename can be optionally prefixed with arbitrary text and 
+        The filename can be optionally prefixed with arbitrary text and
         an optional path prefix can also be specified."""
         from cqgridfinity import (
             GridfinityBaseplate,
             GridfinityBox,
             GridfinityDrawerSpacer,
+            GridfinityRuggedBox,
         )
 
         if prefix is not None:
@@ -159,6 +178,8 @@ class GridfinityObject:
                 prefix = prefix + "lite_"
         elif isinstance(self, GridfinityDrawerSpacer):
             prefix = "gf_spacer_"
+        elif isinstance(self, GridfinityRuggedBox):
+            prefix = "gf_ruggedbox_"
         else:
             prefix = ""
         fn = ""
@@ -187,6 +208,24 @@ class GridfinityObject:
                     fn = fn + "_scoops"
                 if self.labels:
                     fn = fn + "_labels"
+        elif isinstance(self, GridfinityRuggedBox):
+            fn = fn + "x%d" % (self.height_u)
+            if self.front_handle or self.front_label:
+                fn = fn + "_fr-"
+                if self.front_handle:
+                    fn = fn + "h"
+                if self.front_label:
+                    fn = fn + "l"
+            if self.side_handles or self.side_clasps:
+                fn = fn + "_sd-"
+                if self.side_handles:
+                    fn = fn + "h"
+                if self.side_clasps:
+                    fn = fn + "c"
+            if self.stackable:
+                fn = fn + "_stack"
+            if self.lid_baseplate:
+                fn = fn + "_lidbp"
         return fn
 
     def save_step_file(self, filename=None, path=None, prefix=None):
@@ -237,6 +276,12 @@ class GridfinityObject:
                 "projectionDir": (1, 1, 1),
             },
         )
+
+    def extrude_profile(self, sketch, profile, workplane="XY"):
+        taper = profile[0][1] if isinstance(profile[0], (list, tuple)) else 0
+        p0 = profile[0][0] if isinstance(profile[0], (list, tuple)) else profile[0]
+        r = cq.Workplane(workplane).placeSketch(sketch).extrude(p0, taper=taper)
+        return multi_extrude(r, profile[1:])
 
     @classmethod
     def to_step_file(

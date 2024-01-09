@@ -7,9 +7,7 @@ from cqgridfinity import *
 from cqkit.cq_helpers import size_3d
 from cqkit import export_step_file
 
-from common_test import _almost_same, _edges_match, _faces_match, INCHES
-
-_EXPORT_STEP_FILES = False
+from common_test import EXPORT_STEP_FILE_PATH, _almost_same, _export_files, INCHES
 
 
 def test_spacer():
@@ -71,27 +69,26 @@ def test_spacer():
     rh = s1.render_half_set()
     assert _almost_same(size_3d(rh), (253.084, 177.0625, 5))
 
-    if _EXPORT_STEP_FILES:
-        export_step_file(r, "./testfiles/full_set.step")
-        export_step_file(rh, "./testfiles/half_set.step")
+    if _export_files("spacer"):
+        export_step_file(r, EXPORT_STEP_FILE_PATH + os.sep + "full_set.step")
+        export_step_file(rh, EXPORT_STEP_FILE_PATH + os.sep + "half_set.step")
         rc = s1.render()
-        export_step_file(rc, "./testfiles/corner_spacer.step")
+        export_step_file(rc, EXPORT_STEP_FILE_PATH + os.sep + "corner_spacer.step")
         rl = s1.render_length_filler()
         rw = s1.render_width_filler()
         if rl is not None:
-            export_step_file(rl, "./testfiles/length_filler.step")
+            export_step_file(rl, EXPORT_STEP_FILE_PATH + os.sep + "length_filler.step")
         if rw is not None:
-            export_step_file(rw, "./testfiles/width_filler.step")
-        exporters.export(
-            rh, "./testfiles/half_set.stl", tolerance=1e-2, angularTolerance=0.15
-        )
-    if _EXPORT_STEP_FILES:
-        dx, dy = 580, 410
-        s1.best_fit_to_dim(dx, dy)
-        r = s1.render_full_set()
-        rh = s1.render_half_set()
-        export_step_file(r, "./testfiles/full_set.step")
-        export_step_file(rh, "./testfiles/half_set.step")
-        exporters.export(
-            rh, "./testfiles/half_set.stl", tolerance=1e-2, angularTolerance=0.15
-        )
+            export_step_file(rw, EXPORT_STEP_FILE_PATH + os.sep + "width_filler.step")
+
+
+#     if _EXPORT_STEP_FILES:
+#         dx, dy = 580, 410
+#         s1.best_fit_to_dim(dx, dy)
+#         r = s1.render_full_set()
+#         rh = s1.render_half_set()
+#         export_step_file(r, "./testfiles/full_set.step")
+#         export_step_file(rh, "./testfiles/half_set.step")
+#         exporters.export(
+#             rh, "./testfiles/half_set.stl", tolerance=1e-2, angularTolerance=0.15
+#         )
