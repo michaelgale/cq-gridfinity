@@ -52,6 +52,9 @@ def test_spacer():
     assert _almost_same(s1.length_th, 8.10, tol=0.01)
     assert _almost_same(s1.width_th, 19.80, tol=0.01)
 
+
+def test_spacer_render():
+    s1 = GridfinityDrawerSpacer(tolerance=0.25)
     dx, dy = INCHES(22 + 15 / 16), INCHES(16.25)
     s1.best_fit_to_dim(dx, dy)
     assert s1.size_u[0] == 13
@@ -66,29 +69,26 @@ def test_spacer():
     assert _almost_same(s1.width_th, 18.06, tol=0.01)
     r = s1.render_full_set()
     assert _almost_same(size_3d(r), (582.6125, 412.75, 5))
+    assert s1.filename() == "gf_drawer_4x3_full_set"
+    if _export_files("spacer"):
+        s1.save_step_file(path=EXPORT_STEP_FILE_PATH)
     rh = s1.render_half_set()
     assert _almost_same(size_3d(rh), (253.084, 177.0625, 5))
-
+    assert s1.filename() == "gf_drawer_4x3_half_set"
     if _export_files("spacer"):
-        export_step_file(r, EXPORT_STEP_FILE_PATH + os.sep + "full_set.step")
-        export_step_file(rh, EXPORT_STEP_FILE_PATH + os.sep + "half_set.step")
-        rc = s1.render()
-        export_step_file(rc, EXPORT_STEP_FILE_PATH + os.sep + "corner_spacer.step")
-        rl = s1.render_length_filler()
-        rw = s1.render_width_filler()
-        if rl is not None:
-            export_step_file(rl, EXPORT_STEP_FILE_PATH + os.sep + "length_filler.step")
-        if rw is not None:
-            export_step_file(rw, EXPORT_STEP_FILE_PATH + os.sep + "width_filler.step")
+        s1.save_step_file(path=EXPORT_STEP_FILE_PATH)
 
+    r = s1.render_length_filler()
+    assert s1.filename() == "gf_drawer_4x3_length_spacer"
+    if _export_files("spacer"):
+        s1.save_step_file(path=EXPORT_STEP_FILE_PATH)
 
-#     if _EXPORT_STEP_FILES:
-#         dx, dy = 580, 410
-#         s1.best_fit_to_dim(dx, dy)
-#         r = s1.render_full_set()
-#         rh = s1.render_half_set()
-#         export_step_file(r, "./testfiles/full_set.step")
-#         export_step_file(rh, "./testfiles/half_set.step")
-#         exporters.export(
-#             rh, "./testfiles/half_set.stl", tolerance=1e-2, angularTolerance=0.15
-#         )
+    r = s1.render_width_filler()
+    assert s1.filename() == "gf_drawer_4x3_width_spacer"
+    if _export_files("spacer"):
+        s1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+    r = s1.render()
+    assert s1.filename() == "gf_drawer_4x3_corner_spacer"
+    if _export_files("spacer"):
+        s1.save_step_file(path=EXPORT_STEP_FILE_PATH)

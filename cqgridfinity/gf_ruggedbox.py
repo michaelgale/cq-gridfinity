@@ -23,9 +23,6 @@
 #
 # Gridfinity Rugged Boxes
 
-
-import math
-
 import cadquery as cq
 from cadquery.selectors import StringSyntaxSelector
 from cqkit import (
@@ -47,7 +44,7 @@ from cqkit.cq_helpers import (
     size_3d,
     bounds_3d,
 )
-from cqkit import pprint_obj, Ribbon
+from cqkit import Ribbon
 from cqgridfinity import *
 from .gf_helpers import *
 
@@ -70,9 +67,16 @@ class GridfinityRuggedBox(GridfinityObject):
         self.front_label = True
         self.label_length = None
         self.label_height = None
+        self.label_th = GR_LABEL_TH
         self.back_feet = True
-        self.hinge_width = 32
+        self.hinge_width = GR_HINGE_SZ
         self.hinge_bolted = False
+        self.box_color = cq.Color(0.25, 0.25, 0.25)
+        self.lid_color = cq.Color(0.25, 0.5, 0.75)
+        self.handle_color = cq.Color(0.75, 0.5, 0.25)
+        self.latch_color = cq.Color(0.75, 0.5, 0.25)
+        self.hinge_color = cq.Color(0.75, 0.5, 0.25)
+        self.label_color = cq.Color(0.7, 0.7, 0.7)
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
@@ -446,7 +450,10 @@ class GridfinityRuggedBox(GridfinityObject):
     def render_label(self):
         """Renders a label panel insert"""
         rs = rounded_rect_sketch(*self.label_size(tol=3), GR_RAD)
-        return cq.Workplane("XZ").placeSketch(rs).extrude(GR_LABEL_TH)
+        r = cq.Workplane("XZ").placeSketch(rs).extrude(self.label_th)
+        self._obj_label = "label"
+        self._cq_obj = r
+        return self._cq_obj
 
     def clasp_cut(self, as_lid=False):
         """Renders the vertical channel where the clasps / latch are installed."""
@@ -571,7 +578,9 @@ class GridfinityRuggedBox(GridfinityObject):
             .extrude(8 * lt)
             .translate((-4 * lt, 0, h - M3_CLR_DIAM))
         )
-        return r
+        self._obj_label = "handle"
+        self._cq_obj = r
+        return self._cq_obj
 
     def render_back_foot(self):
         """Renders a corresponding rear foot the same depth as the hinge for standing
@@ -706,9 +715,10 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.union(rc.translate((-17.45, -w2, h2)))
         r = r.union(rotate_z(rc, 180).translate((-17.45, w2, h2)))
         self._cq_obj = rotate_z(recentre(r, "xy"), -90)
+        self._obj_label = "latch"
         return self._cq_obj
 
-    def render_hinge(self, as_closed=False):
+    def render_hinge(self, as_closed=False, section=None):
         """Renders the rear hinge."""
         tol = 0.25 / 2
         cl = 2 * (GR_HINGE_OFFS + GR_HINGE_D + GR_HINGE_W2 / 2)
@@ -782,8 +792,15 @@ class GridfinityRuggedBox(GridfinityObject):
         if as_closed:
             rl = rotate_z(rl.translate((-ctr[0], -ctr[1], 0)), 90)
             rr = rotate_z(rr.translate((-ctr[0], -ctr[1], 0)), -90)
-        r = rl.union(rr)
+        if section is not None:
+            if section == "outer":
+                r = rr
+            else:
+                r = rl
+        else:
+            r = rl.union(rr)
         self._cq_obj = r
+        self._obj_label = "hinge"
         return self._cq_obj
 
     def render(self):
@@ -863,6 +880,7 @@ class GridfinityRuggedBox(GridfinityObject):
             )
             r = r.union(rb)
         self._cq_obj = r
+        self._obj_label = None
         return self._cq_obj
 
     def render_lid(self):
@@ -907,7 +925,9 @@ class GridfinityRuggedBox(GridfinityObject):
             for k, v in self.qtr_centres(tol=0.125, at_height=self.lid_height).items():
                 rq = quarter_circle(GR_REG_R0, GR_REG_R1, GR_REG_H, k)
                 r = r.union(rq.translate(v))
+
         self._cq_obj = r
+        self._obj_label = "lid"
         return self._cq_obj
 
     def render_accessories(self):
@@ -940,61 +960,60 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.union(rl.translate((40, -20, 0.5)))
 
         self._cq_obj = r
+        self._obj_label = "acc"
         return self._cq_obj
 
     def render_assembly(self):
         """Renders a CadQuery Assembly object representing the entire box with accessories"""
         r = self.render()
-        a = cq.Assembly(
-            obj=r, name="Gridfinity Rugged Box", color=cq.Color(0.25, 0.25, 0.25)
-        )
+        a = cq.Assembly(obj=r, name="Gridfinity Rugged Box", color=self.box_color)
 
         r = self.render_lid()
         r = r.translate((0, 0, self.box_height))
-        a.add(r, color=cq.Color(0.25, 0.5, 0.75), name="Lid")
+        a.add(r, color=self.lid_color, name="Lid")
 
         if self.front_handle:
             r = self.render_handle()
             zo = self.right_handle_centre[2] - (GR_HANDLE_SZ - M3_CB_DEPTH)
             r = r.translate((0, -self.box_width / 2 - GR_HANDLE_H / 2, zo))
-            a.add(r, color=cq.Color(0.75, 0.5, 0.25), name="Handle")
+            a.add(r, color=self.handle_color, name="Handle")
 
         rf = rotate_x(self.render_latch(), -90)
         idx = 1
-        latch_color = cq.Color(0.75, 0.5, 0.25)
         yo = GR_LATCH_H / 2
         zo = self.box_height - GR_RIB_CTR + yo / 2
         for pt in self.front_clasp_centres:
-            a.add(
-                rf.translate((pt[0], pt[1] - yo, zo)),
-                color=latch_color,
-                name="Latch %d" % (idx),
-            )
+            name = "Latch %d" % (idx)
+            pt = (pt[0], pt[1] - yo, zo)
+            a.add(rf.translate(pt), color=self.latch_color, name=name)
             idx += 1
         if self.side_clasps:
             rl = rotate_z(rotate_x(self.render_latch(), -90), -90)
             rr = rotate_z(rl, 180)
             for pt in self.side_clasp_centres:
+                name = "Latch %d" % (idx)
+                y = -yo if pt[0] < 0 else yo
+                pt = (pt[0] + y, pt[1], zo)
                 if pt[0] < 0:
-                    a.add(
-                        rl.translate((pt[0] - yo, pt[1], zo)),
-                        color=latch_color,
-                        name="Latch %d" % (idx),
-                    )
+                    a.add(rl.translate(pt), color=self.latch_color, name=name)
                 else:
-                    a.add(
-                        rr.translate((pt[0] + yo, pt[1], zo)),
-                        color=latch_color,
-                        name="Latch %d" % (idx),
-                    )
+                    a.add(rr.translate(pt), color=self.latch_color, name=name)
                 idx += 1
 
-        r = rotate_y(recentre(self.render_hinge(as_closed=True)), 90)
-        a.add(r.translate(self.hinge_centres[0]), color=latch_color, name="Left Hinge")
-        a.add(r.translate(self.hinge_centres[1]), color=latch_color, name="Right Hinge")
+        for i, section in [(a, b) for a in (0, 1) for b in ("inner", "outer")]:
+            r = recentre(self.render_hinge(as_closed=True, section=section), "yz")
+            r = rotate_y(r, 90)
+            name = "Right " if i else "Left "
+            name = name + "Hinge %s" % (section)
+            a.add(
+                r.translate(self.hinge_centres[i]),
+                color=self.hinge_color,
+                name=name,
+            )
 
         if self.front_label:
             r = self.render_label()
-            a.add(r.translate(self.label_centre), color=latch_color, name="Label")
-
-        return a
+            a.add(r.translate(self.label_centre), color=self.label_color, name="Label")
+        self._obj_label = "assembly"
+        self._cq_obj = a
+        return self._cq_obj

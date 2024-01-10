@@ -46,6 +46,7 @@ class GridfinityObject:
         self.width_u = 1
         self.height_u = 1
         self._cq_obj = None
+        self._obj_label = None
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
@@ -192,7 +193,7 @@ class GridfinityObject:
             if self.lite_style:
                 prefix = prefix + "lite_"
         elif isinstance(self, GridfinityDrawerSpacer):
-            prefix = "gf_spacer_"
+            prefix = "gf_drawer_"
         elif isinstance(self, GridfinityRuggedBox):
             prefix = "gf_ruggedbox_"
         else:
@@ -212,6 +213,8 @@ class GridfinityObject:
                     fn = fn + "x%d" % (self.width_div)
                 else:
                     fn = fn + "_div_x%d" % (self.width_div)
+            if abs(self.wall_th - GR_WALL) > 1e-3:
+                fn = fn + "_%.2f" % (self.wall_th)
             if self.no_lip:
                 fn = fn + "_basic"
             if self.holes:
@@ -225,6 +228,8 @@ class GridfinityObject:
                     fn = fn + "_labels"
         elif isinstance(self, GridfinityRuggedBox):
             fn = fn + "x%d" % (self.height_u)
+            if self._obj_label is not None:
+                fn = fn + "_%s" % (self._obj_label)
             if self.front_handle or self.front_label:
                 fn = fn + "_fr-"
                 if self.front_handle:
@@ -241,6 +246,14 @@ class GridfinityObject:
                 fn = fn + "_stack"
             if self.lid_baseplate:
                 fn = fn + "_lidbp"
+        elif isinstance(self, GridfinityDrawerSpacer):
+            if self._obj_label is not None:
+                fn = fn + "_%s" % (self._obj_label)
+        elif isinstance(self, GridfinityBaseplate):
+            if self.ext_depth > 0:
+                fn = fn + "x%.1f" % (self.ext_depth)
+            if self.corner_screws:
+                fn = fn + "_screwtabs"
         return fn
 
     def save_step_file(self, filename=None, path=None, prefix=None):
@@ -251,7 +264,10 @@ class GridfinityObject:
         )
         if not fn.lower().endswith(".step"):
             fn = fn + ".step"
-        export_step_file(self.cq_obj, fn)
+        if isinstance(self.cq_obj, cq.Assembly):
+            self.cq_obj.save(fn)
+        else:
+            export_step_file(self.cq_obj, fn)
 
     def save_stl_file(
         self, filename=None, path=None, prefix=None, tol=1e-2, ang_tol=0.1

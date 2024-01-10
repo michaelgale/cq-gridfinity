@@ -50,6 +50,41 @@ def main():
         help="Output file format (STEP, STL, SVG) default=STEP",
     )
     parser.add_argument(
+        "-s",
+        "--screws",
+        default=False,
+        action="store_true",
+        help="Add screw mounting tabs to the corners (adds +5 mm to depth)",
+    )
+    parser.add_argument(
+        "-d",
+        "--depth",
+        default=None,
+        action="store",
+        help="Extrude extended depth under baseplate by this amount",
+    )
+    parser.add_argument(
+        "-hd",
+        "--holediam",
+        default=None,
+        action="store",
+        help="Corner mounting screw hole diameter (default=5)",
+    )
+    parser.add_argument(
+        "-hc",
+        "--cskdiam",
+        default=None,
+        action="store",
+        help="Corner mounting screw countersink diameter (default=10)",
+    )
+    parser.add_argument(
+        "-ca",
+        "--cskangle",
+        default=None,
+        action="store",
+        help="Corner mounting screw countersink angle (deg) (default=82)",
+    )
+    parser.add_argument(
         "-o",
         "--output",
         default=None,
@@ -57,9 +92,17 @@ def main():
     )
     args = parser.parse_args()
     argsd = vars(args)
+    for k in ["depth", "holediam", "cskdiam", "cskangle"]:
+        if argsd[k] is not None:
+            argsd[k] = float(argsd[k])
     base = GridfinityBaseplate(
         length_u=int(argsd["length"]),
         width_u=int(argsd["width"]),
+        ext_depth=argsd["depth"],
+        corner_screws=argsd["screws"],
+        csk_hole=argsd["holediam"],
+        csk_diam=argsd["cskdiam"],
+        csk_angle=argsd["cskangle"],
     )
     print(title)
     print(

@@ -126,6 +126,13 @@ def main():
         help="Split box width-wise with specified number of divider walls",
     )
     parser.add_argument(
+        "-wt",
+        "--wall",
+        action="store",
+        default=1.0,
+        help="Wall thickness (default=1 mm)",
+    )
+    parser.add_argument(
         "-f",
         "--format",
         default="step",
@@ -142,6 +149,7 @@ def main():
     solid_ratio = float(argsd["ratio"])
     length_div = int(argsd["lengthdiv"])
     width_div = int(argsd["widthdiv"])
+    wall = float(argsd["wall"])
     box = GridfinityBox(
         length_u=int(argsd["length"]),
         width_u=int(argsd["width"]),
@@ -156,6 +164,7 @@ def main():
         solid_ratio=solid_ratio,
         length_div=length_div,
         width_div=width_div,
+        wall_th=wall,
     )
     if argsd["ecolite"]:
         bs = "lite "
@@ -165,7 +174,7 @@ def main():
         bs = ""
     print(title)
     print(
-        "Gridfinity %sbox: %dU x %dU x %dU (%.1f mm x %.1f mm x %.1f mm)"
+        "Gridfinity %sbox: %dU x %dU x %dU (%.1f mm x %.1f mm x %.1f mm), %.2f mm walls"
         % (
             bs,
             box.length_u,
@@ -174,6 +183,7 @@ def main():
             box.length,
             box.width,
             box.height,
+            box.wall_th,
         )
     )
     if argsd["solid"]:

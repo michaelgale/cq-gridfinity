@@ -184,6 +184,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
             rc = self.alignment_feature(as_cutter=False, horz=False)
             r = r.union(rc.translate((self.width_th / 2, sp_width, 0)))
         self._cq_obj = r
+        self._obj_label = "corner_spacer"
         return r
 
     def alignment_feature(self, as_cutter=False, horz=True):
@@ -268,6 +269,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
                 r = r.union(ra.translate((self.length_fill / 2, 0, 0)))
                 r = r.union(ra.translate((-self.length_fill / 2, 0, 0)))
         self._cq_obj = r
+        self._obj_label = "length_spacer"
         return r
 
     def render_width_filler(self, arrows_top=True, arrows_bottom=True):
@@ -288,6 +290,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
             r = r.cut(ra.translate((0, self.width_fill / 2, 0)))
             r = r.cut(ra.translate((0, -self.width_fill / 2, 0)))
         self._cq_obj = r
+        self._obj_label = "width_spacer"
         return r
 
     def render_full_set(self, include_baseplate=False):
@@ -321,6 +324,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
             rb = bp.render().translate((self.size[0] / 2, self.size[1] / 2, 0))
             r = r.union(rb)
         self._cq_obj = r
+        self._obj_label = "full_set"
         return r
 
     def render_half_set(self):
@@ -362,4 +366,5 @@ class GridfinityDrawerSpacer(GridfinityObject):
                 )
             )
         self._cq_obj = r
+        self._obj_label = "half_set"
         return r

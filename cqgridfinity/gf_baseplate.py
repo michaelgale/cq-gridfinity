@@ -46,18 +46,37 @@ class GridfinityBaseplate(GridfinityObject):
       width_y - width in U (42 mm / U)
       ext_depth - extrude bottom face by an extra amount in mm
       straight_bottom - remove bottom chamfer and replace with straight side
+      corner_screws - add countersink mounting screws to the inside corners
+      corner_tab_size - size of mounting screw corner tabs
+      csk_hole - mounting screw hole diameter
+      csk_diam - mounting screw countersink diameter
+      csk_angle - mounting screw countersink angle
     """
 
     def __init__(self, length_u, width_u, **kwargs):
         super().__init__()
         self.length_u = length_u
         self.width_u = width_u
-        self.ext_depth = 0  # extra extrusion depth below bottom face
-        self.straight_bottom = False  # remove chamfered bottom lip
+        self.ext_depth = 0
+        self.straight_bottom = False
         self.corner_screws = False
+        self.corner_tab_size = 21
+        self.csk_hole = 5.0
+        self.csk_diam = 10.0
+        self.csk_angle = 82
         for k, v in kwargs.items():
-            if k in self.__dict__:
+            if k in self.__dict__ and v is not None:
                 self.__dict__[k] = v
+        if self.corner_screws:
+            self.ext_depth = max(self.ext_depth, 5.0)
+
+    def _corner_pts(self, offset=0):
+        oxy = (self.corner_tab_size - offset) / 2
+        return [
+            (i * (self.length / 2 - oxy), j * (self.width / 2 - oxy), 0)
+            for i in (-1, 1)
+            for j in (-1, 1)
+        ]
 
     def render(self):
         profile = GR_BASE_PROFILE if not self.straight_bottom else GR_STR_BASE_PROFILE
@@ -78,24 +97,17 @@ class GridfinityBaseplate(GridfinityObject):
             .cut(rc)
         )
         if self.corner_screws:
-            rs = cq.Sketch().rect(21, 21)
-            rs = cq.Workplane("XY").placeSketch(rs).extrude(self.ext_depth)
-            rs = rs.faces(">Z").cskHole(5, cskDiameter=10, cskAngle=82)
-            pts = [
-                (i * (self.length / 2 - 10.5), j * (self.width / 2 - 10.5), 0)
-                for i in (-1, 1)
-                for j in (-1, 1)
-            ]
-            rp = composite_from_pts(rs, pts)
+            depth = self.ext_depth
+            rs = cq.Sketch().rect(self.corner_tab_size, self.corner_tab_size)
+            rs = cq.Workplane("XY").placeSketch(rs).extrude(depth)
+            rs = rs.faces(">Z").cskHole(
+                self.csk_hole, cskDiameter=self.csk_diam, cskAngle=self.csk_angle
+            )
+            rp = composite_from_pts(rs, self._corner_pts())
             rp = recentre(rp, "XY")
             r = r.union(rp)
-            r = r.edges(
-                VerticalEdgeSelector(self.ext_depth) & HasZCoordinateSelector(0)
-            ).fillet(GR_RAD)
-            pts = [
-                (i * (self.length / 2 - 10), j * (self.width / 2 - 10), 0)
-                for i in (-1, 1)
-                for j in (-1, 1)
-            ]
+            r = r.edges(VerticalEdgeSelector(depth) & HasZCoordinateSelector(0)).fillet(
+                GR_RAD
+            )
 
         return r

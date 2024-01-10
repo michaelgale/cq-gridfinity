@@ -3,15 +3,12 @@
 # my modules
 from cqgridfinity import *
 
-# from cqkit.cq_helpers import size_3d
 from cqkit.cq_helpers import *
 from cqkit import *
 
 from common_test import (
     EXPORT_STEP_FILE_PATH,
     _almost_same,
-    _edges_match,
-    _faces_match,
     _export_files,
 )
 
@@ -33,7 +30,35 @@ def test_rugged_box():
     assert r is not None
     assert _almost_same(size_3d(r), (230.0, 194.15, 47.5))
     if _export_files("rbox"):
-        export_step_file(r, EXPORT_STEP_FILE_PATH + os.sep + "rbox6.step")
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
 
     r = b1.render_accessories()
     assert len(r.solids().vals()) == 16
+    assert b1.filename() == "gf_ruggedbox_5x4x6_acc_fr-hl_sd-hc_stack_lidbp"
+    if _export_files("rbox"):
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+    r = b1.render_handle()
+    assert b1.filename() == "gf_ruggedbox_5x4x6_handle_fr-hl_sd-hc_stack_lidbp"
+    if _export_files("rbox"):
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+    r = b1.render_hinge()
+    assert b1.filename() == "gf_ruggedbox_5x4x6_hinge_fr-hl_sd-hc_stack_lidbp"
+    if _export_files("rbox"):
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+    r = b1.render_label()
+    assert b1.filename() == "gf_ruggedbox_5x4x6_label_fr-hl_sd-hc_stack_lidbp"
+    if _export_files("rbox"):
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+    r = b1.render_latch()
+    assert b1.filename() == "gf_ruggedbox_5x4x6_latch_fr-hl_sd-hc_stack_lidbp"
+    if _export_files("rbox"):
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+    if _export_files("rbox"):
+        r = b1.render_assembly()
+        assert b1.filename() == "gf_ruggedbox_5x4x6_assembly_fr-hl_sd-hc_stack_lidbp"
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)

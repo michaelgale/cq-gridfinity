@@ -27,7 +27,7 @@ import math
 
 import cadquery as cq
 from cqkit import HasZCoordinateSelector, VerticalEdgeSelector, FlatEdgeSelector
-from cqkit.cq_helpers import multi_extrude, rounded_rect_sketch, composite_from_pts
+from cqkit.cq_helpers import rounded_rect_sketch, composite_from_pts
 from cqgridfinity import *
 
 
@@ -54,6 +54,12 @@ class GridfinityBox(GridfinityObject):
     - no_lip : removes the contoured lip on the top module used for stacking
     - length_div, width_div : subdivides the box into sub-compartments in
                  length and/or width.
+    - lite_style : render box as an economical shell without elevated floor
+    - unsupported_holes : render bottom holes as 3D printer friendly versions
+                          which can be printed without supports
+    - label_width : width of top label ledge face overhang
+    - label_height : height of label ledge overhang
+    - scoop_rad : radius of the bottom scoop feature
 
     """
 
@@ -103,7 +109,13 @@ class GridfinityBox(GridfinityObject):
                     "Cannot select both holes and lite box styles together"
                 )
             if self.wall_th > 1.5:
-                raise ValueError("Wall thickness cannot exceed 1.5 for lite box style")
+                raise ValueError(
+                    "Wall thickness cannot exceed 1.5 mm for lite box style"
+                )
+        if self.wall_th > 2.5:
+            raise ValueError("Wall thickness cannot exceed 2.5 mm")
+        if self.wall_th < 0.5:
+            raise ValueError("Wall thickness must be at least 0.5 mm")
         r = self.render_shell()
         rd = self.render_dividers()
         rs = self.render_scoops()

@@ -213,6 +213,21 @@ def main():
         default=False,
         help="Generate accessory components only",
     )
+    parser.add_argument(
+        "-gh",
+        "--hinge",
+        action="store_true",
+        default=False,
+        help="Generate hinge element only",
+    )
+    parser.add_argument(
+        "-ge",
+        "--genlabel",
+        action="store_true",
+        default=False,
+        help="Generate label panel insert only",
+    )
+
     args = parser.parse_args()
     argsd = vars(args)
     box = GridfinityRuggedBox(
@@ -295,12 +310,22 @@ def main():
     if argsd["lid"]:
         print("Rendering lid...")
         r = box.render_lid()
-        save_asset(box, argsd, prefix="lid_")
+        save_asset(box, argsd)
         g = True
     if argsd["acc"]:
         print("Rendering accessory components...")
         r = box.render_accessories()
-        save_asset(box, argsd, prefix="acc_")
+        save_asset(box, argsd)
+        g = True
+    if argsd["hinge"]:
+        print("Rendering hinge components...")
+        r = box.render_hinge()
+        save_asset(box, argsd)
+        g = True
+    if argsd["genlabel"]:
+        print("Rendering label panel...")
+        r = box.render_label()
+        save_asset(box, argsd)
         g = True
     if not g:
         print("Rendering full assembly...")

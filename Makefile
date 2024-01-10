@@ -33,6 +33,7 @@ clean-pyc: ## remove Python file artifacts
 clean-test: ## remove test and coverage artifacts
 	@find . -name '*.step' -exec rm -f {} +
 	@find . -name '*.stl' -exec rm -f {} +
+	@find . -name '*.svg' -exec rm -f {} +
 	@rm -f .coverage
 	@rm -fr htmlcov/
 

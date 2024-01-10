@@ -8,7 +8,6 @@ from cqkit.cq_helpers import size_3d
 from common_test import (
     EXPORT_STEP_FILE_PATH,
     _almost_same,
-    _edges_match,
     _faces_match,
     _export_files,
 )
