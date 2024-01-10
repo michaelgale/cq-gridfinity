@@ -240,6 +240,11 @@ $ ruggedbox 5 4 6 --box --lid --hinge
 # Then render the latches and handle components for the same box:
 $ ruggedbox 5 4 6 --acc
 # gf_ruggedbox_5x4x6_acc_fr-hl_sd-hc_stack_lidbp.step
+
+# Or render individual components as STL files with your preferred name:
+$ ruggedbox 5 4 6 --genhandle --genlatch -o orange.stl
+# orange_handle.stl
+# orange_latch.stl
 ```
 
 # Classes
