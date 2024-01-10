@@ -70,8 +70,8 @@ class GridfinityBaseplate(GridfinityObject):
         if self.corner_screws:
             self.ext_depth = max(self.ext_depth, 5.0)
 
-    def _corner_pts(self, offset=0):
-        oxy = (self.corner_tab_size - offset) / 2
+    def _corner_pts(self):
+        oxy = self.corner_tab_size / 2
         return [
             (i * (self.length / 2 - oxy), j * (self.width / 2 - oxy), 0)
             for i in (-1, 1)
@@ -97,17 +97,12 @@ class GridfinityBaseplate(GridfinityObject):
             .cut(rc)
         )
         if self.corner_screws:
-            depth = self.ext_depth
             rs = cq.Sketch().rect(self.corner_tab_size, self.corner_tab_size)
-            rs = cq.Workplane("XY").placeSketch(rs).extrude(depth)
+            rs = cq.Workplane("XY").placeSketch(rs).extrude(self.ext_depth)
             rs = rs.faces(">Z").cskHole(
                 self.csk_hole, cskDiameter=self.csk_diam, cskAngle=self.csk_angle
             )
-            rp = composite_from_pts(rs, self._corner_pts())
-            rp = recentre(rp, "XY")
-            r = r.union(rp)
-            r = r.edges(VerticalEdgeSelector(depth) & HasZCoordinateSelector(0)).fillet(
-                GR_RAD
-            )
-
+            r = r.union(recentre(composite_from_pts(rs, self._corner_pts()), "XY"))
+            bs = VerticalEdgeSelector(self.ext_depth) & HasZCoordinateSelector(0)
+            r = r.edges(bs).fillet(GR_RAD)
         return r

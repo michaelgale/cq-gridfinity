@@ -63,7 +63,6 @@ class GridfinityRuggedBox(GridfinityObject):
         self.lid_baseplate = True
         self.inside_baseplate = True
         self.side_handles = True
-        self.extra_ribs = False
         self.front_label = True
         self.label_length = None
         self.label_height = None

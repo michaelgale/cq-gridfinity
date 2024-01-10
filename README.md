@@ -71,7 +71,7 @@ However, for simple generation of standard objects such as baseplates and boxes,
 
 Make a customized/parameterized Gridfinity compatible box with many optional features.
 
-```shell
+```
 usage: gridfinitybox [-h] [-m] [-u] [-n] [-s] [-l] [-e] [-d] [-r RATIO] [-ld LENGTHDIV] [-wd WIDTHDIV] [-wt WALL]
                      [-f FORMAT] [-o OUTPUT]
                      length width height
@@ -142,7 +142,7 @@ Examples:
 
 Make a customized/parameterized Gridfinity compatible simple baseplate.
 
-```shell
+```
 usage: gridfinitybase [-h] [-f FORMAT] [-s] [-d DEPTH] [-hd HOLEDIAM] [-hc CSKDIAM] [-ca CSKANGLE] [-o OUTPUT]
                       length width
 
@@ -187,7 +187,7 @@ Examples:
 
 Make a parameterized rugged storage box compatible with gridfinity. This box is based on the [superb design by Pred on Printables](https://www.printables.com/model/543553-gridfinity-storage-box-by-pred-now-parametric).  This implementation makes a few improvements and additions to Pred's design in addition to making almost all of the box's features optional and tunable.  Using either the `ruggedbox` console script or the `GridfinityRuggedBox` class, you can make vast variety of different boxes of various sizes and features.  By default, almost all of the boxes features are enabled, but by using the desired command line options you can customize your desired feature set.
 
-```shell
+```
 usage: ruggedbox [-h] [+l] [-l] [+p] [-p] [+a] [-a] [+c] [-c] [+s] [-s] [+v] [-v] [+e] [-e] [+b] [-b] [-f FORMAT]
                  [-o OUTPUT] [-gb] [-gl] [-ga] [-gh] [-ge]
                  length width height
@@ -240,10 +240,10 @@ example usage:
 Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The baseplate style is the basic style initially proposed by Zach Freedman.  Therefore, it does not have magnet or mounting holes.  An example usage is as follows:
 
 ```python
-   # Create 4 x 3 baseplate
-   baseplate = GridfinityBaseplate(4, 3)
-   baseplate.save_step_file()
-   # gf_baseplate_4x3.step
+  # Create 4 x 3 baseplate
+  baseplate = GridfinityBaseplate(4, 3)
+  baseplate.save_step_file()
+  # gf_baseplate_4x3.step
 ```
 <img src=./images/baseplate4x3.png width=512>
 
@@ -251,6 +251,17 @@ Baseplates can be rendered with extra depth to make a taller overall baseplate u
 
 <img src=./images/baseplate6x3.png width=512>
 
+### Optional Keyword Arguments
+
+```python
+ext_depth = 0            # extended depth to extrude below baseplate
+straight_bottom = False  # add/remove 0.8 mm chamfer on bottom of baseplate
+corner_screws = False    # add corner mounting screw tabs
+corner_tab_size = 21     # size of screw mounting tab (mm)
+csk_hole = 5.0           # hole diameter of countersink mounting screw (mm)
+csk_diam = 10.0          # countersink diameter (mm)
+csk_angle = 82           # countersink angle (deg)
+```
 
 ## `GridfinityBox`
 
@@ -340,7 +351,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
 ```
 <img src=./images/box_solid.png width=512>
 
-### Optional keyword arguments
+### Optional Keyword Arguments
 
 ```python
   length_div=0            # add dividing walls along length
@@ -388,7 +399,7 @@ Normally, the `render_half_set()` method used to render half of the components c
 
 <img src=./images/half_set.png width=600>
 
-### Optional keyword arguments
+### Optional Keyword Arguments
 
 ```python
   thickness=GR_BASE_HEIGHT # thickness of spacers, default=5 mm
@@ -449,6 +460,32 @@ Lastly, each individual component has an individual render method.
 - `render_latch()`
 - `render_label()`
 - `render_handle()`
+  
+### Optional Keyword Arguments
+
+```python
+  lid_height = 10            # lid height (should be multiple of 10 mm for stacking)
+  wall_vgrooves = True       # enable horizontal v-grooves to body shell
+  front_handle = True        # enable front handle
+  stackable = True           # add mating stackable features
+  side_clasps = True         # add extra side latching clasps
+  lid_baseplate = True       # enable top/lid baseplate
+  inside_baseplate = True    # enable interior baseplate
+  side_handles = True        # enable side handles to box
+  front_label = True         # enable front label panel
+  label_length = None        # length of front label panel, None=auto size
+  label_height = None        # height of front label panel, None=auto size
+  label_th = GR_LABEL_TH     # thickness of label panel, default=0.5 mm
+  back_feet = True           # add rear back feet matching hinges to allow the stand box vertically
+  hinge_width = GR_HINGE_SZ  # Size of hinge, default=32 mm
+  hinge_bolted = False       # printed or bolted hinge construction
+  box_color = cq.Color(0.25, 0.25, 0.25)    # colors for the assembly STEP file
+  lid_color = cq.Color(0.25, 0.5, 0.75)
+  handle_color = cq.Color(0.75, 0.5, 0.25)
+  latch_color = cq.Color(0.75, 0.5, 0.25)
+  hinge_color = cq.Color(0.75, 0.5, 0.25)
+  label_color = cq.Color(0.7, 0.7, 0.7)
+```
 
 ## `GridfinityObject`
 
