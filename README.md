@@ -51,7 +51,6 @@ After installation, the package can imported:
 An example of the package can be seen below:
 
 ```python
-    import cadquery as cq
     from cqgridfinity import *
 
     # make a simple box
@@ -69,12 +68,17 @@ However, for simple generation of standard objects such as baseplates and boxes,
 
 ## `gridfinitybox`
 
+<img src=./images/box_script.png width=600>
+
 Make a customized/parameterized Gridfinity compatible box with many optional features.
 
-```
-usage: gridfinitybox [-h] [-m] [-u] [-n] [-s] [-l] [-e] [-d] [-r RATIO] [-ld LENGTHDIV] [-wd WIDTHDIV]
-                        [-f FORMAT] [-o OUTPUT]
-                        length width height
+```shell
+usage: gridfinitybox [-h] [-m] [-u] [-n] [-s] [-l] [-e] [-d] [-r RATIO] [-ld LENGTHDIV] [-wd WIDTHDIV] [-wt WALL]
+                     [-f FORMAT] [-o OUTPUT]
+                     length width height
+
+Make a customized/parameterized Gridfinity compatible box with many optional features.
+
 positional arguments:
   length                Box length in U (1U = 42 mm)
   width                 Box width in U (1U = 42 mm)
@@ -95,11 +99,26 @@ options:
                         Split box length-wise with specified number of divider walls
   -wd WIDTHDIV, --widthdiv WIDTHDIV
                         Split box width-wise with specified number of divider walls
+  -wt WALL, --wall WALL
+                        Wall thickness (default=1 mm)
   -f FORMAT, --format FORMAT
                         Output file format (STEP, STL, SVG) default=STEP
   -o OUTPUT, --output OUTPUT
                         Output filename (inferred output file format with extension)
 
+example usages:
+
+  2x3x5 box with magnet holes saved to STL file with default filename:
+  $ gridfinitybox 2 3 5 -m -f stl
+
+  1x3x4 box with scoops, label strip, 3 internal partitions and specified name:
+  $ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
+
+  Solid 3x3x3 box with 50% fill, unsupported magnet holes and no top lip:
+  $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
+
+  Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
+  $ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
 ```
 
 Examples:
@@ -120,10 +139,15 @@ Examples:
 
 ## `gridfinitybase`
 
+<img src=./images/base_script.png width=600>
+
 Make a customized/parameterized Gridfinity compatible simple baseplate.
 
-```
-usage: gridfinitybase [-h] [-f FORMAT] [-o OUTPUT] length width
+```shell
+usage: gridfinitybase [-h] [-f FORMAT] [-s] [-d DEPTH] [-hd HOLEDIAM] [-hc CSKDIAM] [-ca CSKANGLE] [-o OUTPUT]
+                      length width
+
+Make a customized/parameterized Gridfinity compatible simple baseplate.
 
 positional arguments:
   length                Box length in U (1U = 42 mm)
@@ -133,8 +157,22 @@ options:
   -h, --help            show this help message and exit
   -f FORMAT, --format FORMAT
                         Output file format (STEP, STL, SVG) default=STEP
+  -s, --screws          Add screw mounting tabs to the corners (adds +5 mm to depth)
+  -d DEPTH, --depth DEPTH
+                        Extrude extended depth under baseplate by this amount
+  -hd HOLEDIAM, --holediam HOLEDIAM
+                        Corner mounting screw hole diameter (default=5)
+  -hc CSKDIAM, --cskdiam CSKDIAM
+                        Corner mounting screw countersink diameter (default=10)
+  -ca CSKANGLE, --cskangle CSKANGLE
+                        Corner mounting screw countersink angle (deg) (default=82)
   -o OUTPUT, --output OUTPUT
                         Output filename (inferred output file format with extension)
+
+example usage:
+
+  6 x 3 baseplate to default STL file:
+  $ gridfinitybase 6 3 -f stl
 ```
 
 Examples:
@@ -142,6 +180,58 @@ Examples:
 ```shell
   # 6 x 3 baseplate to default STL file:
   $ gridfinitybase 6 3 -f stl
+```
+
+## ruggedbox
+
+<img src=./images/rugged_box.png width=600>
+
+Make a parameterized rugged storage box compatible with gridfinity. This box is based on the [superb design by Pred on Printables](https://www.printables.com/model/543553-gridfinity-storage-box-by-pred-now-parametric).  This implementation makes a few improvements and additions to Pred's design in addition to making almost all of the box's features optional and tunable.  Using either the `ruggedbox` console script or the `GridfinityRuggedBox` class, you can make vast variety of different boxes of various sizes and features.  By default, almost all of the boxes features are enabled, but by using the desired command line options you can customize your desired feature set.
+
+```shell
+usage: ruggedbox [-h] [+l] [-l] [+p] [-p] [+a] [-a] [+c] [-c] [+s] [-s] [+v] [-v] [+e] [-e] [+b] [-b] [-f FORMAT]
+                 [-o OUTPUT] [-gb] [-gl] [-ga] [-gh] [-ge]
+                 length width height
+
+Make a customized/parameterized Gridfinity compatible rugged box enclosure.
+
+positional arguments:
+  length                Box length in U (1U = 42 mm)
+  width                 Box width in U (1U = 42 mm)
+  height                Box height in U (1U = 7 mm)
+
+options:
+  -h, --help            show this help message and exit
+  +l, --label           Add label window across the front wall
+  -l, --nolabel         Remove label window across the front wall
+  +p, --lidbaseplate    Add baseplate to top of the lid
+  -p, --nolidbaseplate  Smooth/plain lid
+  +a, --handle          Add front handle
+  -a, --nohandle        No front handle
+  +c, --clasps          Add clasps to the left and right side walls
+  -c, --noclasps        No clasps on the left and right side walls
+  +s, --stackable       Add stackable mating features to top and bottom
+  -s, --notstackable    Non-stackable box
+  +v, --veegroove       Add v-cut grooves to side walls
+  -v, --noveegroove     No v-cut grooves (plain) side walls
+  +e, --sidehandle      Add handles to side walls
+  -e, --nosidehandle    No handles on side walls
+  +b, --backfeet        Add standing feet to back wall
+  -b, --nobackfeet      No standing feet added to back wall
+  -f FORMAT, --format FORMAT
+                        Output file format (STEP, STL, SVG) default=STEP
+  -o OUTPUT, --output OUTPUT
+                        Output filename (inferred output file format with extension)
+  -gb, --box            Generate box only
+  -gl, --lid            Generate lid only
+  -ga, --acc            Generate accessory components only
+  -gh, --hinge          Generate hinge element only
+  -ge, --genlabel       Generate label panel insert only
+
+example usage:
+
+  5 x 4 x 6 rugged box saved to STL file:
+  $ ruggedbox 5 4 6 -f stl
 ```
 
 # Classes
@@ -157,6 +247,10 @@ Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The bas
    # gf_baseplate_4x3.step
 ```
 <img src=./images/baseplate4x3.png width=512>
+
+Baseplates can be rendered with extra depth to make a taller overall baseplate using the `ext_depth` attribute.  Furthermore, mounting screws corner tabs can be added to the baseplate with the `corner_screws` attribute.  A baseplate with this feature is shown below.
+
+<img src=./images/baseplate6x3.png width=512>
 
 
 ## `GridfinityBox`
@@ -264,6 +358,7 @@ The `unsupported_holes` attribute can specify either regular holes or modified/u
   lite_style=False        # make a "lite" version of box without elevated floor
   solid=False             # make a solid box
   solid_ratio=1.0         # ratio of solid height range 0.0 to 1.0 (max height)
+  wall_th=1.0             # wall thickness (0.5-2.5 mm)
   fillet_interior=True    # enable/disable internal fillet edges
 ```
 
@@ -321,6 +416,40 @@ An example use case to make a set of spacer components for a typical IKEA narrow
 
 <img src=./images/alexdrawer.png width=600>
 
+## `GridfinityRuggedBox`
+
+<img src=./images/rugged_box.png width=600>
+
+The `GridfinityRuggedBox` class can be used to make gridfinity compatible rugged storage boxes. This box is based on the [superb design by Pred on Printables](https://www.printables.com/model/543553-gridfinity-storage-box-by-pred-now-parametric).
+
+The **cq-gridfinity** derivative version of Pred's box is completely parameterized and generated completely with code in the `GridfinityRuggedBox` class.  This lets you render the most minimalist box configuration with no added features up to a full-featured box as shown below:
+
+<img src=./images/min_rugged_box.png width=600>
+
+The desired box size and features are specified with keyword arguments/attributes such as the ones illustrated below:
+
+<img src=./images/rugged_box_features.png width=600>
+
+The rugged box can be rendered either as a complete assembly or individual components can be rendered.  This is useful for making individual asset files for 3D printing.  The  render methods include the `render_assembly()` method as shown above for the complete assembly, as well as individual render methods summarized below:
+
+`render()` - renders just the main box body shell:
+
+<img src=./images/rugged_box_shell.png width=600>
+
+`render_lid()` - renders the lid:
+
+<img src=./images/rugged_box_lid.png width=600>
+
+`render_accessories()` - renders the accessory component elements as a group in the quantities required for the desired box:
+
+<img src=./images/rugged_box_acc.png width=600>
+
+Lastly, each individual component has an individual render method.
+
+- `render_hinge()`
+- `render_latch()`
+- `render_label()`
+- `render_handle()`
 
 ## `GridfinityObject`
 
@@ -350,6 +479,24 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
   obj.save_svg_file(filename=None, path=None, prefix=None)
 ```
 
+The automatic filename assignment is aware of the last object generated with a particular class's render method.  Therefore, you can call any render method and then call any of the `save_step_file`, `save_stl_file`, `save_svg_file` methods and the filename will adapt to the last object rendered.  For example:
+
+```python
+b1 = GridfinityRuggedBox(5, 4, 6)
+b1.render_accessories()
+b1.save_step_file()
+# saved as "gf_ruggedbox_5x4x6_acc_fr-hl_sd-hc_stack_lidbp.step"
+b1.render_handle()
+b1.save_stl_file()
+# saved as "gf_ruggedbox_5x4x6_handle_fr-hl_sd-hc_stack_lidbp.stl"
+b1.render_hinge()
+b1.save_svg_file(path="./mystuff")
+# saved as "./mystuff/gf_ruggedbox_5x4x6_hinge_fr-hl_sd-hc_stack_lidbp.svg"
+b1.render_assembly()
+b1.save_step_file()
+# saved as "gf_ruggedbox_5x4x6_assembly_fr-hl_sd-hc_stack_lidbp.step"
+```
+
 ### Useful properties
 
 ```obj.cq_obj``` returns a rendered CadQuery Workplane object  
@@ -360,9 +507,8 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 
 # To-do
 
-- add example scripts
-- add more baseplate variants, e.g. with holes, alignment features, etc.
-- add parameterized "rugged" toolbox
+- add more example scripts
+- improve documentation
 
 # Releases
 
@@ -372,7 +518,8 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 - v.0.2.1 - Added new unsupported magnet hole types
 - v.0.2.2 - Added SVG export and integrated STL exporter
 - v.0.2.3 - Updated to python build tools to make distribution
-- v.0.3.0 - Added console generator scripts: gridfinitybox and gridfinitybase
+- v.0.3.0 - Added console generator scripts: `gridfinitybox` and `gridfinitybase`
+- v.0.4.0 - Added `GridfinityRuggedBox` class and `ruggedbox` console script. Various other improvements.
 
 # References
 

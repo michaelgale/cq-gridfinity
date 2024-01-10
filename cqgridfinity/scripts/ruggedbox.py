@@ -236,9 +236,9 @@ def main():
         height_u=int(argsd["height"]),
     )
     if argsd["lidbaseplate"]:
-        box.inside_baseplate = True
+        box.lid_baseplate = True
     if argsd["nolidbaseplate"]:
-        box.inside_baseplate = False
+        box.lid_baseplate = False
     if argsd["handle"]:
         box.front_handle = True
     if argsd["nohandle"]:
