@@ -34,7 +34,7 @@ example usages:
   $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
  
   Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
-  $ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
+  $ gridfinitybox 3 2 3 -e -l -ld 2 -f svg
 """
 
 

@@ -105,19 +105,6 @@ options:
   -o OUTPUT, --output OUTPUT
                         Output filename (inferred output file format with extension)
 
-example usages:
-
-  2x3x5 box with magnet holes saved to STL file with default filename:
-  $ gridfinitybox 2 3 5 -m -f stl
-
-  1x3x4 box with scoops, label strip, 3 internal partitions and specified name:
-  $ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
-
-  Solid 3x3x3 box with 50% fill, unsupported magnet holes and no top lip:
-  $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
-
-  Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
-  $ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
 ```
 
 Examples:
@@ -133,7 +120,7 @@ $ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
 $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
 
 # Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
-$ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
+$ gridfinitybox 3 2 3 -e -l -ld 2 -f svg
 ```
 
 ## `gridfinitybase`
@@ -167,11 +154,6 @@ options:
                         Corner mounting screw countersink angle (deg) (default=82)
   -o OUTPUT, --output OUTPUT
                         Output filename (inferred output file format with extension)
-
-example usage:
-
-  6 x 3 baseplate to default STL file:
-  $ gridfinitybase 6 3 -f stl
 ```
 
 Examples:
@@ -226,11 +208,12 @@ options:
   -ga, --acc            Generate accessory components only
   -gh, --hinge          Generate hinge element only
   -ge, --genlabel       Generate label panel insert only
+```
+Examples:
 
-example usage:
-
-  5 x 4 x 6 rugged box saved to STL file:
-  $ ruggedbox 5 4 6 -f stl
+```shell
+# 5 x 4 x 6 rugged box saved to STL file:
+$ ruggedbox 5 4 6 -f stl
 ```
 
 # Classes
