@@ -112,15 +112,19 @@ Examples:
 ```shell
 # 2x3x5 box with magnet holes saved to STL file with default filename:
 $ gridfinitybox 2 3 5 -m -f stl
+# gf_box_2x3x5_holes.stl
 
 # 1x3x4 box with scoops, label strip, 3 internal partitions and specified name:
 $ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
+# MyBox.step
 
 # Solid 3x3x3 box with 50% fill, unsupported magnet holes and no top lip:
 $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
+# gf_box_3x3x3_basic_holes_solid.step
 
 # Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
 $ gridfinitybox 3 2 3 -e -l -ld 2 -f svg
+# gf_box_lite_3x2x3_div2_labels.svg
 ```
 
 ## `gridfinitybase`
@@ -159,8 +163,9 @@ options:
 Examples:
 
 ```shell
-# 5 x 5 baseplate with screw corners to default STL file:
-$ gridfinitybase 5 5 -s -f stl
+# 7 x 4 baseplate with screw corners to default STL file:
+$ gridfinitybase 7 4 -s -f stl
+# gf_baseplate_7x4x5.0_screwtabs.stl
 ```
 
 ## `ruggedbox`
@@ -212,8 +217,17 @@ options:
 Examples:
 
 ```shell
-# 5 x 4 x 6 rugged box saved to STL file:
-$ ruggedbox 5 4 6 -f stl
+# 5 x 4 x 6 rugged box component saved to STL file:
+$ ruggedbox 5 4 6 -gb -f stl
+# gf_ruggedbox_5x4x6_fr-hl_sd-hc_stack_lidbp.stl
+
+# same 5 x 4 x 6 rugged box with the lid saved to STL file:
+$ ruggedbox 5 4 6 --lid -f stl
+# gf_ruggedbox_5x4x6_lid_fr-hl_sd-hc_stack_lidbp.stl
+
+# 5 x 5 x 9 rugged box, smooth lid, non-stackable, and no handle; full assembly saved to STEP file
+$ ruggedbox 5 5 9 --nohandle --nolidbaseplate --notstackable
+# gf_ruggedbox_5x5x9_fr-l_sd-hc.step
 ```
 
 # Classes
