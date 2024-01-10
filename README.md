@@ -564,6 +564,7 @@ b1.save_step_file()
 - v.0.3.0 - Added console generator scripts: `gridfinitybox` and `gridfinitybase`
 - v.0.4.0 - Added `GridfinityRuggedBox` class and `ruggedbox` console script. Various other improvements.
 - v.0.4.1 - Fixed docstring in `__init__.py`
+- v.0.4.2 - Improved script automatic renaming
 
 # References
 
