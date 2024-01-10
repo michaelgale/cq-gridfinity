@@ -30,7 +30,7 @@ long_description = (this_directory / "README.md").read_text()
 setuptools.setup(
     name=read_package_variable("__project__"),
     version=read_package_variable("__version__"),
-    description="A python library to make Gridfinity objects with CadQuery.",
+    description="A python library to make Gridfinity compatible objects with CadQuery.",
     url="https://github.com/michaelgale/cq-gridfinity",
     author="Michael Gale",
     author_email="michael@fxbricks.com",

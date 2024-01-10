@@ -1,10 +1,10 @@
-"""cq-kit - A python library of CadQuery tools and helpers for building 3D CAD models."""
+"""cqgridfinity - A python library to make Gridfinity compatible objects with CadQuery."""
 
 import os
 
 # fmt: off
 __project__ = 'cqgridfinity'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__
