@@ -4,6 +4,7 @@ command line script to make a Gridfinity box
 """
 import argparse
 
+import cqgridfinity
 from cqgridfinity import *
 
 title = """
@@ -173,6 +174,8 @@ def main():
     else:
         bs = ""
     print(title)
+    print("Version: %s" % (cqgridfinity.__version__))
+
     print(
         "Gridfinity %sbox: %dU x %dU x %dU (%.1f mm x %.1f mm x %.1f mm), %.2f mm walls"
         % (

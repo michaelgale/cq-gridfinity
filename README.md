@@ -228,6 +228,16 @@ $ ruggedbox 5 4 6 --lid -f stl
 # 5 x 5 x 9 rugged box, smooth lid, non-stackable, and no handle; full assembly saved to STEP file
 $ ruggedbox 5 5 9 --nohandle --nolidbaseplate --notstackable
 # gf_ruggedbox_5x5x9_fr-l_sd-hc.step
+
+# Render the box, lid, and hinge for a 5x4x6 rugged box all at once:
+$ ruggedbox 5 4 6 --box --lid --hinge
+# gf_ruggedbox_5x4x6_fr-hl_sd-hc_stack_lidbp.step
+# gf_ruggedbox_5x4x6_lid_fr-hl_sd-hc_stack_lidbp.step
+# gf_ruggedbox_5x4x6_hinge_fr-hl_sd-hc_stack_lidbp.step
+
+# Then render the latches and handle components for the same box:
+$ ruggedbox 5 4 6 --acc
+# gf_ruggedbox_5x4x6_acc_fr-hl_sd-hc_stack_lidbp.step
 ```
 
 # Classes

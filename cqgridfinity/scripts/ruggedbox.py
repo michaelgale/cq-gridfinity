@@ -4,6 +4,7 @@ command line script to make a rugged Gridfinity box
 """
 import argparse
 
+import cqgridfinity
 from cqgridfinity import *
 
 title = """
@@ -22,17 +23,22 @@ Make a customized/parameterized Gridfinity compatible rugged box enclosure.
 EPILOG = """
 example usage:
 
-  5 x 4 x 6 rugged box saved to STL file:
-  $ ruggedbox 5 4 6 -f stl
+  5 x 4 x 6 rugged box shell and lid saved to STL files:
+  $ ruggedbox 5 4 6 --box --lid -f stl
 """
 
 
 def save_asset(box, argsd, prefix=None):
     if argsd["output"] is not None:
         fn = argsd["output"]
+        if box._obj_label is not None:
+            for ext in (".stl", ".step", ".svg"):
+                if fn.lower().endswith(ext):
+                    fn = fn.replace(ext, "_%s%s" % (box._obj_label, ext))
+                    break
     else:
         fn = box.filename(prefix=prefix)
-    s = ["\nBox generated and saved as"]
+    s = ["Component generated and saved as"]
     if argsd["format"].lower() == "stl" or fn.lower().endswith(".stl"):
         if not fn.endswith(".stl"):
             fn = fn + ".stl"
@@ -197,35 +203,49 @@ def main():
         "--box",
         action="store_true",
         default=False,
-        help="Generate box only",
+        help="Generate box",
     )
     parser.add_argument(
         "-gl",
         "--lid",
         action="store_true",
         default=False,
-        help="Generate lid only",
+        help="Generate lid",
     )
     parser.add_argument(
         "-ga",
         "--acc",
         action="store_true",
         default=False,
-        help="Generate accessory components only",
+        help="Generate accessory components",
     )
     parser.add_argument(
         "-gh",
         "--hinge",
         action="store_true",
         default=False,
-        help="Generate hinge element only",
+        help="Generate hinge element",
     )
     parser.add_argument(
         "-ge",
         "--genlabel",
         action="store_true",
         default=False,
-        help="Generate label panel insert only",
+        help="Generate label panel insert",
+    )
+    parser.add_argument(
+        "-gn",
+        "--genhandle",
+        action="store_true",
+        default=False,
+        help="Generate front handle",
+    )
+    parser.add_argument(
+        "-gt",
+        "--genlatch",
+        action="store_true",
+        default=False,
+        help="Generate latch component",
     )
 
     args = parser.parse_args()
@@ -269,6 +289,7 @@ def main():
         box.back_feet = False
 
     print(title)
+    print("Version: %s" % (cqgridfinity.__version__))
     print(
         "Gridfinity rugged box: %dU x %dU x %dU (%.1f mm x %.1f mm x %.1f mm)"
         % (
@@ -304,12 +325,12 @@ def main():
     g = False
     if argsd["box"]:
         print("Rendering box...")
-        r = box.render()
+        box.render()
         save_asset(box, argsd)
         g = True
     if argsd["lid"]:
         print("Rendering lid...")
-        r = box.render_lid()
+        box.render_lid()
         save_asset(box, argsd)
         g = True
     if argsd["acc"]:
@@ -327,9 +348,23 @@ def main():
         r = box.render_label()
         save_asset(box, argsd)
         g = True
+    if argsd["genhandle"]:
+        print("Rendering front handle...")
+        r = box.render_handle()
+        save_asset(box, argsd)
+        g = True
+    if argsd["genlatch"]:
+        print("Rendering latch component...")
+        r = box.render_latch()
+        save_asset(box, argsd)
+        g = True
     if not g:
         print("Rendering full assembly...")
         a = box.render_assembly()
+        if argsd["output"] is not None:
+            fn = argsd["output"]
+        else:
+            fn = box.filename()
         if not fn.endswith(".step"):
             fn = fn + ".step"
         a.save(fn)

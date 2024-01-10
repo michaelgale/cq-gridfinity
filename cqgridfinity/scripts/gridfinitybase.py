@@ -4,6 +4,7 @@ command line script to make a Gridfinity baseplate
 """
 import argparse
 
+import cqgridfinity
 from cqgridfinity import *
 
 title = """
@@ -92,6 +93,9 @@ def main():
     )
     args = parser.parse_args()
     argsd = vars(args)
+    print(title)
+    print("Version: %s" % (cqgridfinity.__version__))
+
     for k in ["depth", "holediam", "cskdiam", "cskangle"]:
         if argsd[k] is not None:
             argsd[k] = float(argsd[k])
@@ -104,7 +108,6 @@ def main():
         csk_diam=argsd["cskdiam"],
         csk_angle=argsd["cskangle"],
     )
-    print(title)
     print(
         "Gridfinity baseplate: %dU x %dU (%.1f mm x %.1f mm)"
         % (

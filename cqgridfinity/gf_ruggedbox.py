@@ -879,7 +879,7 @@ class GridfinityRuggedBox(GridfinityObject):
             )
             r = r.union(rb)
         self._cq_obj = r
-        self._obj_label = None
+        self._obj_label = "body"
         return self._cq_obj
 
     def render_lid(self):
