@@ -176,7 +176,7 @@ Make a parameterized rugged storage box compatible with gridfinity. This box is 
 
 ```
 usage: ruggedbox [-h] [+l] [-l] [+p] [-p] [+a] [-a] [+c] [-c] [+s] [-s] [+v] [-v] [+e] [-e] [+b] [-b] [-f FORMAT]
-                 [-o OUTPUT] [-gb] [-gl] [-ga] [-gh] [-ge]
+                 [-o OUTPUT] [-gb] [-gl] [-ga] [-gh] [-ge] [-gn] [-gt]
                  length width height
 
 Make a customized/parameterized Gridfinity compatible rugged box enclosure.
@@ -208,11 +208,13 @@ options:
                         Output file format (STEP, STL, SVG) default=STEP
   -o OUTPUT, --output OUTPUT
                         Output filename (inferred output file format with extension)
-  -gb, --box            Generate box only
-  -gl, --lid            Generate lid only
-  -ga, --acc            Generate accessory components only
-  -gh, --hinge          Generate hinge element only
-  -ge, --genlabel       Generate label panel insert only
+  -gb, --box            Generate box
+  -gl, --lid            Generate lid
+  -ga, --acc            Generate accessory components
+  -gh, --hinge          Generate hinge element
+  -ge, --genlabel       Generate label panel insert
+  -gn, --genhandle      Generate front handle
+  -gt, --genlatch       Generate latch component
 ```
 Examples:
 
