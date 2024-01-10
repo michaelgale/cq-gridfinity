@@ -61,6 +61,10 @@ box.save_stl_file()
 
 # Console Generator Scripts
 
+- [gridfinitybox](#gridfinitybox)
+- [gridfinitybase](#gridfinitybase)
+- [ruggedbox](#ruggedbox)
+
 This package can be used to make your own python scripts to generate Gridfinity objects.  This gives the flexibility to customize the object and combine with other code to add custom cutouts, add text labels, etc.
 
 However, for simple generation of standard objects such as baseplates and boxes, console scripts can be used for quick command line usage.  These console scripts are installed automatically into the path of your python environment and should be accessible from your terminal shell.
@@ -248,6 +252,13 @@ $ ruggedbox 5 4 6 --genhandle --genlatch -o orange.stl
 ```
 
 # Classes
+
+- [GridfinityBaseplate](#gridfinitybaseplate)
+- [GridfinityBox](#gridfinitybox-1)
+- [GridfinityDrawerSpacer](#gridfinitydrawerspacer)
+- [GridfinityRuggedBox](#gridfinityruggedbox)
+- [GridfinityObject](#gridfinityobject)
+  
 
 ## `GridfinityBaseplate`
 
