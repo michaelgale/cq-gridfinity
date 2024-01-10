@@ -32,9 +32,9 @@ $ pip install cqgridfinity
 The **cq-gridfinity** package can be installed directly from the source code:
 
 ```bash
-  $ git clone https://github.com/michaelgale/cq-gridfinity.git
-  $ cd cq-gridfinity
-  $ pip install .
+$ git clone https://github.com/michaelgale/cq-gridfinity.git
+$ cd cq-gridfinity
+$ pip install .
 ```
 
 ## Basic Usage
@@ -42,21 +42,21 @@ The **cq-gridfinity** package can be installed directly from the source code:
 After installation, the package can imported:
 
 ```shell
-    $ python
-    >>> import cqgridfinity
-    >>> cqgridfinity.__version__
+$ python
+>>> import cqgridfinity
+>>> cqgridfinity.__version__
 ```
 
 An example of the package can be seen below:
 
 ```python
-    from cqgridfinity import *
+from cqgridfinity import *
 
-    # make a simple box
-    box = GridfinityBox(3, 2, 5, holes=True, no_lip=False, scoops=True, labels=True)
-    box.save_stl_file()
-    # Output a STL file of box:
-    #   gf_box_3x2x5_holes_scoops_labels.stl
+# make a simple box
+box = GridfinityBox(3, 2, 5, holes=True, no_lip=False, scoops=True, labels=True)
+box.save_stl_file()
+# Output a STL file of box:
+#   gf_box_3x2x5_holes_scoops_labels.stl
 ```
 
 # Console Generator Scripts
@@ -123,17 +123,17 @@ example usages:
 Examples:
 
 ```shell
-  # 2x3x5 box with magnet holes saved to STL file with default filename:
-  $ gridfinitybox 2 3 5 -m -f stl
+# 2x3x5 box with magnet holes saved to STL file with default filename:
+$ gridfinitybox 2 3 5 -m -f stl
 
-  # 1x3x4 box with scoops, label strip, 3 internal partitions and specified name:
-  $ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
+# 1x3x4 box with scoops, label strip, 3 internal partitions and specified name:
+$ gridfinitybox 1 3 4 -s -l -ld 3 -o MyBox.step
 
-  # Solid 3x3x3 box with 50% fill, unsupported magnet holes and no top lip:
-  $ gridfinitybox 3 3 3 -d -r 0.5 -u -n
+# Solid 3x3x3 box with 50% fill, unsupported magnet holes and no top lip:
+$ gridfinitybox 3 3 3 -d -r 0.5 -u -n
 
-  # Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
-  $ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
+# Lite style box 3x2x3 with label strip, partitions, output to default SVG file:
+$ gridfinitybox.py 3 2 3 -e -l -ld 2 -f svg
 ```
 
 ## `gridfinitybase`
@@ -177,8 +177,8 @@ example usage:
 Examples:
 
 ```shell
-  # 5 x 5 baseplate with screw corners to default STL file:
-  $ gridfinitybase 5 5 -s -f stl
+# 5 x 5 baseplate with screw corners to default STL file:
+$ gridfinitybase 5 5 -s -f stl
 ```
 
 ## `ruggedbox`
@@ -240,10 +240,10 @@ example usage:
 Gridfinity baseplates can be made with the `GridfinityBaseplate` class.  The baseplate style is the basic style initially proposed by Zach Freedman.  Therefore, it does not have magnet or mounting holes.  An example usage is as follows:
 
 ```python
-  # Create 4 x 3 baseplate
-  baseplate = GridfinityBaseplate(4, 3)
-  baseplate.save_step_file()
-  # gf_baseplate_4x3.step
+# Create 4 x 3 baseplate
+baseplate = GridfinityBaseplate(4, 3)
+baseplate.save_step_file()
+# gf_baseplate_4x3.step
 ```
 <img src=./images/baseplate4x3.png width=512>
 
@@ -270,11 +270,11 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 ### Simple Box
 
 ```python
-    # Create a simple 3 x 2 box, 5U high
-    box = GridfinityBox(3, 2, 5)
-    box.save_step_file()
-    # Output a STEP file of box named:
-    #   gf_box_3x2x5.step
+# Create a simple 3 x 2 box, 5U high
+box = GridfinityBox(3, 2, 5)
+box.save_step_file()
+# Output a STEP file of box named:
+#   gf_box_3x2x5.step
 ``` 
 <img src=./images/basic_box.png width=512>
 
@@ -283,93 +283,93 @@ Gridfinity boxes with many optional features can be created with the `Gridfinity
 "Lite" style boxes are simplified for faster 3D printing with less material.  They remove the continuous floor at 7.2 mm and the box becomes a homogenous 1 mm thick walled shell. "lite" style boxes can include labels and dividers; however, the number of dividers must correspond to the same bottom partition ridges, i.e. `length_div` must be `length_u - 1` and `width_div` must be `width_u - 1`.  "lite" style cannot be combined with solid boxes, finger scoops, or magnet holes.
 
 ```python
-    # Create a "lite" style 3 x 2 box, 5U high
-    box = GridfinityBox(3, 2, 5, lite_style=True)
-    box.save_step_file()
-    # Output a STEP file of box named:
-    #   gf_box_lite_3x2x5.step
+# Create a "lite" style 3 x 2 box, 5U high
+box = GridfinityBox(3, 2, 5, lite_style=True)
+box.save_step_file()
+# Output a STEP file of box named:
+#   gf_box_lite_3x2x5.step
 ``` 
 <img src=./images/box_lite.png width=512>
 
 ### Magnet Holes
 
 ```python
-    # add magnet holes to the box
-    box = GridfinityBox(3, 2, 5, holes=True)
-    box.save_step_file()
-    # gf_box_3x2x5_holes.step
+# add magnet holes to the box
+box = GridfinityBox(3, 2, 5, holes=True)
+box.save_step_file()
+# gf_box_3x2x5_holes.step
 ```
 <img src=./images/box_holes.png width=512>
 
 The `unsupported_holes` attribute can specify either regular holes or modified/unsupported holes which are more suitable for 3D-printing.  These modified holes include thin filler strips which allow the slicer to avoid using supports to render the underside holes.
 
 ```python
-    # add magnet holes to the box
-    box = GridfinityBox(1, 1, 5, holes=True, unsupported_holes=True)
-    box.save_step_file()
-    # gf_box_1x1x5_holes.step
+# add magnet holes to the box
+box = GridfinityBox(1, 1, 5, holes=True, unsupported_holes=True)
+box.save_step_file()
+# gf_box_1x1x5_holes.step
 ```
 <img src=./images/box_holetypes.png width=512>
 
 ### Simple Box with No Top Lip
 
 ```python
-    # remove top mounting lip
-    box = GridfinityBox(3, 2, 5, no_lip=True)
-    box.save_step_file()
-    # gf_box_3x2x5_basic.step
+# remove top mounting lip
+box = GridfinityBox(3, 2, 5, no_lip=True)
+box.save_step_file()
+# gf_box_3x2x5_basic.step
 ```
 <img src=./images/box_nolip.png width=512>
 
 ### Scoops and Labels
 
 ```python
-    # add finger scoops and label top flange
-    box = GridfinityBox(3, 2, 5, scoops=True, labels=True)
-    box.save_step_file()
-    # gf_box_3x2x5_scoops_labels.step
+# add finger scoops and label top flange
+box = GridfinityBox(3, 2, 5, scoops=True, labels=True)
+box.save_step_file()
+# gf_box_3x2x5_scoops_labels.step
 ```
 <img src=./images/box_options.png width=512>
 
 ### Dividing Walls
 
 ```python
-    # add dividing walls
-    box = GridfinityBox(3, 2, 5, length_div=2, width_div=1, scoops=True, labels=True)
-    box.save_step_file()
-    # gf_box_3x2x5_div2x1_scoops_labels.step
+# add dividing walls
+box = GridfinityBox(3, 2, 5, length_div=2, width_div=1, scoops=True, labels=True)
+box.save_step_file()
+# gf_box_3x2x5_div2x1_scoops_labels.step
 ```
 <img src=./images/box_div.png width=512>
 
 ### Solid Box
 
 ```python
-    # make a partially solid box
-    box = GridfinityBox(3, 2, 5, solid=True, solid_ratio=0.7)
-    box.save_step_file()
-    # gf_box_3x2x5_solid.step
+# make a partially solid box
+box = GridfinityBox(3, 2, 5, solid=True, solid_ratio=0.7)
+box.save_step_file()
+# gf_box_3x2x5_solid.step
 ```
 <img src=./images/box_solid.png width=512>
 
 ### Optional Keyword Arguments
 
 ```python
-  length_div=0            # add dividing walls along length
-  width_div=0             # add dividing walls along width
-  holes=False             # add magnet holes to bottom
-  unsupported_holes=False # 3D-printer friendly hole style requiring no supports
-  no_lip=False            # remove top mating lip feature
-  scoops=False            # add finger scoops
-  scoop_rad=11            # radius of optional interior scoops
-  labels=False            # add a label flange to the top
-  label_width=12          # width of the label strip
-  label_height=10         # thickness height of label overhang
-  label_lip_height=0.8    # thickness of label vertical lip
-  lite_style=False        # make a "lite" version of box without elevated floor
-  solid=False             # make a solid box
-  solid_ratio=1.0         # ratio of solid height range 0.0 to 1.0 (max height)
-  wall_th=1.0             # wall thickness (0.5-2.5 mm)
-  fillet_interior=True    # enable/disable internal fillet edges
+length_div=0            # add dividing walls along length
+width_div=0             # add dividing walls along width
+holes=False             # add magnet holes to bottom
+unsupported_holes=False # 3D-printer friendly hole style requiring no supports
+no_lip=False            # remove top mating lip feature
+scoops=False            # add finger scoops
+scoop_rad=11            # radius of optional interior scoops
+labels=False            # add a label flange to the top
+label_width=12          # width of the label strip
+label_height=10         # thickness height of label overhang
+label_lip_height=0.8    # thickness of label vertical lip
+lite_style=False        # make a "lite" version of box without elevated floor
+solid=False             # make a solid box
+solid_ratio=1.0         # ratio of solid height range 0.0 to 1.0 (max height)
+wall_th=1.0             # wall thickness (0.5-2.5 mm)
+fillet_interior=True    # enable/disable internal fillet edges
 ```
 
 ## `GridfinityDrawerSpacer`
@@ -379,13 +379,13 @@ The `GridfinityDrawerSpacer` class can be used to make spacer components to fit 
 If the computed spacer width falls below a configurable threshold (default 4 mm), then no spacer component is made in that dimension.  The spacer components are made by default with interlocking "jigsaw" type features to assist with assembly and to secure the spacers within the drawer.  Also, alignment arrows (default but optional) are placed on the components to indicate the installation orientation in the direction of the drawer movement.
 
 ```python
-    # make drawer spacers for Craftsman tool chest drawer 23" wide x 19" deep
-    spacer = GridfinityDrawerSpacer(582, 481, verbose=True)
-    # Best fit for 582.00 x 481.00 mm is 13U x 11U
-    # with 18.00 mm margin each side and 9.50 mm margin front and back
-    # Corner spacers     : 4U wide x 3U deep
-    # Front/back spacers : 5U wide x 9.25 mm +0.25 mm tolerance
-    # Left/right spacers : 5U deep x 17.75 mm +0.25 mm tolerance
+# make drawer spacers for Craftsman tool chest drawer 23" wide x 19" deep
+spacer = GridfinityDrawerSpacer(582, 481, verbose=True)
+# Best fit for 582.00 x 481.00 mm is 13U x 11U
+# with 18.00 mm margin each side and 9.50 mm margin front and back
+# Corner spacers     : 4U wide x 3U deep
+# Front/back spacers : 5U wide x 9.25 mm +0.25 mm tolerance
+# Left/right spacers : 5U deep x 17.75 mm +0.25 mm tolerance
 ```
 <img src=./images/drawer_photo.png width=600>
 
@@ -402,26 +402,26 @@ Normally, the `render_half_set()` method used to render half of the components c
 ### Optional Keyword Arguments
 
 ```python
-  thickness=GR_BASE_HEIGHT # thickness of spacers, default=5 mm
-  chamf_rad=1.0            # chamfer radius of spacer top/bottom edges
-  show_arrows=True         # show orientation arrows indicating drawer in/out direction
-  align_features=True      # add "jigsaw" interlocking feautures
-  align_tol=0.15           # tolerance of the interlocking joint
-  align_min=8              # minimum spacer width for adding interlocking feature
-  min_margin=4             # minimum size to make a spacer, nothing is made for smaller gaps
-  tolerance=GR_TOL         # overall tolerance for spacer components, default=0.5 mm
+thickness=GR_BASE_HEIGHT # thickness of spacers, default=5 mm
+chamf_rad=1.0            # chamfer radius of spacer top/bottom edges
+show_arrows=True         # show orientation arrows indicating drawer in/out direction
+align_features=True      # add "jigsaw" interlocking feautures
+align_tol=0.15           # tolerance of the interlocking joint
+align_min=8              # minimum spacer width for adding interlocking feature
+min_margin=4             # minimum size to make a spacer, nothing is made for smaller gaps
+tolerance=GR_TOL         # overall tolerance for spacer components, default=0.5 mm
 ```
 ### Example with IKEA ALEX narrow drawer
 
 An example use case to make a set of spacer components for a typical IKEA narrow ALEX drawer is as follows:
 
 ```python
-  spacers = GridfinityDrawerSpacer(INCHES(11.5), INCHES(20.5), verbose=True)
-  spacers.render_full_set(include_baseplate=True)
-  spacers.save_step_file("ikea_alex_full_set.step")
-  # make a half set for 3D printing
-  spacers.render_half_set()
-  spacers.save_stl_file("ikea_alex_half_set.stl")
+spacers = GridfinityDrawerSpacer(INCHES(11.5), INCHES(20.5), verbose=True)
+spacers.render_full_set(include_baseplate=True)
+spacers.save_step_file("ikea_alex_full_set.step")
+# make a half set for 3D printing
+spacers.render_half_set()
+spacers.save_stl_file("ikea_alex_half_set.stl")
 ```
 
 <img src=./images/alexdrawer.png width=600>
@@ -464,27 +464,27 @@ Lastly, each individual component has an individual render method.
 ### Optional Keyword Arguments
 
 ```python
-  lid_height = 10            # lid height (should be multiple of 10 mm for stacking)
-  wall_vgrooves = True       # enable horizontal v-grooves to body shell
-  front_handle = True        # enable front handle
-  stackable = True           # add mating stackable features
-  side_clasps = True         # add extra side latching clasps
-  lid_baseplate = True       # enable top/lid baseplate
-  inside_baseplate = True    # enable interior baseplate
-  side_handles = True        # enable side handles to box
-  front_label = True         # enable front label panel
-  label_length = None        # length of front label panel, None=auto size
-  label_height = None        # height of front label panel, None=auto size
-  label_th = GR_LABEL_TH     # thickness of label panel, default=0.5 mm
-  back_feet = True           # add rear back feet matching hinges to allow the stand box vertically
-  hinge_width = GR_HINGE_SZ  # Size of hinge, default=32 mm
-  hinge_bolted = False       # printed or bolted hinge construction
-  box_color = cq.Color(0.25, 0.25, 0.25)    # colors for the assembly STEP file
-  lid_color = cq.Color(0.25, 0.5, 0.75)
-  handle_color = cq.Color(0.75, 0.5, 0.25)
-  latch_color = cq.Color(0.75, 0.5, 0.25)
-  hinge_color = cq.Color(0.75, 0.5, 0.25)
-  label_color = cq.Color(0.7, 0.7, 0.7)
+lid_height = 10            # lid height (should be multiple of 10 mm for stacking)
+wall_vgrooves = True       # enable horizontal v-grooves to body shell
+front_handle = True        # enable front handle
+stackable = True           # add mating stackable features
+side_clasps = True         # add extra side latching clasps
+lid_baseplate = True       # enable top/lid baseplate
+inside_baseplate = True    # enable interior baseplate
+side_handles = True        # enable side handles to box
+front_label = True         # enable front label panel
+label_length = None        # length of front label panel, None=auto size
+label_height = None        # height of front label panel, None=auto size
+label_th = GR_LABEL_TH     # thickness of label panel, default=0.5 mm
+back_feet = True           # add rear back feet matching hinges to allow the stand box vertically
+hinge_width = GR_HINGE_SZ  # Size of hinge, default=32 mm
+hinge_bolted = False       # printed or bolted hinge construction
+box_color = cq.Color(0.25, 0.25, 0.25)    # colors for the assembly STEP file
+lid_color = cq.Color(0.25, 0.5, 0.75)
+handle_color = cq.Color(0.75, 0.5, 0.25)
+latch_color = cq.Color(0.75, 0.5, 0.25)
+hinge_color = cq.Color(0.75, 0.5, 0.25)
+label_color = cq.Color(0.7, 0.7, 0.7)
 ```
 
 ## `GridfinityObject`
@@ -496,23 +496,23 @@ The `GridfinityObject` is the base class for `GridfinityBox`, `GridfinityBasepla
 `obj.filename(self, prefix=None, path=None)` returns a filename string with descriptive attributes such as the object size and enabled features.
 
 ```python
-  box = GridfinityBox(3, 2, 5, holes=True)
-  box.filename()
-  # gf_box_3x2x5_holes
-  box.filename(prefix="MyBox")
-  # MyBox_3x2x5_holes
-  box.filename(path="./outputfiles")
-  # ./outputfiles/gf_box_3x2x5_holes
-  box2 = GridfinityBox(4, 3, 3, holes=True, length_div=2, width_div=1)
-  box2.filename()
-  # gf_box_4x3x3_holes_div2x1
+box = GridfinityBox(3, 2, 5, holes=True)
+box.filename()
+# gf_box_3x2x5_holes
+box.filename(prefix="MyBox")
+# MyBox_3x2x5_holes
+box.filename(path="./outputfiles")
+# ./outputfiles/gf_box_3x2x5_holes
+box2 = GridfinityBox(4, 3, 3, holes=True, length_div=2, width_div=1)
+box2.filename()
+# gf_box_4x3x3_holes_div2x1
 ```
 
 ```python
-  # Export object to STEP, STL, or SVG file
-  obj.save_step_file(filename=None, path=None, prefix=None)
-  obj.save_stl_file(filename=None, path=None, prefix=None)
-  obj.save_svg_file(filename=None, path=None, prefix=None)
+# Export object to STEP, STL, or SVG file
+obj.save_step_file(filename=None, path=None, prefix=None)
+obj.save_stl_file(filename=None, path=None, prefix=None)
+obj.save_svg_file(filename=None, path=None, prefix=None)
 ```
 
 The automatic filename assignment is aware of the last object generated with a particular class's render method.  Therefore, you can call any render method and then call any of the `save_step_file`, `save_stl_file`, `save_svg_file` methods and the filename will adapt to the last object rendered.  For example:
