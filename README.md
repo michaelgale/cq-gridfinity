@@ -3,13 +3,12 @@
 
 # cq-gridfinity
 
-![https://pypi.org/project/cqgridfinity/](https://img.shields.io/pypi/v/cqgridfinity.svg)
+[![](https://img.shields.io/pypi/v/cqgridfinity.svg)](https://pypi.org/project/cqgridfinity/)
 ![python version](https://img.shields.io/static/v1?label=python&message=3.9%2B&color=blue&style=flat&logo=python)
-![https://github.com/CadQuery/cadquery](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)
-![https://github.com/michaelgale/cq-kit](https://img.shields.io/badge/CQ--kit-blue)
+[![](https://img.shields.io/static/v1?label=dependencies&message=CadQuery%202.0%2B&color=blue&style=flat)](https://github.com/CadQuery/cadquery)
+[![](https://img.shields.io/badge/CQ--kit-blue)](https://github.com/michaelgale/cq-kit)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
-<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-
+[![](https://img.shields.io/badge/code%20style-black-black.svg)](http://github.com/psf/black)
 
 This repository contains a python library to build [Gridfinity](https://gridfinity.xyz) boxes, baseplates, and other objects based on the [CadQuery](https://github.com/CadQuery/cadquery) python library.  The Gridfinity system was created by [Zach Freedman](https://www.youtube.com/c/ZackFreedman) as a versatile system of modular organization and storage modules.  A vibrant community of user contributed modules and utilities has grown around the Gridfinity system.  This repository contains python classes to create gridfinity compatible parameterized components such as baseplates and boxes.
 
@@ -178,11 +177,11 @@ example usage:
 Examples:
 
 ```shell
-  # 6 x 3 baseplate to default STL file:
-  $ gridfinitybase 6 3 -f stl
+  # 5 x 5 baseplate with screw corners to default STL file:
+  $ gridfinitybase 5 5 -s -f stl
 ```
 
-## ruggedbox
+## `ruggedbox`
 
 <img src=./images/rugged_box.png width=600>
 
