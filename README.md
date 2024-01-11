@@ -16,6 +16,20 @@ Examples of how I am starting to use Gridfinity to organize my tools are shown b
 
 <img src=./images/examples.png width=800>
 
+# Quick Links
+
+- [Installation / Usage](#installation)
+- [Shell Command Scripts](#shell-command-scripts)
+  - [gridfinitybox](#gridfinitybox)
+  - [gridfinitybase](#gridfinitybase)
+  - [ruggedbox](#ruggedbox)
+- [Classes](#classes)
+  - [GridfinityBaseplate](#gridfinitybaseplate)
+  - [GridfinityBox](#gridfinitybox-1)
+  - [GridfinityDrawerSpacer](#gridfinitydrawerspacer)
+  - [GridfinityRuggedBox](#gridfinityruggedbox)
+  - [GridfinityObject](#gridfinityobject)
+- [References](#references)
 
 ## Installation
 
@@ -59,7 +73,7 @@ box.save_stl_file()
 #   gf_box_3x2x5_holes_scoops_labels.stl
 ```
 
-# Console Generator Scripts
+# Shell Command Scripts
 
 - [gridfinitybox](#gridfinitybox)
 - [gridfinitybase](#gridfinitybase)
