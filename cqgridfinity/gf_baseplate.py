@@ -43,7 +43,7 @@ class GridfinityBaseplate(GridfinityObject):
     Zach Freedman. As such, it does not include features such as mounting
     holes, magnet holes, weight slots, etc.
       length_u - length in U (42 mm / U)
-      width_y - width in U (42 mm / U)
+      width_u - width in U (42 mm / U)
       ext_depth - extrude bottom face by an extra amount in mm
       straight_bottom - remove bottom chamfer and replace with straight side
       corner_screws - add countersink mounting screws to the inside corners
