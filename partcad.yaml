@@ -1,3 +1,4 @@
+partcad: ">=0.3.84"
 parts:
   baseplate:
     type: cadquery
