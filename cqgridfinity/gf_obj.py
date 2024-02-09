@@ -321,7 +321,8 @@ class GridfinityObject:
     def extrude_profile(self, sketch, profile, workplane="XY"):
         taper = profile[0][1] if isinstance(profile[0], (list, tuple)) else 0
         p0 = profile[0][0] if isinstance(profile[0], (list, tuple)) else profile[0]
-        r = cq.Workplane(workplane).placeSketch(sketch).extrude(p0, taper=taper)
+        zlen = p0 if ZLEN_FIX else p0 / SQRT2
+        r = cq.Workplane(workplane).placeSketch(sketch).extrude(zlen, taper=taper)
         for level in profile[1:]:
             if isinstance(level, (tuple, list)):
                 zlen = level[0] if ZLEN_FIX else level[0] / SQRT2
