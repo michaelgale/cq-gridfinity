@@ -599,6 +599,7 @@ b1.save_step_file()
 - v.0.4.2 - Improved script automatic renaming
 - v.0.4.3 - Fixed regression bug with using multilevel extrusion functions from cq-kit
 - v.0.4.4 - IMPORTANT FIX: generated geometry breaks using CadQuery v.2.4+ due to changes in CadQuery's `extrude` method.  This version should work with any CQ version since it detects which CQ extrusion implementation is used at runtime.
+- v.0.4.5 - IMPORTANT FIX: fixes error in v.0.4.4 for extrusion angle
 
 # References
 

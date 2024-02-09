@@ -326,7 +326,7 @@ class GridfinityObject:
         for level in profile[1:]:
             if isinstance(level, (tuple, list)):
                 zlen = level[0] if ZLEN_FIX else level[0] / SQRT2
-                r = r.faces(">Z").wires().toPending().extrude(zlen, taper=taper)
+                r = r.faces(">Z").wires().toPending().extrude(zlen, taper=level[1])
             else:
                 r = r.faces(">Z").wires().toPending().extrude(level)
         return r
