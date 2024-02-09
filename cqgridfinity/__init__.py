@@ -4,7 +4,7 @@ import os
 
 # fmt: off
 __project__ = 'cqgridfinity'
-__version__ = '0.4.3'
+__version__ = '0.4.4'
 # fmt: on
 
 VERSION = __project__ + "-" + __version__

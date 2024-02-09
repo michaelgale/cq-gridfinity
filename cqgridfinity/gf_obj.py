@@ -31,7 +31,17 @@ import cadquery as cq
 from cadquery import exporters
 
 from cqgridfinity import *
-from cqkit import export_step_file, multi_extrude
+from cqkit import export_step_file, size_3d
+
+# Special test to see which version of CadQuery is installed and
+# therefore if any compensation is required for extruded zlen
+# CQ versions < 2.4.0 typically require zlen correction, i.e.
+# scaling the vertical extrusion extent by 1/cos(taper)
+ZLEN_FIX = True
+_r = cq.Workplane("XY").rect(2, 2).extrude(1, taper=45)
+_bb = _r.vals()[0].BoundingBox()
+if abs(_bb.zlen - 1.0) < 1e-3:
+    ZLEN_FIX = False
 
 
 class GridfinityObject:
@@ -314,7 +324,8 @@ class GridfinityObject:
         r = cq.Workplane(workplane).placeSketch(sketch).extrude(p0, taper=taper)
         for level in profile[1:]:
             if isinstance(level, (tuple, list)):
-                r = r.faces(">Z").wires().toPending().extrude(level[0], taper=level[1])
+                taper = level[1] if ZLEN_FIX else level[1] / SQRT2
+                r = r.faces(">Z").wires().toPending().extrude(level[0], taper=taper)
             else:
                 r = r.faces(">Z").wires().toPending().extrude(level)
         return r

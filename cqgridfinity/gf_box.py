@@ -27,7 +27,7 @@ import math
 
 import cadquery as cq
 from cqkit import HasZCoordinateSelector, VerticalEdgeSelector, FlatEdgeSelector
-from cqkit.cq_helpers import rounded_rect_sketch, composite_from_pts, size_3d, recentre
+from cqkit.cq_helpers import rounded_rect_sketch, composite_from_pts
 from cqgridfinity import *
 
 
