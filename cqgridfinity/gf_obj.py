@@ -324,8 +324,8 @@ class GridfinityObject:
         r = cq.Workplane(workplane).placeSketch(sketch).extrude(p0, taper=taper)
         for level in profile[1:]:
             if isinstance(level, (tuple, list)):
-                taper = level[1] if ZLEN_FIX else level[1] / SQRT2
-                r = r.faces(">Z").wires().toPending().extrude(level[0], taper=taper)
+                zlen = level[0] if ZLEN_FIX else level[0] / SQRT2
+                r = r.faces(">Z").wires().toPending().extrude(zlen, taper=taper)
             else:
                 r = r.faces(">Z").wires().toPending().extrude(level)
         return r
