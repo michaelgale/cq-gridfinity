@@ -43,7 +43,7 @@ Assuming these dependencie are installed, you can install **cq-gridfinity** usin
 $ pip install cqgridfinity
 ```
 
-The **cq-gridfinity** package can be installed directly from the source code:
+Alternatively, the **cq-gridfinity** package can be installed directly from the source code:
 
 ```bash
 $ git clone https://github.com/michaelgale/cq-gridfinity.git
@@ -597,6 +597,7 @@ b1.save_step_file()
 - v.0.4.0 - Added `GridfinityRuggedBox` class and `ruggedbox` console script. Various other improvements.
 - v.0.4.1 - Fixed docstring in `__init__.py`
 - v.0.4.2 - Improved script automatic renaming
+- v.0.4.3 - Fixed regression bug with using multilevel extrusion functions from cq-kit
 
 # References
 

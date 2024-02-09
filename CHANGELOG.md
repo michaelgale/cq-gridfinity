@@ -10,3 +10,4 @@
 - v.0.4.0 - Added `GridfinityRuggedBox` class and `ruggedbox` console script. Various other improvements.
 - v.0.4.1 - Fixed docstring in `__init__.py`
 - v.0.4.2 - Improved script automatic renaming
+- v.0.4.3 - Fixed regression bug with using multilevel extrusion functions from cq-kit
