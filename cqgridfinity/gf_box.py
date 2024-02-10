@@ -159,6 +159,10 @@ class GridfinityBox(GridfinityObject):
             return self.floor_h
         return GR_BOT_H
 
+    @property
+    def bin_height(self):
+        return self.height - GR_BASE_PRO_H
+
     def safe_label_height(self, backwall=False, from_bottom=False):
         lw = self.label_width
         if backwall:
@@ -235,7 +239,7 @@ class GridfinityBox(GridfinityObject):
         profile = [GR_BASE_PRO_H, *GR_BOX_PROFILE]
         zo = GR_BASE_PRO_H
         if self.int_height < 0:
-            h = self.box_height - GR_BASE_PRO_H
+            h = self.bin_height - GR_BASE_PRO_H
             profile = [h, *profile]
             zo += h
         r = self.extrude_profile(
@@ -257,7 +261,7 @@ class GridfinityBox(GridfinityObject):
         rw = (
             cq.Workplane("XY")
             .placeSketch(rs)
-            .extrude(self.box_height)
+            .extrude(self.bin_height)
             .translate((*self.half_dim, 0))
         )
         rc = (

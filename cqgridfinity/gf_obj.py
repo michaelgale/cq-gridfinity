@@ -80,10 +80,6 @@ class GridfinityObject:
         return 3.8 + GRHU * self.height_u
 
     @property
-    def box_height(self):
-        return self.height - GR_BASE_PRO_H
-
-    @property
     def int_height(self):
         h = self.height - GR_LIP_H - GR_BOT_H
         if self.lite_style:
