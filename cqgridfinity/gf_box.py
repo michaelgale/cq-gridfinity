@@ -248,7 +248,9 @@ class GridfinityBox(GridfinityObject):
 
     def render_shell(self, as_solid=False):
         """Renders the box shell without any added features."""
-        r = self.extrude_profile(rounded_rect_sketch(GRU, GRU, GR_RAD), GR_BOX_PROFILE)
+        r = self.extrude_profile(
+            rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, GR_RAD), GR_BOX_PROFILE
+        )
         r = r.mirror(mirrorPlane="XY")
         r = composite_from_pts(r, self.grid_centres)
         rs = rounded_rect_sketch(*self.outer_dim, GR_RAD)
