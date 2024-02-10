@@ -80,6 +80,12 @@ class GridfinityRuggedBox(GridfinityObject):
             if k in self.__dict__:
                 self.__dict__[k] = v
 
+    def check_dimensions(self):
+        """Verifies that the specified box dimensions are within specification."""
+        assert self.length_u >= 3
+        assert self.width_u >= 3
+        assert self.height_u >= 4
+
     @property
     def box_length(self):
         return self.length_u * GRU + 2 * GR_RBOX_WALL
@@ -103,10 +109,6 @@ class GridfinityRuggedBox(GridfinityObject):
     @property
     def box_height(self):
         return self.height_u * GRHU + 3
-
-    @property
-    def min_height(self):
-        return 6 * GRHU + 3
 
     @property
     def clasp_heights(self):
@@ -178,11 +180,18 @@ class GridfinityRuggedBox(GridfinityObject):
         return qd
 
     @property
+    def long_enough_for_handle(self):
+        return self.right_handle_centre[0] > GRU / 2
+
+    @property
     def right_handle_centre(self):
+        zo = (self.box_height + self.lid_height) / 2
+        if (zo + GR_HANDLE_SZ / 2) > self.box_height:
+            zo = self.box_height / 2
         return (
             self.box_length / 2 - GR_HANDLE_OFS,
             -self.box_width / 2,
-            (self.box_height + self.lid_height) / 2,
+            zo,
         )
 
     @property
@@ -203,21 +212,29 @@ class GridfinityRuggedBox(GridfinityObject):
 
     @property
     def label_centre(self):
-        return (0, -self.box_width / 2, self.left_handle_centre[2])
+        zo = self.left_handle_centre[2]
+        zt = zo + self.label_size()[1] / 2
+        # ensure the front label fits vertically
+        if zt > self.box_height:
+            zo = self.box_height / 2
+        return (0, -self.box_width / 2, zo)
 
     def label_size(self, as_insert=False, as_aperture=False, tol=0):
         # use provided label size if applicable otherwise auto size
         if self.label_length is not None:
             length = self.label_length
         else:
-            length = self.box_length - 2 * GR_RBOX_CORNER_W
+            length = self.box_length - 2 * GR_RBOX_CORNER_W + (GR_RBOX_CWALL) / 2
         if self.label_height is not None:
             height = self.label_height
         else:
             height = GR_LABEL_H
+        # ensure the label is not too tall
+        if height >= self.box_height:
+            height = self.box_height - 5
         # trim label size if handles are enabled
-        if self.front_handle:
-            length = length - 2 * GR_HANDLE_SEP - GR_HANDLE_W
+        if self.front_handle and self.long_enough_for_handle:
+            length = length - 2 * (GR_HANDLE_SEP + GR_HANDLE_W)
         # return the desired size variant
         if as_insert:
             length -= 5
@@ -456,12 +473,14 @@ class GridfinityRuggedBox(GridfinityObject):
 
     def clasp_cut(self, as_lid=False):
         """Renders the vertical channel where the clasps / latch are installed."""
-        height = self.min_height if as_lid else self.box_height
+        height = GR_CLASP_SLIDE_D + 6 if as_lid else self.box_height
         w = GR_RBOX_CHAN_W + GR_CLASP_SLIDE_W
         rs = cq.Sketch().slot(GR_CLASP_SLIDE_D, GR_CLASP_SLIDE_W, angle=90)
         rs = cq.Workplane("XZ").placeSketch(rs).extrude(w).translate((0, w / 2, 0))
         rc = cq.Workplane("XY").rect(GR_RBOX_CHAN_D, GR_RBOX_CHAN_W).extrude(height)
         zo = -GR_CLASP_SLIDE_D / 2 + GR_CLASP_SLIDE_W / 2
+        # ensure clasp channel is deep enough for box heights <6U
+        height = max(height, GR_CLASP_SLIDE_D + 5.2)
         pts = [(0, 0, height + zo), (0, 0, zo)]
         return rc.union(composite_from_pts(rs, pts))
 
@@ -474,15 +493,15 @@ class GridfinityRuggedBox(GridfinityObject):
                 cq.Workplane("XZ")
                 .moveTo(0, 0)
                 .lineTo(0, GR_RIB_H)
-                .lineTo(GR_RIB_L / 4, GR_RIB_H)
+                .lineTo(GR_RIB_L / 6, GR_RIB_H)
                 .close()
                 .extrude(GR_RIB_W)
             )
-            rc = rc.translate((-GR_RIB_L / 2, GR_RIB_W / 2, 0))
+            rc = rc.translate((-GR_RIB_L / 1.85, GR_RIB_W / 2, 0))
             r = r.cut(rc)
             rc = cq.Workplane("XY").rect(GR_RIB_L / 2, GR_RIB_W).extrude(GR_RIB_H / 3)
             rc = rc.faces(">Z").edges("<X or >X").chamfer(GR_RIB_H / 3 - EPS)
-            rc = rc.translate((-GR_RIB_L / 2.5, 0, 0))
+            rc = rc.translate((-GR_RIB_L / 2.33, 0, 0))
             r = r.union(rc)
         return r
 
@@ -514,7 +533,7 @@ class GridfinityRuggedBox(GridfinityObject):
 
         def _bracket(small_hole=False, side="left"):
             l1 = GR_HANDLE_L1 / 2
-            l2 = GR_HANDLE_L2 / 2
+            l2 = min(GR_HANDLE_L2 / 2, (self.box_height - 6) / 2)
             d2 = M3_DIAM / 2 if small_hole else M3_CLR_DIAM / 2
             rs = (
                 cq.Sketch()
@@ -555,7 +574,11 @@ class GridfinityRuggedBox(GridfinityObject):
 
     def render_handle(self):
         """Renders the front handle"""
+        self.check_dimensions()
         x2 = self.right_handle_centre[0]
+        if not self.long_enough_for_handle:
+            print("Rugged box length dimension too small to include a handle")
+            return None
         wt, h, rh = GR_HANDLE_TH, GR_HANDLE_SZ, GR_HANDLE_RAD
         lt = (2 * x2) - 2 * rh
         ht = h - rh - wt / 2
@@ -804,6 +827,7 @@ class GridfinityRuggedBox(GridfinityObject):
 
     def render(self):
         """Renders the rugged box body shell."""
+        self.check_dimensions()
         r = self.body_shell(as_lid=False)
 
         # hollow out
@@ -833,7 +857,7 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.union(rq.translate(self.right_qtr_centre))
 
         # add handle mounts
-        if self.front_handle:
+        if self.front_handle and self.long_enough_for_handle:
             r = r.union(
                 self.handle_mount(side="left").translate(self.left_handle_centre)
             )
@@ -855,9 +879,9 @@ class GridfinityRuggedBox(GridfinityObject):
             zo = self.box_height - self.lid_height
             r = r.union(rl.translate((-self.box_length / 2, 0, zo)))
             r = r.union(rr.translate((self.box_length / 2, 0, zo)))
-            hw = w / 2
-            vs = VerticalEdgeSelector([21.2]) & HasYCoordinateSelector([-hw, hw])
-            r = r.edges(vs).fillet(2.5)
+            hw, l2 = w / 2, self.box_length / 2
+            vs = HasXCoordinateSelector([-l2, l2]) & HasYCoordinateSelector([-hw, hw])
+            r = r.edges("|Z").edges(vs).fillet(2.5)
 
         # add front label slot
         if self.front_label:
@@ -884,8 +908,8 @@ class GridfinityRuggedBox(GridfinityObject):
 
     def render_lid(self):
         """Renders the rugged box lid."""
+        self.check_dimensions()
         r = self.body_shell(as_lid=True)
-
         # add hinge mounts
         rc = rotate_y(self.hinge_mount(), 180)
         for pt in self.hinge_centres:
@@ -964,6 +988,7 @@ class GridfinityRuggedBox(GridfinityObject):
 
     def render_assembly(self):
         """Renders a CadQuery Assembly object representing the entire box with accessories"""
+        self.check_dimensions()
         r = self.render()
         a = cq.Assembly(obj=r, name="Gridfinity Rugged Box", color=self.box_color)
 
@@ -971,7 +996,7 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.translate((0, 0, self.box_height))
         a.add(r, color=self.lid_color, name="Lid")
 
-        if self.front_handle:
+        if self.front_handle and self.long_enough_for_handle:
             r = self.render_handle()
             zo = self.right_handle_centre[2] - (GR_HANDLE_SZ - M3_CB_DEPTH)
             r = r.translate((0, -self.box_width / 2 - GR_HANDLE_H / 2, zo))

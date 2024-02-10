@@ -31,7 +31,7 @@ import cadquery as cq
 from cadquery import exporters
 
 from cqgridfinity import *
-from cqkit import export_step_file, size_3d
+from cqkit import export_step_file
 
 # Special test to see which version of CadQuery is installed and
 # therefore if any compensation is required for extruded zlen

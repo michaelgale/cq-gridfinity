@@ -18,6 +18,7 @@ title = """
 
 DESC = """
 Make a customized/parameterized Gridfinity compatible rugged box enclosure.
+The minimum box size is 3U x 3U x 4U.
 """
 
 EPILOG = """
