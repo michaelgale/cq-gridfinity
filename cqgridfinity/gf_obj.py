@@ -81,13 +81,13 @@ class GridfinityObject:
 
     @property
     def box_height(self):
-        return self.height - GR_BASE_HEIGHT
+        return self.height - GR_BASE_PRO_H
 
     @property
     def int_height(self):
         h = self.height - GR_LIP_H - GR_BOT_H
         if self.lite_style:
-            return h + GR_LITE_FLOOR
+            return h + self.wall_th
         return h
 
     @property

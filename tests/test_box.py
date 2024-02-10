@@ -53,7 +53,7 @@ def test_empty_box():
     assert _edges_match(r, ">Z", 16)
     assert _edges_match(r, "<Z", 72)
     assert b1.filename() == "gf_box_2x3x5_holes"
-    assert _almost_same(b1.top_ref_height, 7.2)
+    assert _almost_same(b1.top_ref_height, 7)
 
 
 def test_solid_box():
@@ -71,7 +71,7 @@ def test_solid_box():
     assert b1.filename() == "gf_box_4x2x3_solid"
     assert _almost_same(b1.top_ref_height, 21)
     b1.solid_ratio = 0.5
-    assert _almost_same(b1.top_ref_height, 14.1)
+    assert _almost_same(b1.top_ref_height, 14)
 
 
 def test_divided_box():
