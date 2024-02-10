@@ -604,7 +604,8 @@ b1.save_step_file()
 - v.0.5.1 - Increased the resolution of the gridfinity extruded base profile
 - v.0.5.2 - Adjusted geometry of box/bin floor/lip heights to exactly 7.00 mm intervals
 - v.0.5.3 - Removed a potential namespace collision for computing the height of boxes
-  
+- v.0.5.4 - Optimized the geometry of the baseplate top height
+
 # References
 
 - [Zach Freedman's YouTube Channel](https://www.youtube.com/c/ZackFreedman)
