@@ -140,11 +140,11 @@ class GridfinityBox(GridfinityObject):
             if not self.labels and (self.width_div or self.length_div):
                 bs = VerticalEdgeSelector(
                     GR_TOPSIDE_H, tolerance=0.05
-                ) & HasZCoordinateSelector(GRHU * self.height_u - GR_BASE_PRO_H)
+                ) & HasZCoordinateSelector(GRHU * self.height_u - GR_BASE_HEIGHT)
                 r = self.safe_fillet(r, bs, 1.0)
         if self.holes:
             r = self.render_holes(r)
-        r = r.translate((-self.half_l, -self.half_w, GR_BASE_PRO_H))
+        r = r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
         if self.unsupported_holes:
             r = self.render_hole_fillers(r)
         return r
@@ -161,7 +161,7 @@ class GridfinityBox(GridfinityObject):
 
     @property
     def bin_height(self):
-        return self.height - GR_BASE_PRO_H
+        return self.height - GR_BASE_HEIGHT
 
     def safe_label_height(self, backwall=False, from_bottom=False):
         lw = self.label_width
@@ -236,10 +236,10 @@ class GridfinityBox(GridfinityObject):
         return obj.intersect(self.solid_shell())
 
     def base_interior(self):
-        profile = [GR_BASE_PRO_H, *GR_BOX_PROFILE]
-        zo = GR_BASE_PRO_H
+        profile = [GR_BASE_HEIGHT, *GR_BOX_PROFILE]
+        zo = GR_BASE_HEIGHT
         if self.int_height < 0:
-            h = self.bin_height - GR_BASE_PRO_H
+            h = self.bin_height - GR_BASE_HEIGHT
             profile = [h, *profile]
             zo += h
         r = self.extrude_profile(
@@ -267,7 +267,7 @@ class GridfinityBox(GridfinityObject):
         rc = (
             cq.Workplane("XY")
             .placeSketch(rs)
-            .extrude(-GR_BASE_PRO_H - 1)
+            .extrude(-GR_BASE_HEIGHT - 1)
             .translate((*self.half_dim, 0.5))
         )
         rc = rc.intersect(r).union(rw)

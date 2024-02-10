@@ -68,12 +68,12 @@ def test_spacer_render():
     assert _almost_same(s1.length_th, 17.12, tol=0.01)
     assert _almost_same(s1.width_th, 18.06, tol=0.01)
     r = s1.render_full_set()
-    assert _almost_same(size_3d(r), (582.6125, 412.75, 5))
+    assert _almost_same(size_3d(r), (582.6125, 412.75, 4.75))
     assert s1.filename() == "gf_drawer_4x3_full_set"
     if _export_files("spacer"):
         s1.save_step_file(path=EXPORT_STEP_FILE_PATH)
     rh = s1.render_half_set()
-    assert _almost_same(size_3d(rh), (253.084, 177.0625, 5))
+    assert _almost_same(size_3d(rh), (253.084, 177.0625, 4.75))
     assert s1.filename() == "gf_drawer_4x3_half_set"
     if _export_files("spacer"):
         s1.save_step_file(path=EXPORT_STEP_FILE_PATH)
