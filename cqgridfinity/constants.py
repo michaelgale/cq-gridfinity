@@ -35,12 +35,17 @@ M3_CB_DEPTH = 3.5
 GRU = 42
 GRU2 = GRU / 2
 GRHU = 7
-GRU_CUT = 42.2
-GR_WALL = 1.0
-GR_DIV_WALL = 1.2
 
-GR_RAD = 4
-GR_BASE_HEIGHT = 4.75
+GRU_CUT = 42.2  # base extrusion width
+GR_WALL = 1.0  # nominal exterior wall thickness
+GR_DIV_WALL = 1.2  # width of dividing walls
+GR_TOL = 0.5  # nominal tolerance
+
+GR_RAD = 4  # nominal exterior filleting radius
+GR_BASE_CLR = 0.25  # clearance above the nominal base height
+GR_BASE_HEIGHT = 4.75  # nominal base height
+
+# baseplate extrusion profile
 GR_BASE_CHAMF_H = 0.98994949 / SQRT2
 GR_STR_H = 1.8
 GR_BASE_TOP_CHAMF = GR_BASE_HEIGHT - GR_BASE_CHAMF_H - GR_STR_H
@@ -54,23 +59,20 @@ GR_STR_BASE_PROFILE = (
     GR_STR_H + GR_BASE_CHAMF_H,
 )
 
-GR_HOLE_D = 6.5
-GR_HOLE_H = 2.4
-GR_BOLT_D = 3.0
-GR_BOLT_H = 3.6 + GR_HOLE_H
-GR_HOLE_DIST = 26 / 2
-GR_HOLE_SLICE = 0.25
+GR_BOT_H = 7  # bin nominal floor height
+GR_FILLET = 1.1  # inside filleting radius
+GR_FLOOR = GR_BOT_H - GR_BASE_HEIGHT  # floor offset
 
-GR_BOT_H = 7
-GR_FILLET = 1.2
-GR_FLOOR = GR_BOT_H - GR_BASE_HEIGHT
-GR_LITE_FLOOR = GR_FLOOR - GR_WALL
-GR_LITE_H = GR_LITE_FLOOR - GR_BASE_HEIGHT
-
+# box/bin extrusion profile
 GR_BOX_CHAMF_H = 1.1313708 / SQRT2
-GR_BOX_TOP_CHAMF = GR_BASE_HEIGHT - GR_BOX_CHAMF_H - GR_STR_H
-GR_TOL = 0.5
+GR_BOX_TOP_CHAMF = GR_BASE_HEIGHT - GR_BOX_CHAMF_H - GR_STR_H + GR_BASE_CLR
+GR_BOX_PROFILE = (
+    (GR_BOX_TOP_CHAMF * SQRT2, 45),
+    GR_STR_H,
+    (GR_BOX_CHAMF_H * SQRT2, 45),
+)
 
+# bin mating lip extrusion profile
 GR_UNDER_H = 1.6
 GR_TOPSIDE_H = 1.2
 GR_LIP_PROFILE = (
@@ -87,11 +89,14 @@ for h in GR_LIP_PROFILE:
     else:
         GR_LIP_H += h
 GR_NO_PROFILE = (GR_LIP_H,)
-GR_BOX_PROFILE = (
-    (GR_BOX_TOP_CHAMF * SQRT2, 45),
-    GR_STR_H,
-    (GR_BOX_CHAMF_H * SQRT2, 45),
-)
+
+# bottom hole nominal dimensions
+GR_HOLE_D = 6.5
+GR_HOLE_H = 2.4
+GR_BOLT_D = 3.0
+GR_BOLT_H = 3.6 + GR_HOLE_H
+GR_HOLE_DIST = 26 / 2
+GR_HOLE_SLICE = 0.25
 
 # Rugged Box constant parameters
 GR_RBOX_WALL = 2.5

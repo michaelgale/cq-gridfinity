@@ -93,7 +93,7 @@ class GridfinityObject:
     @property
     def floor_h(self):
         if self.lite_style:
-            return GR_LITE_FLOOR
+            return GR_FLOOR - self.wall_th
         return GR_FLOOR
 
     @property
@@ -143,8 +143,12 @@ class GridfinityObject:
         return GRU2 - self.wall_th - GR_TOL / 2
 
     @property
+    def outer_rad(self):
+        return GR_RAD - GR_TOL / 2
+
+    @property
     def inner_rad(self):
-        return GR_RAD - self.wall_th
+        return self.outer_rad - self.wall_th
 
     @property
     def under_h(self):
@@ -316,8 +320,9 @@ class GridfinityObject:
 
     def extrude_profile(self, sketch, profile, workplane="XY"):
         taper = profile[0][1] if isinstance(profile[0], (list, tuple)) else 0
-        p0 = profile[0][0] if isinstance(profile[0], (list, tuple)) else profile[0]
-        zlen = p0 if ZLEN_FIX else p0 / SQRT2
+        zlen = profile[0][0] if isinstance(profile[0], (list, tuple)) else profile[0]
+        if abs(taper) > 0:
+            zlen = zlen if ZLEN_FIX else zlen / SQRT2
         r = cq.Workplane(workplane).placeSketch(sketch).extrude(zlen, taper=taper)
         for level in profile[1:]:
             if isinstance(level, (tuple, list)):

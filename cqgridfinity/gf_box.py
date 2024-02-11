@@ -90,6 +90,56 @@ class GridfinityBox(GridfinityObject):
         self._int_shell = None
         self._ext_shell = None
 
+    def __str__(self):
+        s = []
+        s.append(
+            "Gridfinity Box %dU x %dU x %dU (%.2f x %.2f x %.2f mm)"
+            % (
+                self.length_u,
+                self.width_u,
+                self.height_u,
+                self.length - GR_TOL,
+                self.width - GR_TOL,
+                self.height,
+            )
+        )
+        sl = "no mating top lip" if self.no_lip else "with mating top lip"
+        ss = "Lite style box  " if self.lite_style else ""
+        s.append("  %sWall thickness: %.2f mm  %s" % (ss, self.wall_th, sl))
+        s.append(
+            "  Floor height  : %.2f mm  Inside height: %.2f mm  Top reference height: %.2f mm"
+            % (self.floor_h + GR_BASE_HEIGHT, self.int_height, self.top_ref_height)
+        )
+        if self.solid:
+            s.append("  Solid filled box with fill ratio %.2f" % (self.solid_ratio))
+        if self.holes:
+            s.append("  Bottom mounting holes with %.2f mm diameter" % (GR_HOLE_D))
+            if self.unsupported_holes:
+                s.append("  Holes are 3D printer friendly and can be unsupported")
+        if self.scoops:
+            s.append("  Lengthwise scoops with %.2f mm radius" % (self.scoop_rad))
+        if self.labels:
+            s.append(
+                "  Lengthwise label shelf %.2f mm wide with %.2f mm overhang"
+                % (self.label_width, self.label_height)
+            )
+        if self.length_div:
+            xl = (self.inner_l - GR_DIV_WALL * (self.length_div)) / (
+                self.length_div + 1
+            )
+            s.append(
+                "  %dx lengthwise divisions for %.2f mm compartment lengths"
+                % (self.length_div, xl)
+            )
+        if self.width_div:
+            yl = (self.inner_w - GR_DIV_WALL * (self.width_div)) / (self.width_div + 1)
+            s.append(
+                "  %dx widthwise divisions for %.2f mm compartment widths"
+                % (self.width_div, yl)
+            )
+        s.append("  Auto filename: %s" % (self.filename()))
+        return "\n".join(s)
+
     def render(self):
         """Returns a CadQuery Workplane object representing this Gridfinity box."""
         self._int_shell = None
@@ -131,12 +181,18 @@ class GridfinityBox(GridfinityObject):
             bs = (
                 HasZCoordinateSelector(heights, min_points=1, tolerance=0.5)
                 + VerticalEdgeSelector(">5")
-                - HasZCoordinateSelector("<%.2f" % (GR_LITE_FLOOR))
+                - HasZCoordinateSelector("<%.2f" % (self.floor_h))
             )
+            if self.lite_style:
+                bs = bs - HasZCoordinateSelector("<=%.2f" % (self.floor_h))
+
             r = self.safe_fillet(r, bs, self.safe_fillet_rad)
             if self.lite_style and self.width_div < 1 and self.length_div < 1:
-                bs = FlatEdgeSelector(GR_LITE_FLOOR)
-                r = self.safe_fillet(r, bs, 0.5)
+                bs = FlatEdgeSelector(self.floor_h)
+                if self.wall_th < 1.2:
+                    r = self.safe_fillet(r, bs, 0.5)
+                elif self.wall_th < 1.5:
+                    r = self.safe_fillet(r, bs, 0.25)
             if not self.labels and (self.width_div or self.length_div):
                 bs = VerticalEdgeSelector(
                     GR_TOPSIDE_H, tolerance=0.05
@@ -199,7 +255,7 @@ class GridfinityBox(GridfinityObject):
         profile = GR_NO_PROFILE if self.no_lip else profile
         profile = [wall_h, *profile]
         if self.int_height < 0:
-            profile = [wall_h - self.floor_h]
+            profile = [self.height - GR_BOT_H]
         rci = self.extrude_profile(
             rounded_rect_sketch(*self.inner_dim, self.inner_rad), profile
         )
@@ -237,13 +293,13 @@ class GridfinityBox(GridfinityObject):
 
     def base_interior(self):
         profile = [GR_BASE_HEIGHT, *GR_BOX_PROFILE]
-        zo = GR_BASE_HEIGHT
+        zo = GR_BASE_HEIGHT + GR_BASE_CLR
         if self.int_height < 0:
             h = self.bin_height - GR_BASE_HEIGHT
             profile = [h, *profile]
             zo += h
         r = self.extrude_profile(
-            rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, GR_RAD),
+            rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, self.outer_rad),
             profile,
         )
         rx = r.faces("<Z").shell(-self.wall_th)
@@ -253,16 +309,17 @@ class GridfinityBox(GridfinityObject):
     def render_shell(self, as_solid=False):
         """Renders the box shell without any added features."""
         r = self.extrude_profile(
-            rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, GR_RAD), GR_BOX_PROFILE
+            rounded_rect_sketch(GRU, GRU, self.outer_rad + GR_BASE_CLR), GR_BOX_PROFILE
         )
+        r = r.translate((0, 0, -GR_BASE_CLR))
         r = r.mirror(mirrorPlane="XY")
         r = composite_from_pts(r, self.grid_centres)
-        rs = rounded_rect_sketch(*self.outer_dim, GR_RAD)
+        rs = rounded_rect_sketch(*self.outer_dim, self.outer_rad)
         rw = (
             cq.Workplane("XY")
             .placeSketch(rs)
-            .extrude(self.bin_height)
-            .translate((*self.half_dim, 0))
+            .extrude(self.bin_height - GR_BASE_CLR)
+            .translate((*self.half_dim, GR_BASE_CLR))
         )
         rc = (
             cq.Workplane("XY")

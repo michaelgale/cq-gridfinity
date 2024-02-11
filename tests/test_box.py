@@ -27,6 +27,11 @@ def test_basic_box():
     assert b1.filename() == "gf_box_2x3x5_basic"
     if _export_files("box"):
         b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+    b1 = GridfinityBox(2, 3, 5, no_lip=True)
+    if _export_files("box"):
+        b1.wall_th = 1.5
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
 
 
 def test_lite_box():
@@ -40,6 +45,17 @@ def test_lite_box():
     assert _edges_match(r, ">Z", 16)
     assert _edges_match(r, "<Z", 48)
     assert b1.filename() == "gf_box_lite_2x3x5"
+    if _export_files("box"):
+        b1 = GridfinityBox(2, 3, 5, lite_style=True)
+        b1.wall_th = 1.2
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+        b1 = GridfinityBox(1, 1, 1, lite_style=True)
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+        b1 = GridfinityBox(1, 1, 2, lite_style=True)
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
 
 
 def test_empty_box():
@@ -54,6 +70,18 @@ def test_empty_box():
     assert _edges_match(r, "<Z", 72)
     assert b1.filename() == "gf_box_2x3x5_holes"
     assert _almost_same(b1.top_ref_height, 7)
+    if _export_files("box"):
+        b1 = GridfinityBox(2, 3, 5, holes=True)
+        b1.wall_th = 1.5
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+
+        b1 = GridfinityBox(1, 1, 1)
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+        b1 = GridfinityBox(1, 1, 2)
+        r = b1.render()
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
 
 
 def test_solid_box():
@@ -113,4 +141,17 @@ def test_all_features_box():
     r = b1.render()
     assert _almost_same(size_3d(r), (83.5, 83.5, 24.8))
     if _export_files("box"):
+        b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
+        b1 = GridfinityBox(
+            2,
+            2,
+            3,
+            holes=True,
+            length_div=1,
+            width_div=1,
+            scoops=True,
+            labels=True,
+            wall_th=1.25,
+        )
+        r = b1.render()
         b1.save_step_file(path=EXPORT_STEP_FILE_PATH)
