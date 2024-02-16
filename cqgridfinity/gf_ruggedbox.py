@@ -32,6 +32,7 @@ from cqkit import (
     VerticalEdgeSelector,
     EdgeLengthSelector,
     RadiusSelector,
+    FlatEdgeSelector,
 )
 from cqkit.cq_helpers import (
     rounded_rect_sketch,
@@ -897,6 +898,7 @@ class GridfinityRuggedBox(GridfinityObject):
         if self.inside_baseplate:
             rb = GridfinityBaseplate(self.length_u, self.width_u, ext_depth=1.6)
             r = r.union(rb.render().translate((0, 0, GR_RBOX_FLOOR)))
+            r = r.edges(FlatEdgeSelector(GR_RBOX_FLOOR)).chamfer(0.8)
         else:
             rb = self.extrude_profile(
                 rounded_rect_sketch(self.length, self.width, GR_RAD), [GR_RBOX_WALL]

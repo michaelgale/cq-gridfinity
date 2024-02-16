@@ -60,6 +60,8 @@ class GridfinityBox(GridfinityObject):
     - label_width : width of top label ledge face overhang
     - label_height : height of label ledge overhang
     - scoop_rad : radius of the bottom scoop feature
+    - wall_th : wall thickness
+    - hole_diam : magnet/counterbore bolt hole diameter
 
     """
 
@@ -84,6 +86,7 @@ class GridfinityBox(GridfinityObject):
         self.scoop_rad = 12  # radius of optional interior scoops
         self.fillet_interior = True
         self.wall_th = GR_WALL
+        self.hole_diam = GR_HOLE_D  # magnet/bolt hole diameter
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
@@ -113,7 +116,7 @@ class GridfinityBox(GridfinityObject):
         if self.solid:
             s.append("  Solid filled box with fill ratio %.2f" % (self.solid_ratio))
         if self.holes:
-            s.append("  Bottom mounting holes with %.2f mm diameter" % (GR_HOLE_D))
+            s.append("  Bottom mounting holes with %.2f mm diameter" % (self.hole_diam))
             if self.unsupported_holes:
                 s.append("  Holes are 3D printer friendly and can be unsupported")
         if self.scoops:
@@ -251,8 +254,7 @@ class GridfinityBox(GridfinityObject):
         wall_u = self.wall_th - GR_WALL
         wall_h = self.int_height + wall_u
         under_h = ((GR_UNDER_H - wall_u) * SQRT2, 45)
-        profile = [under_h, *GR_LIP_PROFILE[1:]]
-        profile = GR_NO_PROFILE if self.no_lip else profile
+        profile = GR_NO_PROFILE if self.no_lip else [under_h, *GR_LIP_PROFILE[1:]]
         profile = [wall_h, *profile]
         if self.int_height < 0:
             profile = [self.height - GR_BOT_H]
@@ -448,12 +450,12 @@ class GridfinityBox(GridfinityObject):
             obj.faces("<Z")
             .workplane()
             .pushPoints(self.hole_centres)
-            .cboreHole(GR_BOLT_D, GR_HOLE_D, h, depth=GR_BOLT_H)
+            .cboreHole(GR_BOLT_D, self.hole_diam, h, depth=GR_BOLT_H)
         )
 
     def render_hole_fillers(self, obj):
-        rc = cq.Workplane("XY").rect(GR_HOLE_D / 2, GR_HOLE_D).extrude(GR_HOLE_SLICE)
-        xo = GR_HOLE_D / 2
+        rc = cq.Workplane("XY").rect(self.hole_diam / 2, self.hole_diam).extrude(GR_HOLE_SLICE)
+        xo = self.hole_diam / 2
         rs = composite_from_pts(rc, [(-xo, 0, GR_HOLE_H), (xo, 0, GR_HOLE_H)])
         rs = composite_from_pts(rs, self.hole_centres)
         return obj.union(rs.translate((-self.half_l, self.half_w, 0)))
