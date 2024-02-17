@@ -19,3 +19,4 @@
 - v.0.5.3 - Removed a potential namespace collision for computing the height of boxes
 - v.0.5.4 - Optimized the geometry of the baseplate top height
 - v.0.5.5 - Added underside bin clearance and variable wall thickness interior radiusing
+- v.0.5.6 - Added adjustable magnet hole diameter to box. Prevent drawer spacers being rendered which fall below minimum size

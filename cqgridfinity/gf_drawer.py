@@ -144,11 +144,28 @@ class GridfinityDrawerSpacer(GridfinityObject):
     def deep_enough(self):
         return self.length_th > self.min_margin
 
+    def check_dimensions(self):
+        """Check required size does not fall below specified minimum margin."""
+        if not self.wide_enough and not self.deep_enough:
+            print("Drawer spacers NOT required since resulting margins are:")
+            print(
+                "  %.2f mm +/-%.2f mm (tolerance) widthwise which is not above the %.2f margin threshold"
+                % (self.length_th, self.tolerance, self.min_margin)
+            )
+            print(
+                "  %.2f mm +/-%.2f mm (tolerance) depthwise which is not above the %.2f margin threshold"
+                % (self.width_th, self.tolerance, self.min_margin)
+            )
+            return False
+        return True
+
     def render(self, arrows_top=True, arrows_bottom=True):
         """Renders a corner spacer component. This component can be used for any of
         the four corners due to symmetry.  Optional arrows can be cut into the
         component on the top or bottom to show the drawer sliding/depth-wise direction
         """
+        if not self.check_dimensions():
+            return None
         sp_length = self.length + self.width_th + self.tolerance
         sp_width = self.width + self.length_th + self.tolerance
         r, rd = None, None
@@ -158,15 +175,17 @@ class GridfinityDrawerSpacer(GridfinityObject):
                 .rect(sp_length, self.length_th)
                 .extrude(self.thickness)
             )
+            er = min(GR_RAD, self.length_th / 4)
             r = r.translate((sp_length / 2, self.length_th / 2, 0))
-            r = r.edges("|Z").edges("<X").edges("<Y").fillet(GR_RAD)
+            r = r.edges("|Z").edges("<X").edges("<Y").fillet(er)
             r = r.edges("|Z").fillet(self.fillet_rad)
         if self.wide_enough:
             rd = (
                 cq.Workplane("XY").rect(self.width_th, sp_width).extrude(self.thickness)
             )
+            er = min(GR_RAD, self.width_th / 4)
             rd = rd.translate((self.width_th / 2, sp_width / 2, 0))
-            rd = rd.edges("|Z").edges("<X").edges("<Y").fillet(GR_RAD)
+            rd = rd.edges("|Z").edges("<X").edges("<Y").fillet(er)
             rd = rd.edges("|Z").fillet(self.fillet_rad)
 
         if r is not None and rd is not None:
@@ -299,6 +318,8 @@ class GridfinityDrawerSpacer(GridfinityObject):
         respective installed position in the drawer so that the resulting object can
         be used to preview final composition of components."""
         # Four corners top/bottom left + top/bottom right
+        if not self.check_dimensions():
+            return None
         bl = self.render()
         tl = rotate_x(bl, 180).translate((0, self.size[1], self.thickness))
         br = rotate_y(bl, 180).translate((self.size[0], 0, self.thickness))
@@ -332,6 +353,8 @@ class GridfinityDrawerSpacer(GridfinityObject):
         for 3D printing.  This resulting compound object can then be printed twice to
         yield a complete set of spacer components for a drawer."""
         # one of each corner
+        if not self.check_dimensions():
+            return None
         bl = self.render(arrows_bottom=False)
         br = self.render(arrows_top=False)
         if self.deep_enough:

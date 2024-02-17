@@ -454,7 +454,11 @@ class GridfinityBox(GridfinityObject):
         )
 
     def render_hole_fillers(self, obj):
-        rc = cq.Workplane("XY").rect(self.hole_diam / 2, self.hole_diam).extrude(GR_HOLE_SLICE)
+        rc = (
+            cq.Workplane("XY")
+            .rect(self.hole_diam / 2, self.hole_diam)
+            .extrude(GR_HOLE_SLICE)
+        )
         xo = self.hole_diam / 2
         rs = composite_from_pts(rc, [(-xo, 0, GR_HOLE_H), (xo, 0, GR_HOLE_H)])
         rs = composite_from_pts(rs, self.hole_centres)
