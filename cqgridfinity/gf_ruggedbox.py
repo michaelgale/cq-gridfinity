@@ -33,8 +33,6 @@ from cqkit import (
     EdgeLengthSelector,
     RadiusSelector,
     FlatEdgeSelector,
-)
-from cqkit.cq_helpers import (
     rounded_rect_sketch,
     recentre,
     composite_from_pts,
@@ -44,8 +42,11 @@ from cqkit.cq_helpers import (
     size_2d,
     size_3d,
     bounds_3d,
+    inverse_fillet,
+    Ribbon,
 )
-from cqkit import Ribbon
+
+# from cqkit import Ribbon
 from cqgridfinity import *
 from .gf_helpers import *
 
@@ -189,11 +190,7 @@ class GridfinityRuggedBox(GridfinityObject):
         zo = (self.box_height + self.lid_height) / 2
         if (zo + GR_HANDLE_SZ / 2) > self.box_height:
             zo = self.box_height / 2
-        return (
-            self.box_length / 2 - GR_HANDLE_OFS,
-            -self.box_width / 2,
-            zo,
-        )
+        return self.box_length / 2 - GR_HANDLE_OFS, -self.box_width / 2, zo
 
     @property
     def left_handle_centre(self):
@@ -258,11 +255,8 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.union(composite_from_pts(rc, self.front_corner_centres))
         # fillet external edges
         vs = VerticalEdgeSelector()
-        cs = (
-            StringSyntaxSelector("<X and <Y")
-            + StringSyntaxSelector(">X and >Y")
-            + StringSyntaxSelector("<X and >Y")
-            + StringSyntaxSelector(">X and <Y")
+        cs = StringSyntaxSelector(
+            "(<X and <Y) or (>X and <Y) or (<X and >Y) or (>X and >Y)"
         )
         r = r.edges(vs - cs).fillet(GR_RBOX_RAD).edges(cs).fillet(GR_RBOX_CRAD)
 
@@ -301,19 +295,12 @@ class GridfinityRuggedBox(GridfinityObject):
         if self.side_clasps:
             for pt in self.side_clasp_centres:
                 r = r.cut(rc.translate(pt))
-                if pt[0] < 0:
-                    r = r.union(
-                        self.clasp_ribs(side="left", as_lid=as_lid).translate(pt)
-                    )
-                else:
-                    r = r.union(
-                        self.clasp_ribs(side="right", as_lid=as_lid).translate(pt)
-                    )
+                side = "left" if pt[0] < 0 else "right"
+                r = r.union(self.clasp_ribs(side=side, as_lid=as_lid).translate(pt))
         rc = rotate_z(rc, 90)
         for pt in self.front_clasp_centres:
             r = r.cut(rc.translate(pt))
             r = r.union(self.clasp_ribs(side="front", as_lid=as_lid).translate(pt))
-
         return r
 
     def render_vcut(self):
@@ -338,8 +325,7 @@ class GridfinityRuggedBox(GridfinityObject):
     def lid_handle(self, width=None):
         """Renders the front overhanging handle lip for the lid."""
         width = width if width is not None else GR_LID_HANDLE_W
-        l0, l1, h1 = 3, 5, 4
-        h2 = self.lid_height - GR_RBOX_VCUT_D
+        l0, l1, h1, h2, hw = 3, 5, 4, self.lid_height - GR_RBOX_VCUT_D, width / 2
         rs = (
             cq.Sketch()
             .segment((l0, 0), (-l1, 0))
@@ -348,9 +334,7 @@ class GridfinityRuggedBox(GridfinityObject):
             .close()
             .assemble()
         )
-        r = cq.Workplane("YZ").placeSketch(rs).extrude(width)
-        hw = width / 2
-        r = r.translate((-hw, 0, 0))
+        r = cq.Workplane("YZ").placeSketch(rs).extrude(width).translate((-hw, 0, 0))
         vs = VerticalEdgeSelector([h1]) & HasXCoordinateSelector([-hw, hw])
         r = r.edges(vs).fillet(2.45).faces("<Z").shell(-2.5)
         vs = VerticalEdgeSelector(3) & HasYCoordinateSelector(-l1 + 2.5)
@@ -362,7 +346,7 @@ class GridfinityRuggedBox(GridfinityObject):
     def side_handle(self, width=None):
         """Renders the handles for the left and right box sides."""
         width = width if width is not None else GR_LID_HANDLE_W
-        l0, l1, h1 = GR_RBOX_WALL, 7, 4
+        l0, l1, h1, hw = GR_RBOX_WALL, 7, 4, width / 2
         l2 = GR_RBOX_WALL / 2
         h2 = self.lid_height - GR_RBOX_VCUT_D + 2
         # handle shape
@@ -378,42 +362,22 @@ class GridfinityRuggedBox(GridfinityObject):
         # vertical under support
         rs = (
             cq.Sketch()
-            .segment((l0, 0), (l0, -h2))
-            .segment((0.75, -h2 + 1.5))
+            .segment((0, 0), (0, -h2 + 2.5))
             .segment((-l1, 0.5))
             .segment((-l1, h1))
-            .segment((l0, h2 + l0))
+            .segment((0, h2))
             .close()
             .assemble()
         )
         rw = cq.Workplane("YZ").placeSketch(rs).extrude(2.5)
-        re = (
-            cq.Workplane("XY")
-            .rect(20, GR_RBOX_WALL)
-            .extrude(50)
-            .translate((l2, l2, -h2 - 5))
-        )
-        rw = rw.union(re)
-        bs = EdgeLengthSelector(GR_RBOX_WALL) & HasYCoordinateSelector(
-            0, min_points=2
-        ) - HasZCoordinateSelector(">0")
-        rw = rw.edges(bs).fillet(5)
-        rw = rw.cut(
-            cq.Workplane("XY")
-            .rect(20, GR_RBOX_WALL)
-            .extrude(50)
-            .translate((l2, l2, -h2 - 5))
+        rw = inverse_fillet(
+            rw, ">Y", 5, (StringSyntaxSelector("<Z") & EdgeLengthSelector(GR_RBOX_WALL))
         )
         rh = []
+        bs = VerticalEdgeSelector() & (HasYCoordinateSelector("<0"))
         for coord in [[0, 2.5], [0], [2.5]]:
-            bs = (
-                VerticalEdgeSelector()
-                & HasXCoordinateSelector(coord, min_points=2)
-                & (HasYCoordinateSelector("<0"))
-            )
-            bs = bs - HasZCoordinateSelector(">4")
-            rh.append(rw.edges(bs).chamfer(0.5))
-        hw = width / 2
+            es = bs & HasXCoordinateSelector(coord, min_points=2)
+            rh.append(rw.edges(es - HasZCoordinateSelector(">4")).chamfer(0.5))
         r = r.faces("<Z").shell(-2.5)
         bs = (
             HasZCoordinateSelector(0, min_points=2)
@@ -430,8 +394,7 @@ class GridfinityRuggedBox(GridfinityObject):
         vs = VerticalEdgeSelector(2.9) & HasYCoordinateSelector(-l1 + GR_RBOX_WALL)
         r = r.edges(vs).fillet(1)
         rc = cq.Workplane("XY").rect(4 * hw, 4 * hw).extrude(self.lid_height + 2 * h2)
-        rc = rc.translate((0, 0, -2 * h2))
-        r = r.intersect(rc)
+        r = r.intersect(rc.translate((0, 0, -2 * h2)))
         return r
 
     def label_slot(self):
@@ -443,8 +406,7 @@ class GridfinityRuggedBox(GridfinityObject):
             .rect(*self.label_size(as_aperture=True))
             .extrude(GR_LABEL_SLOT_TH)
         )
-        rc = rc.edges(EdgeLengthSelector(GR_LABEL_SLOT_TH)).chamfer(2.5)
-        r = r.cut(rc)
+        r = r.cut(rc.edges(EdgeLengthSelector(GR_LABEL_SLOT_TH)).chamfer(2.5))
         xl, yl = self.label_size(as_insert=True)
         xl -= 8
         rc = cq.Workplane("XZ").rect(xl, yl).extrude(GR_LABEL_SLOT_TH)
@@ -458,8 +420,7 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.cut(rc.translate((0, 0, GR_LABEL_SLOT_TH)))
 
         # simple restraining ramps to prevent the label slipping out
-        rc = cq.Workplane("XZ").rect(5, 2.5).extrude(1)
-        rc = rc.edges("<Y").chamfer(1 - EPS)
+        rc = cq.Workplane("XZ").rect(5, 2.5).extrude(1).edges("<Y").chamfer(1 - EPS)
         for pt in [(-xl / 4, 0, yl / 2 - 2.0), (xl / 4, 0, yl / 2 - 2.0)]:
             r = r.union(rc.translate(pt))
         return r
@@ -498,12 +459,10 @@ class GridfinityRuggedBox(GridfinityObject):
                 .close()
                 .extrude(GR_RIB_W)
             )
-            rc = rc.translate((-GR_RIB_L / 1.85, GR_RIB_W / 2, 0))
-            r = r.cut(rc)
+            r = r.cut(rc.translate((-GR_RIB_L / 1.85, GR_RIB_W / 2, 0)))
             rc = cq.Workplane("XY").rect(GR_RIB_L / 2, GR_RIB_W).extrude(GR_RIB_H / 3)
             rc = rc.faces(">Z").edges("<X or >X").chamfer(GR_RIB_H / 3 - EPS)
-            rc = rc.translate((-GR_RIB_L / 2.33, 0, 0))
-            r = r.union(rc)
+            r = r.union(rc.translate((-GR_RIB_L / 2.33, 0, 0)))
         return r
 
     def clasp_ribs(self, side="left", as_lid=False):
@@ -560,10 +519,8 @@ class GridfinityRuggedBox(GridfinityObject):
                     .pushPoints([(0, GR_HANDLE_H / 2)])
                     .hole(M3_CB_DIAM, M3_CB_DEPTH)
                 )
-            r = r.union(cq.Workplane("XY").rect(50, 50).extrude(-1))
-            bs = EdgeLengthSelector(GR_HANDLE_W) & HasZCoordinateSelector(0)
-            r = r.edges(bs).fillet(GR_RAD)
-            r = r.cut(cq.Workplane("XY").rect(50, 50).extrude(-1))
+
+            r = inverse_fillet(r, "<Z", GR_RAD, EdgeLengthSelector(GR_HANDLE_W))
             r = r.faces(">Z").chamfer(0.75)
             return rotate_x(r, 90)
 
@@ -581,26 +538,17 @@ class GridfinityRuggedBox(GridfinityObject):
             print("Rugged box length dimension too small to include a handle")
             return None
         wt, h, rh = GR_HANDLE_TH, GR_HANDLE_SZ, GR_HANDLE_RAD
-        lt = (2 * x2) - 2 * rh
-        ht = h - rh - wt / 2
-        path = [
-            ("start", {"position": (x2, h), "direction": -90, "width": wt}),
-            ("line", {"length": ht}),
-            ("arc", {"radius": rh, "angle": 90}),
-            ("line", {"length": lt}),
-            ("arc", {"radius": rh, "angle": 90}),
-            ("line", {"length": ht}),
-        ]
+        lt, ht = (2 * x2) - 2 * rh, h - rh - wt / 2
+        path = {
+            "start": "(%f,%f) dir:-90 width:%f" % (x2, h, wt),
+            "path": "L:%f A:%f,90 L:%f A:%f,90 L:%f" % (ht, rh, lt, rh, ht),
+        }
         cw = Ribbon("XZ", path)
-        r = cw.render()
-        r = r.extrude(wt).faces(">Z").edges("|X").fillet(wt / 2 - EPS)
+        cw.direction = -90
+        r = cw.render().extrude(wt).faces(">Z").edges("|X").fillet(wt / 2 - EPS)
         r = recentre(r.edges().chamfer(1), "XY")
-        r = r.cut(
-            cq.Workplane("YZ")
-            .circle(M3_CLR_DIAM / 2)
-            .extrude(8 * lt)
-            .translate((-4 * lt, 0, h - M3_CLR_DIAM))
-        )
+        rc = cq.Workplane("YZ").circle(M3_CLR_DIAM / 2).extrude(8 * lt)
+        r = r.cut(rc.translate((-4 * lt, 0, h - M3_CLR_DIAM)))
         self._obj_label = "handle"
         self._cq_obj = r
         return self._cq_obj
@@ -610,14 +558,11 @@ class GridfinityRuggedBox(GridfinityObject):
         the box vertically."""
         rs = cq.Sketch().slot(2 * GR_HINGE_OFFS, 2 * GR_HINGE_RAD, 0)
         rc = cq.Workplane("YZ").placeSketch(rs).extrude(self.hinge_width - 0.4)
-        rc = recentre(rc)
-        return rc.edges().chamfer(1).translate((0, 0, GR_HINGE_RAD))
+        return recentre(rc).edges().chamfer(1).translate((0, 0, GR_HINGE_RAD))
 
     def hinge_mount(self):
         """Mounting cutout for hinge"""
-        l1 = self.hinge_width + 2
-        l2 = self.hinge_width
-        l3 = (self.hinge_width - 2) / 2
+        l1, l2, l3 = self.hinge_width + 2, self.hinge_width, (self.hinge_width - 2) / 2
         r = cq.Workplane("XY").rect(l1, GR_HINGE_W1).extrude(GR_HINGE_H1)
         r = r.translate((0, -GR_HINGE_W1 / 2, -GR_HINGE_H1))
         r2 = cq.Workplane("XY").rect(l2, GR_HINGE_W2).extrude(GR_HINGE_H2)
@@ -626,13 +571,9 @@ class GridfinityRuggedBox(GridfinityObject):
             [l2, GR_HINGE_W2]
         )
         r = r.union(r2).edges(bs).edges(">Y or <X or >X").chamfer(0.75)
-        r3 = (
-            cq.Workplane("XY")
-            .placeSketch(rounded_rect_sketch(l3, GR_HINGE_W3, 0.5))
-            .extrude(GR_HINGE_H2)
-        )
-        xo = GR_HINGE_SEP / 2 + l3 / 2
-        yo = -GR_HINGE_W1 - 1.2 - GR_HINGE_W3 / 2
+        rs = rounded_rect_sketch(l3, GR_HINGE_W3, 0.5)
+        r3 = cq.Workplane("XY").placeSketch(rs).extrude(GR_HINGE_H2)
+        xo, yo = GR_HINGE_SEP / 2 + l3 / 2, -GR_HINGE_W1 - 1.2 - GR_HINGE_W3 / 2
         rh = self.hex_cut().translate(
             (0, 0, GR_HINGE_H2 - GR_HINGE_H1 - GR_HEX_H / 2 + GR_HINGE_SKEW)
         )
@@ -695,43 +636,28 @@ class GridfinityRuggedBox(GridfinityObject):
         bs = EdgeLengthSelector(">0.8") - HasZCoordinateSelector(0, min_points=2)
         rc = rc.edges(bs).chamfer(0.2)
         (_, _, _), (xm, _, _) = bounds_3d(r)
-
         for pt in [(x - 1.25, y, th) for x in (-c2, c2) for y in (-1.575, 1.575)]:
             r = r.union(rc.translate(pt))
-        rl = rc.intersect(
-            cq.Workplane("XY").rect(3.5, 1).extrude(7).translate((2.25, 0, 0))
-        )
-        rr = rc.intersect(
-            cq.Workplane("XY").rect(3.5, 1).extrude(7).translate((-2.25, 0, 0))
-        )
+        rd = cq.Workplane("XY").rect(3.5, 1).extrude(7)
+        rl = rc.intersect(rd.translate((2.25, 0, 0)))
+        rr = rc.intersect(rd.translate((-2.25, 0, 0)))
         for pt in [(-xm, y, th) for y in (-1.575, 1.575)]:
             r = r.union(rl.translate(pt))
         for pt in [(13.75, y, th) for y in (-1.575, 1.575)]:
             r = r.union(rr.translate(pt))
-
-        rc = cq.Workplane("XZ").rect(2, 3.4).extrude(0.4)
-        rc = rc.edges("<Y").chamfer(0.4 - EPS)
-
+        rc = cq.Workplane("XZ").rect(2, 3.4).extrude(0.4).edges("<Y").chamfer(0.4 - EPS)
         xo = xm - self.lid_height
         r = r.union(rc.translate((xo, -w2, h2)))
         r = r.union(rotate_z(rc, 180).translate((xo, w2, h2)))
 
         rc = cq.Workplane("XZ").rect(6.0, 0.4).extrude(-1.5)
-        r = r.cut(rc.translate((xo, -w2, h2 + 2.1)))
-        r = r.cut(rc.translate((xo, -w2, h2 - 2.1)))
-        r = r.cut(rc.translate((xo, w2 - 1.5, h2 + 2.1)))
-        r = r.cut(rc.translate((xo, w2 - 1.5, h2 - 2.1)))
+        for pt in [(xo, y, h2 + z) for y in (-w2, w2 - 1.5) for z in (-2.1, 2.1)]:
+            r = r.cut(rc.translate(pt))
         r = (
-            r.edges(HasYCoordinateSelector(-w2, min_points=2))
+            r.edges(HasYCoordinateSelector([-w2, w2], min_points=2))
             .edges(EdgeLengthSelector([6.0, 0.4]))
             .chamfer(0.2 - EPS)
         )
-        r = (
-            r.edges(HasYCoordinateSelector(w2, min_points=2))
-            .edges(EdgeLengthSelector([6.0, 0.4]))
-            .chamfer(0.2 - EPS)
-        )
-
         rc = cq.Workplane("XZ").circle(3.8 / 2).extrude(2).faces("<Y").chamfer(0.5)
         re = cq.Workplane("XY").rect(50, 50).extrude(20).translate((0, 0, -1.4))
         rc = rc.intersect(re)
@@ -745,14 +671,12 @@ class GridfinityRuggedBox(GridfinityObject):
         """Renders the rear hinge."""
         tol = 0.25 / 2
         cl = 2 * (GR_HINGE_OFFS + GR_HINGE_D + GR_HINGE_W2 / 2)
-        wh, dh = GR_HINGE_W2 - 0.4, GR_HINGE_H2 - 1
-        ls, ws = cl / 2, GR_HINGE_H1 - 0.4
-        h = self.hinge_width - 0.4
+        wh, dh = GR_HINGE_W2 - GR_HINGE_TOL, GR_HINGE_H2 - 1
+        ls, ws = cl / 2, GR_HINGE_H1 - GR_HINGE_TOL
+        h = self.hinge_width - GR_HINGE_TOL
         h3 = h / 3
-        ha, hb = h3 - tol, h3 + tol
-        hc, hd = 2 * h3 - tol, 2 * h3 + tol
-        cro, cri = 3.9, 3.5
-        crb, crs = 4.5 / 2, 4.0 / 2
+        ha, hb, hc, hd = h3 - tol, h3 + tol, 2 * h3 - tol, 2 * h3 + tol
+        cro, cri, crb, crs = GR_HINGE_RAD + GR_HINGE_TOL, GR_HINGE_RAD, 4.5 / 2, 4.0 / 2
         ctr = (cl / 2 + wh / 2, -GR_HINGE_SKEW)
 
         def _bracket(side="left"):
@@ -777,13 +701,11 @@ class GridfinityRuggedBox(GridfinityObject):
             rl = rl.cut(chamf_cyl(cro, hb, 0).translate((*ctr, pt)))
         rr = _bracket(side="right")
         rr = rr.cut(chamf_cyl(cro, hd - ha, 0).translate((*ctr, ha)))
-
         bs = EdgeLengthSelector(">0.2") - EdgeLengthSelector([wh, h], tolerance=0.02)
         bs = bs - HasYCoordinateSelector(dh - 1.5, min_points=2)
         bs = bs - (RadiusSelector(cro) & HasZCoordinateSelector([ha, hb, hc, hd]))
         rl = rl.edges(bs).chamfer(0.5)
         rr = rr.edges(bs).chamfer(0.5)
-
         rl = rl.union(chamf_cyl(cri, hc - hb).translate((*ctr, hb)))
         if not self.hinge_bolted:
             rl = rl.cut(chamf_cyl(crb, hc - hb, 0).translate((*ctr, hb)))
@@ -816,10 +738,7 @@ class GridfinityRuggedBox(GridfinityObject):
             rl = rotate_z(rl.translate((-ctr[0], -ctr[1], 0)), 90)
             rr = rotate_z(rr.translate((-ctr[0], -ctr[1], 0)), -90)
         if section is not None:
-            if section == "outer":
-                r = rr
-            else:
-                r = rl
+            r = rr if section == "outer" else rl
         else:
             r = rl.union(rr)
         self._cq_obj = r

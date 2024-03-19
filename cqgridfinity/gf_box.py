@@ -200,7 +200,7 @@ class GridfinityBox(GridfinityObject):
                 bs = VerticalEdgeSelector(
                     GR_TOPSIDE_H, tolerance=0.05
                 ) & HasZCoordinateSelector(GRHU * self.height_u - GR_BASE_HEIGHT)
-                r = self.safe_fillet(r, bs, 1.0)
+                r = self.safe_fillet(r, bs, GR_TOPSIDE_H - EPS)
         if self.holes:
             r = self.render_holes(r)
         r = r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))

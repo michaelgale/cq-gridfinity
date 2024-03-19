@@ -96,10 +96,10 @@ def test_spacer_render():
 
 # def test_spacer_render():
 #     s1 = GridfinityDrawerSpacer(tolerance=0.25)
-#     dx, dy = INCHES(22 + 7/8)-0.5, INCHES(16 + 3/16)-0.5
+#     dx, dy = INCHES(22 + 7 / 8) - 0.5, INCHES(16 + 3 / 16) - 0.5
 #     s1.best_fit_to_dim(dx, dy, verbose=True)
 #     rh = s1.render_half_set()
-# #     assert _almost_same(size_3d(rh), (253.084, 177.0625, 5))
+#     #     assert _almost_same(size_3d(rh), (253.084, 177.0625, 5))
 #     # assert s1.filename() == "gf_drawer_4x3_half_set"
 #     # if _export_files("spacer"):
 #     s1.save_step_file(path=EXPORT_STEP_FILE_PATH)

@@ -48,11 +48,11 @@ lint-check: ## check if lint status is consistent between commits
 	@black --diff --check tests/*.py
 
 test: ## run tests quickly with the default Python
-	@py.test -s -v --cov
+	@py.test -s -v --cov -W ignore::DeprecationWarning:nptyping.typing_
 
 test-files: ## run tests and export test files artifacts
 	@export EXPORT_STEP_FILES="all" && \
-	py.test -s -v
+	py.test -s -v -W ignore::DeprecationWarning:nptyping.typing_
 	
 coverage: ## check code coverage quickly with the default Python
 	coverage run --source cqgridfinity -m pytest

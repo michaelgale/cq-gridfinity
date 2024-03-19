@@ -10,7 +10,7 @@ import setuptools
 PACKAGE_NAME = "cqgridfinity"
 
 
-required = ["cadquery", "cqkit"]
+required = ["cadquery", "cqkit>=0.5.6"]
 dependency_links = []
 
 
