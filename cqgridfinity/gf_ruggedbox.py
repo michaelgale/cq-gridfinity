@@ -255,9 +255,7 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.union(composite_from_pts(rc, self.front_corner_centres))
         # fillet external edges
         vs = VerticalEdgeSelector()
-        cs = StringSyntaxSelector(
-            "(<X and <Y) or (>X and <Y) or (<X and >Y) or (>X and >Y)"
-        )
+        cs = StringSyntaxSelector("(<XY) or (>X and <Y) or (<X and >Y) or (>XY)")
         r = r.edges(vs - cs).fillet(GR_RBOX_RAD).edges(cs).fillet(GR_RBOX_CRAD)
 
         if self.stackable or as_lid:
@@ -609,6 +607,7 @@ class GridfinityRuggedBox(GridfinityObject):
         l2, w2, h2 = GR_LATCH_L / 2, GR_LATCH_W / 2, GR_LATCH_H / 2
         c2, th = GR_RIB_CTR / 2, 2.5
         hf = GR_LATCH_H - th
+        yc = (-1.575, 1.575)
         r = cq.Workplane("XY").rect(GR_LATCH_L, GR_LATCH_W).extrude(GR_LATCH_H)
         r = r.edges("|Y").edges(">X").chamfer(1.0)
         rs = cq.Sketch().slot(10, GR_LATCH_H, 0)
@@ -636,19 +635,19 @@ class GridfinityRuggedBox(GridfinityObject):
         bs = EdgeLengthSelector(">0.8") - HasZCoordinateSelector(0, min_points=2)
         rc = rc.edges(bs).chamfer(0.2)
         (_, _, _), (xm, _, _) = bounds_3d(r)
-        for pt in [(x - 1.25, y, th) for x in (-c2, c2) for y in (-1.575, 1.575)]:
+        for pt in [(x - 1.25, y, th) for x in (-c2, c2) for y in yc]:
             r = r.union(rc.translate(pt))
+
         rd = cq.Workplane("XY").rect(3.5, 1).extrude(7)
-        rl = rc.intersect(rd.translate((2.25, 0, 0)))
-        rr = rc.intersect(rd.translate((-2.25, 0, 0)))
-        for pt in [(-xm, y, th) for y in (-1.575, 1.575)]:
-            r = r.union(rl.translate(pt))
-        for pt in [(13.75, y, th) for y in (-1.575, 1.575)]:
-            r = r.union(rr.translate(pt))
+        for x, xo in [(-xm, 2.25), (13.75, -2.25)]:
+            rx = rc.intersect(rd.translate((xo, 0, 0)))
+            for pt in [(x, y, th) for y in yc]:
+                r = r.union(rx.translate(pt))
+
         rc = cq.Workplane("XZ").rect(2, 3.4).extrude(0.4).edges("<Y").chamfer(0.4 - EPS)
         xo = xm - self.lid_height
-        r = r.union(rc.translate((xo, -w2, h2)))
-        r = r.union(rotate_z(rc, 180).translate((xo, w2, h2)))
+        for angle, y in [(0, -w2), (180, w2)]:
+            r = r.union(rotate_z(rc, angle).translate((xo, y, h2)))
 
         rc = cq.Workplane("XZ").rect(6.0, 0.4).extrude(-1.5)
         for pt in [(xo, y, h2 + z) for y in (-w2, w2 - 1.5) for z in (-2.1, 2.1)]:
@@ -658,18 +657,19 @@ class GridfinityRuggedBox(GridfinityObject):
             .edges(EdgeLengthSelector([6.0, 0.4]))
             .chamfer(0.2 - EPS)
         )
+
         rc = cq.Workplane("XZ").circle(3.8 / 2).extrude(2).faces("<Y").chamfer(0.5)
-        re = cq.Workplane("XY").rect(50, 50).extrude(20).translate((0, 0, -1.4))
-        rc = rc.intersect(re)
-        r = r.union(rc.translate((-17.45, -w2, h2)))
-        r = r.union(rotate_z(rc, 180).translate((-17.45, w2, h2)))
+        re = cq.Workplane("XY").rect(50, 50).extrude(20).translate((0, 0, -1.7))
+        rc = rc.intersect(rotate_x(re, -10))
+        for angle, y in [(0, -w2), (180, w2)]:
+            r = r.union(rotate_z(rc, angle).translate((-17.45, y, h2)))
         self._cq_obj = rotate_z(recentre(r, "xy"), -90)
         self._obj_label = "latch"
         return self._cq_obj
 
     def render_hinge(self, as_closed=False, section=None):
         """Renders the rear hinge."""
-        tol = 0.25 / 2
+        tol = 0.125
         cl = 2 * (GR_HINGE_OFFS + GR_HINGE_D + GR_HINGE_W2 / 2)
         wh, dh = GR_HINGE_W2 - GR_HINGE_TOL, GR_HINGE_H2 - 1
         ls, ws = cl / 2, GR_HINGE_H1 - GR_HINGE_TOL
@@ -687,7 +687,7 @@ class GridfinityRuggedBox(GridfinityObject):
             r = r.union(rc)
             bs = VerticalEdgeSelector() & HasYCoordinateSelector(ws)
             if side == "left":
-                r = r.edges(VerticalEdgeSelector()).edges("<X and <Y").chamfer(1.0)
+                r = r.edges(VerticalEdgeSelector()).edges("<XY").chamfer(1.0)
                 bs = bs & HasXCoordinateSelector(wh)
             else:
                 r = r.edges(VerticalEdgeSelector()).edges(">X and <Y").chamfer(1.0)
@@ -723,17 +723,16 @@ class GridfinityRuggedBox(GridfinityObject):
                     (*ctr, h - M3_CB_DEPTH)
                 )
             )
-        rh = self.hex_cut(depth=GR_HEX_D)
-        rx = recentre(rh)
+        rx = recentre(self.hex_cut(depth=GR_HEX_D))
         rh = rotate_x(rotate_z(rx, 90), 90)
         xo = cl + wh + GR_HEX_D / 2
         yo = GR_HINGE_H1 + GR_HEX_H / 2 - 2 * GR_HINGE_SKEW
         zo = GR_HINGE_SEP / 2 + (self.hinge_width - 2) / 4
-        rl = rl.union(rh.translate((-GR_HEX_D / 2, yo, h / 2 - zo)))
-        rl = rl.union(rh.translate((-GR_HEX_D / 2, yo, h / 2 + zo)))
+        for pt in [(-GR_HEX_D / 2, yo, h / 2 - z) for z in (-zo, zo)]:
+            rl = rl.union(rh.translate(pt))
         rh = rotate_x(rotate_z(rx, -90), 90)
-        rr = rr.union(rh.translate((xo, yo, h / 2 - zo)))
-        rr = rr.union(rh.translate((xo, yo, h / 2 + zo)))
+        for pt in [(xo, yo, h / 2 - z) for z in (-zo, zo)]:
+            rr = rr.union(rh.translate(pt))
         if as_closed:
             rl = rotate_z(rl.translate((-ctr[0], -ctr[1], 0)), 90)
             rr = rotate_z(rr.translate((-ctr[0], -ctr[1], 0)), -90)

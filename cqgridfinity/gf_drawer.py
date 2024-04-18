@@ -177,7 +177,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
             )
             er = min(GR_RAD, self.length_th / 4)
             r = r.translate((sp_length / 2, self.length_th / 2, 0))
-            r = r.edges("|Z").edges("<X").edges("<Y").fillet(er)
+            r = r.edges("|Z").edges("<XY").fillet(er)
             r = r.edges("|Z").fillet(self.fillet_rad)
         if self.wide_enough:
             rd = (
@@ -185,7 +185,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
             )
             er = min(GR_RAD, self.width_th / 4)
             rd = rd.translate((self.width_th / 2, sp_width / 2, 0))
-            rd = rd.edges("|Z").edges("<X").edges("<Y").fillet(er)
+            rd = rd.edges("|Z").edges("<XY").fillet(er)
             rd = rd.edges("|Z").fillet(self.fillet_rad)
 
         if r is not None and rd is not None:
