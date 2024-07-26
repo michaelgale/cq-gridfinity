@@ -161,6 +161,10 @@ class GridfinityBox(GridfinityObject):
                 raise ValueError(
                     "Cannot select both holes and lite box styles together"
                 )
+            if self.scoops:
+                raise ValueError(
+                    "Cannot select both scoops and lite box styles together"
+                )
             if self.wall_th > 1.5:
                 raise ValueError(
                     "Wall thickness cannot exceed 1.5 mm for lite box style"
