@@ -83,7 +83,7 @@ class GridfinityBox(GridfinityObject):
         self.label_width = 12  # width of the label strip
         self.label_height = 10  # thickness of label overhang
         self.label_lip_height = 0.8  # thickness of label vertical lip
-        self.scoop_rad = 12  # radius of optional interior scoops
+        self.scoop_rad = 14  # radius of optional interior scoops
         self.fillet_interior = True
         self.wall_th = GR_WALL
         self.hole_diam = GR_HOLE_D  # magnet/bolt hole diameter
@@ -161,10 +161,6 @@ class GridfinityBox(GridfinityObject):
                 raise ValueError(
                     "Cannot select both holes and lite box styles together"
                 )
-            if self.scoops:
-                raise ValueError(
-                    "Cannot select both scoops and lite box styles together"
-                )
             if self.wall_th > 1.5:
                 raise ValueError(
                     "Wall thickness cannot exceed 1.5 mm for lite box style"
@@ -177,7 +173,7 @@ class GridfinityBox(GridfinityObject):
         rd = self.render_dividers()
         rs = self.render_scoops()
         rl = self.render_labels()
-        for e in (rd, rs, rl):
+        for e in (rd, rl, rs):
             if e is not None:
                 r = r.union(e)
         if not self.solid and self.fillet_interior:
@@ -190,21 +186,24 @@ class GridfinityBox(GridfinityObject):
                 + VerticalEdgeSelector(">5")
                 - HasZCoordinateSelector("<%.2f" % (self.floor_h))
             )
-            if self.lite_style:
+            if self.lite_style and self.scoops:
                 bs = bs - HasZCoordinateSelector("<=%.2f" % (self.floor_h))
-
+                bs = bs - VerticalEdgeSelector()
             r = self.safe_fillet(r, bs, self.safe_fillet_rad)
-            if self.lite_style and self.width_div < 1 and self.length_div < 1:
+
+            if self.lite_style and not self.has_dividers:
                 bs = FlatEdgeSelector(self.floor_h)
                 if self.wall_th < 1.2:
                     r = self.safe_fillet(r, bs, 0.5)
                 elif self.wall_th < 1.5:
                     r = self.safe_fillet(r, bs, 0.25)
-            if not self.labels and (self.width_div or self.length_div):
+
+            if not self.labels and self.has_dividers:
                 bs = VerticalEdgeSelector(
                     GR_TOPSIDE_H, tolerance=0.05
                 ) & HasZCoordinateSelector(GRHU * self.height_u - GR_BASE_HEIGHT)
                 r = self.safe_fillet(r, bs, GR_TOPSIDE_H - EPS)
+
         if self.holes:
             r = self.render_holes(r)
         r = r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
@@ -247,6 +246,10 @@ class GridfinityBox(GridfinityObject):
         return lh
 
     @property
+    def has_dividers(self):
+        return self.length_div > 0 or self.width_div > 0
+
+    @property
     def interior_solid(self):
         if self._int_shell is not None:
             return self._int_shell
@@ -272,7 +275,7 @@ class GridfinityBox(GridfinityObject):
             rf = cq.Workplane("XY").placeSketch(ri).extrude(hs)
             rf = rf.translate((*self.half_dim, self.floor_h))
             rci = rci.cut(rf)
-        if self.scoops and not self.no_lip:
+        if self.scoops and not self.no_lip and not self.lite_style:
             rf = (
                 cq.Workplane("XY")
                 .rect(self.inner_l, 2 * self.under_h)
@@ -374,7 +377,7 @@ class GridfinityBox(GridfinityObject):
         return r
 
     def render_scoops(self):
-        if not self.scoops or self.solid or self.lite_style:
+        if not self.scoops or self.solid:
             return None
         # front wall scoop
         # prevent the scoop radius exceeding the internal height
@@ -384,9 +387,10 @@ class GridfinityBox(GridfinityObject):
         rsc = rsc.translate((0, 0, srad / 2 + GR_FLOOR))
         yo = -self.half_in + srad / 2
         # offset front wall scoop by top lip overhang if applicable
-        if not self.no_lip:
+        if not self.no_lip and not self.lite_style:
             yo += self.under_h
-        rs = rsc.translate((-self.half_in, yo, 0))
+        zo = -GR_BOT_H + self.wall_th if self.lite_style else 0
+        rs = rsc.translate((-self.half_in, yo, zo))
         # intersect to prevent solids sticking out of rounded corners
         r = rs.intersect(self.interior_solid)
         if self.width_div > 0:
@@ -397,7 +401,8 @@ class GridfinityBox(GridfinityObject):
                 for y in range(self.width_div)
             ]
             rs = composite_from_pts(rsc, pts)
-            r = r.union(rs.translate((0, GR_DIV_WALL / 2 + srad / 2, 0)))
+            r = r.union(rs.translate((0, GR_DIV_WALL / 2 + srad / 2, zo)))
+            r = r.intersect(self.render_shell(as_solid=True))
         return r
 
     def render_labels(self):

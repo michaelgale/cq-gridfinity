@@ -45,9 +45,6 @@ def test_invalid_box():
         b1 = GridfinityBox(2, 3, 5, lite_style=True, wall_th=2.0)
         b1.render()
     with pytest.raises(ValueError):
-        b1 = GridfinityBox(2, 3, 5, lite_style=True, scoops=True)
-        b1.render()
-    with pytest.raises(ValueError):
         b1 = GridfinityBox(2, 3, 5, wall_th=0.4)
         b1.render()
     with pytest.raises(ValueError):
