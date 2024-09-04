@@ -188,6 +188,13 @@ def main():
         help="No standing feet added to back wall",
     )
     parser.add_argument(
+        "-r",
+        "--ribstyle",
+        action="store_true",
+        default=False,
+        help="Make rib style box with exposed vertical ribs",
+    )
+    parser.add_argument(
         "-f",
         "--format",
         default="step",
@@ -288,20 +295,36 @@ def main():
         box.back_feet = True
     if argsd["nobackfeet"]:
         box.back_feet = False
+    if argsd["ribstyle"]:
+        box.rib_style = True
 
     print(title)
     print("Version: %s" % (cqgridfinity.__version__))
     print(
-        "Gridfinity rugged box: %dU x %dU x %dU (%.1f mm x %.1f mm x %.1f mm)"
+        "Gridfinity rugged box: %dU x %dU x %dU"
         % (
             box.length_u,
             box.width_u,
             box.height_u,
+        )
+    )
+    print(
+        "  Exterior dim: %.1f mm x %.1f mm x %.1f mm"
+        % (
+            box.box_length + 2 * (GR_RBOX_CWALL - GR_RBOX_WALL),
+            box.box_width + 2 * (GR_RBOX_CWALL - GR_RBOX_WALL),
+            box.box_height + box.lid_height,
+        )
+    )
+    print(
+        "  Interior dim: %.1f mm x %.1f mm x %.1f mm"
+        % (
             box.length,
             box.width,
             box.height,
         )
     )
+    print("  Internal volume: %.3f L" % (box.length * box.width * box.height / 1e6))
     s = []
     opts = [
         "wall_vgrooves",
@@ -313,6 +336,7 @@ def main():
         "side_handles",
         "front_label",
         "back_feet",
+        "rib_style",
     ]
     for opt in opts:
         opt_name = opt.replace("_", " ").title()

@@ -72,6 +72,7 @@ class GridfinityRuggedBox(GridfinityObject):
         self.back_feet = True
         self.hinge_width = GR_HINGE_SZ
         self.hinge_bolted = False
+        self.rib_style = False
         self.box_color = cq.Color(0.25, 0.25, 0.25)
         self.lid_color = cq.Color(0.25, 0.5, 0.75)
         self.handle_color = cq.Color(0.75, 0.5, 0.25)
@@ -129,6 +130,14 @@ class GridfinityRuggedBox(GridfinityObject):
         xo = self.clasp_pos[0]
         yo = self.box_width / 2 + GR_RBOX_CHAN_D / 2
         return [(-xo, -yo, 0), (xo, -yo, 0)]
+
+    @property
+    def clasp_notch_points(self):
+        return [
+            (x * GR_RBOX_CHAN_W / 2, -GR_RBOX_CHAN_D / 2, z)
+            for x in (-1, 1)
+            for z in (self.lid_height, self.box_height - self.lid_height)
+        ]
 
     @property
     def hinge_centres(self):
@@ -248,8 +257,23 @@ class GridfinityRuggedBox(GridfinityObject):
         rs = rounded_rect_sketch(self.box_length, self.box_width, GR_RAD)
         r = cq.Workplane("XY").placeSketch(rs).extrude(height)
         # back corners
-        rc = cq.Workplane("XY").rect(GR_RBOX_BACK_L, GR_RBOX_CORNER_W).extrude(height)
-        r = r.union(composite_from_pts(rc, self.back_corner_centres))
+        if self.rib_style:
+            lb = self.box_length + 2 * (GR_RBOX_CWALL - GR_RBOX_WALL)
+            yo = self.back_corner_centres[0]
+            rc = cq.Workplane("XY").rect(lb, GR_RBOX_CORNER_W).extrude(height)
+            r = r.union(rc.translate((0, yo[1], 0)))
+            if not as_lid or (as_lid and not self.side_handles):
+                h = height / 2 if self.side_handles else height
+                wb = self.box_width - GR_RBOX_CORNER_W
+                rc = cq.Workplane("XY").rect(lb, wb).extrude(h)
+                r = r.union(rc)
+        else:
+            rc = (
+                cq.Workplane("XY")
+                .rect(GR_RBOX_BACK_L, GR_RBOX_CORNER_W)
+                .extrude(height)
+            )
+            r = r.union(composite_from_pts(rc, self.back_corner_centres))
         # front corners
         rc = cq.Workplane("XY").rect(GR_RBOX_FRONT_L, GR_RBOX_CORNER_W).extrude(height)
         r = r.union(composite_from_pts(rc, self.front_corner_centres))
@@ -270,7 +294,7 @@ class GridfinityRuggedBox(GridfinityObject):
                 rc = chamf_rect(GR_REG_L, GR_REG_W, GR_REG_H, angle=rot)
                 r = r.cut(rc.translate(pt))
 
-        # chamfer edges
+        # chamfer top edges
         r = r.edges(">Z").chamfer(GR_RBOX_VCUT_D)
 
         # front lid overhang
@@ -281,12 +305,19 @@ class GridfinityRuggedBox(GridfinityObject):
             vs = VerticalEdgeSelector([9]) & HasXCoordinateSelector([-hw, hw])
             r = r.edges(vs).fillet(2.5 - EPS)
 
-        # chamfer edges
-        r = r.edges("<Z").chamfer(GR_RBOX_VCUT_D)
-
         # chamfer cuts
         if self.wall_vgrooves:
-            r = r.intersect(self.render_vcut())
+            if self.rib_style:
+                r = r.cut(self.render_vcut())
+            else:
+                r = r.intersect(self.render_vcut())
+
+        # chamfer bottom edges
+        r = r.edges("<Z").chamfer(GR_RBOX_VCUT_D)
+
+        # apply rib style cutouts if applicable
+        if self.rib_style and not as_lid:
+            r = r.intersect(self.rib_style_cut())
 
         # add clasp features
         rc = self.clasp_cut(as_lid=as_lid)
@@ -303,22 +334,96 @@ class GridfinityRuggedBox(GridfinityObject):
 
     def render_vcut(self):
         """Renders a matching box shape with side v-cuts to intersect with main box."""
+        # rib style implements v-notches along the clasp channels
+        if self.rib_style:
+            rc = cq.Workplane("XY").rect(2, 2).extrude(SQRT2, taper=45)
+            rc = rc.rotate_x(-90)
+            rc = composite_from_pts(rc, self.clasp_notch_points)
+            r = composite_from_pts(rc, self.front_clasp_centres)
+            if self.side_clasps:
+                for pt in self.side_clasp_centres:
+                    if pt[0] < 0:
+                        r = r.union(rc.rotate_z(-90).translate(pt))
+                    else:
+                        r = r.union(rc.rotate_z(90).translate(pt))
+            return r
+        else:
+            xl = self.box_length + 2 * GR_RBOX_CWALL - 2 * GR_RBOX_WALL
+            yl = self.box_width + 2 * GR_RBOX_CWALL - 2 * GR_RBOX_WALL
+            lead_height = self.lid_height - GR_RBOX_VCUT_D
+            mid_height = self.box_height - 2 * (self.lid_height + GR_RBOX_VCUT_D)
+            cut_half = GR_RBOX_VCUT_D * SQRT2
+            profile = [
+                lead_height,
+                (cut_half, 45),
+                (cut_half, -45),
+                mid_height,
+                (cut_half, 45),
+                (cut_half, -45),
+                lead_height,
+            ]
+            rs = rounded_rect_sketch(xl, yl, GR_RBOX_CRAD)
+            return self.extrude_profile(rs, profile)
+
+    def rib_style_cut(self):
+        """Render cutouts for a rib style box"""
         xl = self.box_length + 2 * GR_RBOX_CWALL - 2 * GR_RBOX_WALL
         yl = self.box_width + 2 * GR_RBOX_CWALL - 2 * GR_RBOX_WALL
+        wd = GR_RBOX_CWALL - GR_RBOX_WALL
         lead_height = self.lid_height - GR_RBOX_VCUT_D
-        mid_height = self.box_height - 2 * (self.lid_height + GR_RBOX_VCUT_D)
-        cut_half = GR_RBOX_VCUT_D * SQRT2
+        cut_half = wd * SQRT2
+        mid_height = self.box_height - 2 * (lead_height + wd)
         profile = [
             lead_height,
             (cut_half, 45),
-            (cut_half, -45),
             mid_height,
-            (cut_half, 45),
             (cut_half, -45),
             lead_height,
         ]
         rs = rounded_rect_sketch(xl, yl, GR_RBOX_CRAD)
-        return self.extrude_profile(rs, profile)
+        r = self.extrude_profile(rs, profile)
+        w = GR_RBOX_CHAN_W + 3 * GR_RBOX_WALL
+        rc = cq.Workplane("XY").rect(GR_RBOX_CHAN_D, w).extrude(self.box_height)
+        if self.side_clasps:
+            for pt in self.side_clasp_centres:
+                r = r.union(rc.translate(pt))
+        else:
+            rd = (
+                cq.Workplane("XY")
+                .rect(GR_RBOX_CHAN_D, 1.5 * GR_RBOX_WALL)
+                .extrude(self.box_height)
+            )
+            xo = self.box_length / 2 + GR_RBOX_CHAN_D / 2
+            yo = self.clasp_pos[1] + GR_RBOX_CHAN_W / 2 + 1.5 * GR_RBOX_WALL / 2
+            for pt in [(x * xo, y * yo, 0) for x in (-1, 1) for y in (-1, 1)]:
+                r = r.union(rd.translate(pt))
+        rc = rotate_z(rc, 90)
+        for pt in self.front_clasp_centres:
+            r = r.union(rc.translate(pt))
+        w = 1.5 * GR_RBOX_WALL
+        rc = cq.Workplane("XY").rect(w, wd).extrude(self.box_height)
+        for pt in self.hinge_centres:
+            r = r.union(rc.translate((pt[0] - GR_HINGE_SZ / 2 - w, pt[1] - wd / 2, 0)))
+            r = r.union(rc.translate((pt[0] + GR_HINGE_SZ / 2 + w, pt[1] - wd / 2, 0)))
+        yo = self.box_width / 2 + GR_RBOX_CWALL - GR_RBOX_WALL - wd / 2
+        for x in range(self.length_u):
+            xo = -self.int_length / 2 + x * GRU
+            if abs(xo) < (self.box_length / 2 - GR_RBOX_BACK_L):
+                r = r.union(rc.translate((xo, yo, 0)))
+        if not self.side_handles:
+            xo = self.box_length / 2 + GR_RBOX_CWALL - GR_RBOX_WALL - wd / 2
+            rc = rotate_z(rc, 90)
+            ylim = self.int_width / 2
+            if self.side_clasps:
+                ylim -= GR_RBOX_CORNER_W
+            for y in range(self.width_u):
+                yo = -self.int_width / 2 + y * GRU
+                if abs(yo) < ylim:
+                    r = r.union(rc.translate((xo, yo, 0)))
+                    r = r.union(rc.translate((-xo, yo, 0)))
+        hm = self.box_height - 2 * lead_height
+        r = r.edges(VerticalEdgeSelector([mid_height, hm])).fillet(1)
+        return r
 
     def lid_handle(self, width=None):
         """Renders the front overhanging handle lip for the lid."""
@@ -418,8 +523,17 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.cut(rc.translate((0, 0, GR_LABEL_SLOT_TH)))
 
         # simple restraining ramps to prevent the label slipping out
-        rc = cq.Workplane("XZ").rect(5, 2.5).extrude(1).edges("<Y").chamfer(1 - EPS)
-        for pt in [(-xl / 4, 0, yl / 2 - 2.0), (xl / 4, 0, yl / 2 - 2.0)]:
+        rc = (
+            cq.Workplane("XZ")
+            .rect(10, 2.5)
+            .extrude(1.25)
+            .edges("<Y")
+            .chamfer(1.25 - EPS)
+        )
+        pts = [(-xl / 4, 0, yl / 2 - 2.0), (xl / 4, 0, yl / 2 - 2.0)]
+        if self.length_u < 5:
+            pts = [(0, 0, yl / 2 - 2.0)]
+        for pt in pts:
             r = r.union(rc.translate(pt))
         return r
 
@@ -630,7 +744,7 @@ class GridfinityRuggedBox(GridfinityObject):
         r = r.cut(rc.translate((0, 0, th)))
         r = r.faces(">Z").edges(EdgeLengthSelector(1.8)).edges("|X").chamfer(0.25)
 
-        rc = cq.Workplane("XY").rect(8, 0.75).extrude(4.5)
+        rc = cq.Workplane("XY").rect(8.5, 0.75).extrude(4.5)
         rc = rc.faces(">Z").edges("|Y").chamfer(1.5)
         bs = EdgeLengthSelector(">0.8") - HasZCoordinateSelector(0, min_points=2)
         rc = rc.edges(bs).chamfer(0.2)
