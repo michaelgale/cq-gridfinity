@@ -3,9 +3,9 @@ sys.path.append(".") # Relative to `partcad.yaml`
 
 from cqgridfinity.gf_ruggedbox import GridfinityRuggedBox
 
-length_u = 2
-width_u = 2
-height_u = 2
+length_u = 4
+width_u = 4
+height_u = 4
 lid_height = 10.0
 wall_vgrooves = True
 front_handle = True
@@ -15,11 +15,19 @@ lid_baseplate = True
 inside_baseplate = True
 side_handles = True
 front_label = True
+# TODO(clairbee): uncomment the below when annotations are supported by CQGI
+# label_length: float = None
+# label_height: float = None
 label_length = 0.0
 label_height = 0.0
+if label_length == 0.0:
+    label_length = None
+if label_height == 0.0:
+    label_height = None
+
 label_th = 0.5
 back_feet = True
-hinge_width = 32.0
+hinge_width = 48.0
 hinge_bolted = False
 
 result = GridfinityRuggedBox(

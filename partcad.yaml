@@ -1,4 +1,21 @@
-partcad: ">=0.3.84"
+partcad: ">=0.6.20"
+
+name: /pub/storage/workspace/gridfinity
+desc: Created by Zach Freedman as a versatile system of modular organization and storage modules.
+
+docs:
+  intro: |
+    This package defines the basic building blocks of the Gridfinity system.
+    Make use of the parameters to customize the parts to your needs.
+  footer: |
+    ## Implementation notes
+
+    This packages has a folder with PartCAD shims.
+    This folder contains wrappers for cqgridfinity main Python files
+    to make them compatible with CadQuery's CQGI interface that is used by PartCAD.
+    This is a non-intrusive alternative to refactoring cqgridfinity main Python files.
+    If cqgridfinity adopts CQGI, then these shims can be dropped.
+
 parts:
   baseplate:
     type: cadquery
@@ -37,13 +54,13 @@ parts:
     parameters:
       length_u:
         type: int
-        default: 2
+        default: 4
       width_u:
         type: int
-        default: 2
+        default: 4
       height_u:
         type: int
-        default: 2
+        default: 4
       lid_height:
         type: float
         default: 10.0
@@ -73,10 +90,10 @@ parts:
         default: True
       label_length:
         type: float
-        default: 1.0
+        default: 0.0
       label_height:
         type: float
-        default: 1.0
+        default: 0.0
       label_th:
         type: float
         default: 0.5
@@ -85,7 +102,7 @@ parts:
         default: True
       hinge_width:
         type: float
-        default: 32.0
+        default: 48.0
       hinge_bolted:
         type: bool
         default: False
@@ -206,3 +223,13 @@ parts:
 assemblies:
   examples/demo1:
     type: assy
+
+render:
+  svg:
+    prefix: cqgridfinity/shims
+    exclude:
+      - assemblies
+  readme:
+    path: cqgridfinity/shims/README.md
+    exclude:
+      - assemblies
