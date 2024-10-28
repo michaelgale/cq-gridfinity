@@ -104,6 +104,27 @@ def main():
         help="Smooth/plain lid",
     )
     parser.add_argument(
+        "+w",
+        "--lidwindow",
+        action="store_true",
+        default=False,
+        help="Add window slot to the lid",
+    )
+    parser.add_argument(
+        "-w",
+        "--nolidwindow",
+        action="store_true",
+        default=False,
+        help="Do not add window slot to the lid",
+    )
+    parser.add_argument(
+        "-wt",
+        "--windowthickness",
+        action="store",
+        default=None,
+        help="Thickness of lid windows (mm)",
+    )
+    parser.add_argument(
         "+a",
         "--handle",
         action="store_true",
@@ -189,6 +210,13 @@ def main():
     )
     parser.add_argument(
         "-r",
+        "--normalstyle",
+        action="store_true",
+        default=False,
+        help="Make normal style box",
+    )
+    parser.add_argument(
+        "+r",
         "--ribstyle",
         action="store_true",
         default=False,
@@ -255,6 +283,13 @@ def main():
         default=False,
         help="Generate latch component",
     )
+    parser.add_argument(
+        "-gw",
+        "--genwindow",
+        action="store_true",
+        default=False,
+        help="Generate lid window component",
+    )
 
     args = parser.parse_args()
     argsd = vars(args)
@@ -267,6 +302,10 @@ def main():
         box.lid_baseplate = True
     if argsd["nolidbaseplate"]:
         box.lid_baseplate = False
+    if argsd["lidwindow"]:
+        box.lid_window = True
+    if argsd["nolidwindow"]:
+        box.lid_window = False
     if argsd["handle"]:
         box.front_handle = True
     if argsd["nohandle"]:
@@ -297,6 +336,10 @@ def main():
         box.back_feet = False
     if argsd["ribstyle"]:
         box.rib_style = True
+    if argsd["normalstyle"]:
+        box.rib_style = False
+    if argsd["windowthickness"] is not None:
+        box.window_th = float(argsd["windowthickness"])
 
     print(title)
     print("Version: %s" % (cqgridfinity.__version__))
@@ -325,6 +368,12 @@ def main():
         )
     )
     print("  Internal volume: %.3f L" % (box.length * box.width * box.height / 1e6))
+    if box.lid_window:
+        print(
+            "  Lid window dimensions: %.2f x %.2f mm, %.2f mm thickness"
+            % (*box.lid_window_size(), box.window_th)
+        )
+
     s = []
     opts = [
         "wall_vgrooves",
@@ -342,6 +391,7 @@ def main():
         opt_name = opt.replace("_", " ").title()
         val = "Y" if box.__dict__[opt] else "N"
         print("  %-19s: %s" % (opt_name, val))
+    print("  %-19s: %s" % ("Lid Window", "Y" if box.lid_window else "N"))
 
     if argsd["output"] is not None:
         fn = argsd["output"]
@@ -381,6 +431,14 @@ def main():
     if argsd["genlatch"]:
         print("Rendering latch component...")
         r = box.render_latch()
+        save_asset(box, argsd)
+        g = True
+    if argsd["genwindow"]:
+        print(
+            "Rendering lid window (%.2f x %.2f mm, %.2f mm thickness)..."
+            % (*box.lid_window_size(), box.window_th)
+        )
+        r = box.render_lid_window()
         save_asset(box, argsd)
         g = True
     if not g:

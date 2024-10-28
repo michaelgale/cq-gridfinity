@@ -23,6 +23,8 @@
 #
 # Gridfinity Rugged Boxes
 
+import math
+
 import cadquery as cq
 from cadquery.selectors import StringSyntaxSelector
 from cqkit import (
@@ -43,6 +45,7 @@ from cqkit import (
     size_3d,
     bounds_3d,
     inverse_fillet,
+    inverse_chamfer,
     Ribbon,
 )
 
@@ -73,12 +76,15 @@ class GridfinityRuggedBox(GridfinityObject):
         self.hinge_width = GR_HINGE_SZ
         self.hinge_bolted = False
         self.rib_style = False
+        self._lid_window = False
+        self.window_th = 1.0
         self.box_color = cq.Color(0.25, 0.25, 0.25)
         self.lid_color = cq.Color(0.25, 0.5, 0.75)
         self.handle_color = cq.Color(0.75, 0.5, 0.25)
         self.latch_color = cq.Color(0.75, 0.5, 0.25)
         self.hinge_color = cq.Color(0.75, 0.5, 0.25)
         self.label_color = cq.Color(0.7, 0.7, 0.7)
+        self.window_color = cq.Color(0.9, 0.9, 0.9, 0.25)
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
@@ -225,6 +231,30 @@ class GridfinityRuggedBox(GridfinityObject):
         if zt > self.box_height:
             zo = self.box_height / 2
         return (0, -self.box_width / 2, zo)
+
+    @property
+    def lid_window(self):
+        return self._lid_window
+
+    @lid_window.setter
+    def lid_window(self, enable):
+        self._lid_window = enable
+        if self._lid_window:
+            self.lid_baseplate = False
+
+    def lid_window_size(self, width_ext=None, tol=None):
+        tol = tol if tol is not None else GR_TOL
+        width_ext = width_ext if width_ext is not None else 4
+        return self.length - 2 - tol, self.width + width_ext - tol
+
+    def lid_window_hole_pos(self, z=0):
+        pts = [
+            (-x * (self.box_length / 2 - GR_RBOX_CORNER_W), self.width / 2 + 2, z)
+            for x in (-1, 1)
+        ]
+        if self.rib_style:
+            pts.append((0, self.width / 2 + 2, z))
+        return pts
 
     def label_size(self, as_insert=False, as_aperture=False, tol=0):
         # use provided label size if applicable otherwise auto size
@@ -758,18 +788,18 @@ class GridfinityRuggedBox(GridfinityObject):
             for pt in [(x, y, th) for y in yc]:
                 r = r.union(rx.translate(pt))
 
-        rc = cq.Workplane("XZ").rect(2, 3.4).extrude(0.4).edges("<Y").chamfer(0.4 - EPS)
+        rc = cq.Workplane("XZ").rect(2, 3.2).extrude(0.6).edges("<Y").chamfer(0.6 - EPS)
         xo = xm - self.lid_height
         for angle, y in [(0, -w2), (180, w2)]:
             r = r.union(rotate_z(rc, angle).translate((xo, y, h2)))
 
-        rc = cq.Workplane("XZ").rect(6.0, 0.4).extrude(-1.5)
-        for pt in [(xo, y, h2 + z) for y in (-w2, w2 - 1.5) for z in (-2.1, 2.1)]:
+        rc = cq.Workplane("XZ").rect(6.0, 0.4).extrude(-1.6)
+        for pt in [(xo, y, h2 + z) for y in (-w2, w2 - 1.6) for z in (-2.1, 2.1)]:
             r = r.cut(rc.translate(pt))
         r = (
             r.edges(HasYCoordinateSelector([-w2, w2], min_points=2))
             .edges(EdgeLengthSelector([6.0, 0.4]))
-            .chamfer(0.2 - EPS)
+            .chamfer(0.3 - EPS)
         )
 
         rc = cq.Workplane("XZ").circle(3.8 / 2).extrude(2).faces("<Y").chamfer(0.5)
@@ -944,14 +974,10 @@ class GridfinityRuggedBox(GridfinityObject):
         """Renders the rugged box lid."""
         self.check_dimensions()
         r = self.body_shell(as_lid=True)
-        # add hinge mounts
-        rc = rotate_y(self.hinge_mount(), 180)
-        for pt in self.hinge_centres:
-            r = r.cut(rc.translate((pt[0], pt[1], 0)))
-        rs = rounded_rect_sketch(self.length - GR_TOL, self.width - GR_TOL, GR_RAD)
 
         if self.lid_baseplate:
             # hollow out top half
+            rs = rounded_rect_sketch(self.length - GR_TOL, self.width - GR_TOL, GR_RAD)
             rc = self.extrude_profile(rs, [self.lid_height - 0.5, (1.0, -45)])
             r = r.cut(rc)
             # add topside baseplate
@@ -960,18 +986,32 @@ class GridfinityRuggedBox(GridfinityObject):
             )
             rb = rb.render()
             r = r.union(rb.translate((0, 0, 4.7 - 0.4)))
+        elif self.lid_window:
+            # hollow out completely
+            rs = rounded_rect_sketch(self.length, self.width, GR_RAD)
+            rc = self.extrude_profile(rs, [5])
+            r = r.cut(rc)
 
         # hollow out bottom
         rs = rounded_rect_sketch(self.length, self.width, GR_RAD)
         r = r.cut(cq.Workplane("XY").placeSketch(rs).extrude(4.6))
 
         # add modified bottom extrusion with a looser fit
-        rs = self.extrude_profile(
-            rounded_rect_sketch(35, 35, 0.8), [(2.82, -22.1), (5, -45)]
-        )
-        rs = rs.faces(">Z").shell(-1.2)
+        if self.lid_baseplate:
+            rs = self.extrude_profile(
+                rounded_rect_sketch(35, 35, 0.8), [(2.82, -22.1), (5, -45)]
+            )
+            rs = rs.faces(">Z").shell(-1.2)
+        else:
+            rs = self.extrude_profile(
+                rounded_rect_sketch(35, 35, 0.8),
+                [(2.82, -22.1), (4.1, -45), (9, -85), 2],
+            )
         ra = composite_from_pts(rs, self.grid_centres)
         ra = ra.translate((-self.half_l, -self.half_w, 0))
+        rs = rounded_rect_sketch(self.length, self.width, GR_RAD)
+        ra = ra.intersect(cq.Workplane("XY").placeSketch(rs).extrude(GR_LID_WINDOW_H))
+
         r = r.union(ra)
         r = r.edges(
             EdgeLengthSelector(33.4) & HasZCoordinateSelector(0, min_points=2)
@@ -983,8 +1023,76 @@ class GridfinityRuggedBox(GridfinityObject):
                 rq = quarter_circle(GR_REG_R0, GR_REG_R1, GR_REG_H, k)
                 r = r.union(rq.translate(v))
 
+        if self.lid_window:
+            # hollow the grid apertures
+            ht, tp = GR_LID_WINDOW_H, 34
+            he = GR_LID_WINDOW_H / math.cos(math.radians(tp))
+            rs = (
+                cq.Workplane("XY")
+                .placeSketch(rounded_rect_sketch(30, 30, 1))
+                .extrude(he, taper=-tp)
+            )
+            ra = composite_from_pts(rs, self.grid_centres)
+            ra = ra.translate((-self.half_l, -self.half_w, 0))
+            r = r.cut(ra)
+
+            # window slot
+            ext = 20
+            l, w = self.lid_window_size(width_ext=-2 + ext, tol=0)
+            rs = rounded_rect_sketch(l, w, 0.5)
+            hlw = self.lid_height - GR_LID_WINDOW_H
+            ht = hlw - self.window_th - 0.5
+            rc = (
+                cq.Workplane("XY")
+                .rect(l, w)
+                .workplane(offset=self.window_th)
+                .rect(l, w)
+                .workplane(offset=ht)
+                .rect(l - 6, w - 6)
+                .workplane(offset=self.lid_height)
+                .rect(l - 6, w - 6)
+                .loft(ruled=True)
+            )
+            rc = rc.edges(VerticalEdgeSelector()).fillet(0.5)
+            # rc = self.extrude_profile(rs, [self.window_th, (ht, 60), hlw], angle=True)
+            r = r.cut(rc.translate((0, ext / 2, GR_LID_WINDOW_H)))
+            rs = rounded_rect_sketch(self.length - 5, self.width - 5, GR_RAD)
+            rc = self.extrude_profile(rs, [self.lid_height])
+            r = r.cut(rc.translate((0, 0, self.lid_height - ht)))
+
+        # add hinge mounts
+        rc = rotate_y(self.hinge_mount(), 180)
+        for pt in self.hinge_centres:
+            r = r.cut(rc.translate((pt[0], pt[1], 0)))
+
+        # add window retaining screw holes
+        if self.lid_window:
+            rc = (
+                cq.Workplane("XY")
+                .circle(M2_DIAM / 2)
+                .extrude(5)
+                .faces(">Z")
+                .wires()
+                .toPending()
+                .extrude(0.8, taper=-45)
+                .faces("<Z")
+                .chamfer(0.5)
+            )
+            for pt in self.lid_window_hole_pos(z=1):
+                r = r.cut(rc.translate(pt))
         self._cq_obj = r
         self._obj_label = "lid"
+        return self._cq_obj
+
+    def render_lid_window(self):
+        rs = rounded_rect_sketch(*self.lid_window_size(), 0.5)
+        r = cq.Workplane("XY").placeSketch(rs).extrude(self.window_th)
+        r = r.translate((0, 3, 0))
+        rc = cq.Workplane("XY").circle(M2_CLR_DIAM / 2).extrude(self.window_th)
+        for pt in self.lid_window_hole_pos(z=0):
+            r = r.cut(rc.translate(pt))
+        self._cq_obj = r
+        self._obj_label = "lid_window"
         return self._cq_obj
 
     def render_accessories(self):
@@ -1029,6 +1137,11 @@ class GridfinityRuggedBox(GridfinityObject):
         r = self.render_lid()
         r = r.translate((0, 0, self.box_height))
         a.add(r, color=self.lid_color, name="Lid")
+
+        if self.lid_window:
+            r = self.render_lid_window()
+            r = r.translate((0, 0, self.box_height + GR_LID_WINDOW_H))
+            a.add(r, color=self.window_color, name="Lid Window")
 
         if self.front_handle and self.long_enough_for_handle:
             r = self.render_handle()

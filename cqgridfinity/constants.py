@@ -27,6 +27,8 @@ from math import sqrt
 
 SQRT2 = sqrt(2)
 EPS = 1e-5
+M2_DIAM = 1.8
+M2_CLR_DIAM = 2.5
 M3_DIAM = 3
 M3_CLR_DIAM = 3.5
 M3_CB_DIAM = 5.5
@@ -159,6 +161,7 @@ GR_HINGE_TOL = 0.4
 GR_HEX_H = 3
 GR_HEX_W = 4
 GR_HEX_D = 1.3
+GR_LID_WINDOW_H = 6.5
 
 GR_LABEL_SLOT_TH = 2.5
 GR_LABEL_TH = 0.8

@@ -23,6 +23,7 @@
 #
 # Gridfinity base object class
 
+import math
 import os
 
 from OCP.BRepMesh import BRepMesh_IncrementalMesh
@@ -205,7 +206,7 @@ class GridfinityObject:
         elif isinstance(self, GridfinityDrawerSpacer):
             prefix = "gf_drawer_"
         elif isinstance(self, GridfinityRuggedBox):
-            prefix = "gf_ruggedbox_"
+            prefix = "gf_ribbox_" if self.rib_style else "gf_ruggedbox_"
         else:
             prefix = ""
         fn = ""
@@ -256,6 +257,8 @@ class GridfinityObject:
                 fn = fn + "_stack"
             if self.lid_baseplate:
                 fn = fn + "_lidbp"
+            if self.lid_window:
+                fn = fn + "_win"
         elif isinstance(self, GridfinityDrawerSpacer):
             if self._obj_label is not None:
                 fn = fn + "_%s" % (self._obj_label)
@@ -318,15 +321,25 @@ class GridfinityObject:
             },
         )
 
-    def extrude_profile(self, sketch, profile, workplane="XY"):
+    def extrude_profile(self, sketch, profile, workplane="XY", angle=None):
         taper = profile[0][1] if isinstance(profile[0], (list, tuple)) else 0
         zlen = profile[0][0] if isinstance(profile[0], (list, tuple)) else profile[0]
         if abs(taper) > 0:
-            zlen = zlen if ZLEN_FIX else zlen / SQRT2
+            if angle is None:
+                zlen = zlen if ZLEN_FIX else zlen / SQRT2
+            else:
+                zlen = zlen / math.cos(math.radians(taper)) if ZLEN_FIX else zlen
         r = cq.Workplane(workplane).placeSketch(sketch).extrude(zlen, taper=taper)
         for level in profile[1:]:
             if isinstance(level, (tuple, list)):
-                zlen = level[0] if ZLEN_FIX else level[0] / SQRT2
+                if angle is None:
+                    zlen = level[0] if ZLEN_FIX else level[0] / SQRT2
+                else:
+                    zlen = (
+                        level[0] / math.cos(math.radians(level[1]))
+                        if ZLEN_FIX
+                        else level[0]
+                    )
                 r = r.faces(">Z").wires().toPending().extrude(zlen, taper=level[1])
             else:
                 r = r.faces(">Z").wires().toPending().extrude(level)
