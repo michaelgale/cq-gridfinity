@@ -140,9 +140,12 @@ class GridfinityRuggedBox(GridfinityObject):
     @property
     def clasp_notch_points(self):
         return [
-            (x * GR_RBOX_CHAN_W / 2, -GR_RBOX_CHAN_D / 2, z)
+            (
+                x * GR_RBOX_CHAN_W / 2,
+                -GR_RBOX_CHAN_D / 2,
+                self.box_height - self.lid_height,
+            )
             for x in (-1, 1)
-            for z in (self.lid_height, self.box_height - self.lid_height)
         ]
 
     @property
