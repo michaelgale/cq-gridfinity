@@ -25,10 +25,11 @@ if label_length == 0.0:
 if label_height == 0.0:
     label_height = None
 
-label_th = 0.5
+label_th = 0.8
 back_feet = True
 hinge_width = 48.0
 hinge_bolted = False
+rib_style = False
 
 result = GridfinityRuggedBox(
     length_u=int(length_u),
@@ -49,6 +50,7 @@ result = GridfinityRuggedBox(
     back_feet=back_feet,
     hinge_width=hinge_width,
     hinge_bolted=hinge_bolted,
+    rib_style=rib_style,
 ).render().val()
 
 show_object(result)

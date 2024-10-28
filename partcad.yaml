@@ -1,4 +1,4 @@
-partcad: ">=0.6.20"
+partcad: ">=0.7.16"
 
 name: /pub/storage/workspace/gridfinity
 desc: Created by Zach Freedman as a versatile system of modular organization and storage modules.
@@ -96,7 +96,7 @@ parts:
         default: 0.0
       label_th:
         type: float
-        default: 0.5
+        default: 0.8
       back_feet:
         type: bool
         default: True
@@ -104,6 +104,9 @@ parts:
         type: float
         default: 48.0
       hinge_bolted:
+        type: bool
+        default: False
+      rib_style:
         type: bool
         default: False
   box:
