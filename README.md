@@ -193,11 +193,13 @@ $ gridfinitybase 7 4 -s -f stl
 Make a parameterized rugged storage box compatible with gridfinity. This box is based on the [superb design by Pred on Printables](https://www.printables.com/model/543553-gridfinity-storage-box-by-pred-now-parametric).  This implementation makes a few improvements and additions to Pred's design in addition to making almost all of the box's features optional and tunable.  Using either the `ruggedbox` console script or the `GridfinityRuggedBox` class, you can make vast variety of different boxes of various sizes and features.  By default, almost all of the boxes features are enabled, but by using the desired command line options you can customize your desired feature set.
 
 ```
-usage: ruggedbox [-h] [+l] [-l] [+p] [-p] [+a] [-a] [+c] [-c] [+s] [-s] [+v] [-v] [+e] [-e] [+b] [-b] [-f FORMAT]
-                 [-o OUTPUT] [-gb] [-gl] [-ga] [-gh] [-ge] [-gn] [-gt]
+usage: ruggedbox [-h] [+l] [-l] [+p] [-p] [+w] [-w] [-wt WINDOWTHICKNESS] [+a] [-a] [+c] [-c] [+s] [-s] [+v] [-v]
+                 [+e] [-e] [+b] [-b] [-r] [+r] [-f FORMAT] [-o OUTPUT] [-gb] [-gl] [-ga] [-gh] [-ge] [-gn] [-gt]
+                 [-gw]
                  length width height
 
 Make a customized/parameterized Gridfinity compatible rugged box enclosure.
+The minimum box size is 3U x 3U x 4U.
 
 positional arguments:
   length                Box length in U (1U = 42 mm)
@@ -210,6 +212,10 @@ options:
   -l, --nolabel         Remove label window across the front wall
   +p, --lidbaseplate    Add baseplate to top of the lid
   -p, --nolidbaseplate  Smooth/plain lid
+  +w, --lidwindow       Add window slot to the lid
+  -w, --nolidwindow     Do not add window slot to the lid
+  -wt WINDOWTHICKNESS, --windowthickness WINDOWTHICKNESS
+                        Thickness of lid windows (mm)
   +a, --handle          Add front handle
   -a, --nohandle        No front handle
   +c, --clasps          Add clasps to the left and right side walls
@@ -222,6 +228,8 @@ options:
   -e, --nosidehandle    No handles on side walls
   +b, --backfeet        Add standing feet to back wall
   -b, --nobackfeet      No standing feet added to back wall
+  -r, --normalstyle     Make normal style box
+  +r, --ribstyle        Make rib style box with exposed vertical ribs
   -f FORMAT, --format FORMAT
                         Output file format (STEP, STL, SVG) default=STEP
   -o OUTPUT, --output OUTPUT
@@ -233,14 +241,48 @@ options:
   -ge, --genlabel       Generate label panel insert
   -gn, --genhandle      Generate front handle
   -gt, --genlatch       Generate latch component
+  -gw, --genwindow      Generate lid window component
+
+example usage:
+
+  5 x 4 x 6 rugged box shell and lid saved to STL files:
+  $ ruggedbox 5 4 6 --box --lid -f stl
 ```
 Examples:
 
-```shell
-# 5 x 4 x 6 rugged box component saved to STL file:
-$ ruggedbox 5 4 6 -gb -f stl
-# gf_ruggedbox_5x4x6_fr-hl_sd-hc_stack_lidbp.stl
+5 x 4 x 6 rugged box component saved to STL file:
 
+```shell
+$ ruggedbox 5 4 6 -gb -f stl
+ ____                             _ ____
+|  _ \ _   _  __ _  __ _  ___  __| | __ )  _____  __
+| |_) | | | |/ _` |/ _` |/ _ \/ _` |  _ \ / _ \ \/ /
+|  _ <| |_| | (_| | (_| |  __/ (_| | |_) | (_) >  <
+|_| \_\\__,_|\__, |\__, |\___|\__,_|____/ \___/_/\_\
+             |___/ |___/
+
+Version: 0.5.7
+Gridfinity rugged box: 5U x 4U x 6U
+  Exterior dim: 230.0 mm x 188.0 mm x 55.0 mm
+  Interior dim: 210.0 mm x 168.0 mm x 45.8 mm
+  Internal volume: 1.616 L
+  Wall Vgrooves      : Y
+  Front Handle       : Y
+  Stackable          : Y
+  Side Clasps        : Y
+  Lid Baseplate      : Y
+  Inside Baseplate   : Y
+  Side Handles       : Y
+  Front Label        : Y
+  Back Feet          : Y
+  Rib Style          : N
+  Lid Window         : N
+Rendering box...
+Component generated and saved as gf_ruggedbox_5x4x6_body_fr-hl_sd-hc_stack_lidbp.stl in STL format
+$
+```
+
+```shell
 # same 5 x 4 x 6 rugged box with the lid saved to STL file:
 $ ruggedbox 5 4 6 --lid -f stl
 # gf_ruggedbox_5x4x6_lid_fr-hl_sd-hc_stack_lidbp.stl
@@ -619,6 +661,7 @@ b1.save_step_file()
   - [gridfinity-catalog](https://github.com/jeffbarr/gridfinity-catalog)
   - [Master Collection on Printables](https://www.printables.com/model/242711-gridfinity-master-collection)
 - Software/Tools
+  - [Online Gridfinity Creator](https://gridfinity.bouwens.co)
   - [Gridfinity rebuilt OpenSCAD library](https://github.com/kennetek/gridfinity-rebuilt-openscad)
   - [Gridfinity Fusion360 generator plugin](https://github.com/Le0Michine/FusionGridfinityGenerator)
   - [FreeCAD Gridfinity Parametric Files (on Printables)](https://www.printables.com/@Stu142_524934/collections/969910)
