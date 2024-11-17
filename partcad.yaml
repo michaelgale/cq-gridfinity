@@ -2,6 +2,8 @@ partcad: ">=0.7.16"
 
 name: /pub/storage/workspace/gridfinity
 desc: Created by Zach Freedman as a versatile system of modular organization and storage modules.
+cover:
+  parts: ruggedbox
 
 docs:
   intro: |
