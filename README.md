@@ -521,7 +521,24 @@ The desired box size and features are specified with keyword arguments/attribute
 
 <img src=./images/rugged_box_features.png width=600>
 
-The rugged box can be rendered either as a complete assembly or individual components can be rendered.  This is useful for making individual asset files for 3D printing.  The  render methods include the `render_assembly()` method as shown above for the complete assembly, as well as individual render methods summarized below:
+A alternative "rib style" rugged box is also available.  This adds vertical rib stiffeners around the perimeter of the box and it is recommended to disable the side handles to allow for ribs to be generated on all sides.
+
+<img src=./images/ribstylebox.png width=600>
+
+Lastly, the lid baseplate can be substituted with a lid window which makes the contents of the box visible.  The window consists of a seperately prepared 1 mm thick transparent acrylic sheet cut to the required dimensions.  These dimensions can be queried with the `lid_window_size()` method or will be printed to the console when using the `ruggedbox` shell script.
+
+<img src=./images/lid_window.png width=600>
+
+After the lid has been printed the process to install the lid window is as follows:
+1. Cut the lid window to the required dimensions.  It is recommended to chamfer or round off the leading edge corners with a file prior to insertion.
+2. Slide the window into the lid starting from the back and along the tapered window groove slot around the inside perimeter of the lid.
+3. The window should be inserted just past the retention slots for the hinges.
+4. Secure the lid with 3x M2 screws along the back of the lid. Carefully drill 2.5 mm clearance holes into the window in situ prior to  installation of the screws. Alternatively, the lid can be secured with a few drops of super glue along the rear edge.
+5. Install the lid hinges.  The hinges must be installed last since they act as a physical retainer along the back edge of the window.
+  
+The lid window should nominally be 1 mm thick; however if it necessary to use a different thickness material, the `window_th` attribute can be set.  It recommended to keep the window thickness in the range of 0.8 to 1.6 mm.
+
+The rugged box can be rendered either as a complete assembly or as individual components.  This is useful for making individual asset files for 3D printing.  The  render methods include the `render_assembly()` method as shown above for the complete assembly, as well as individual render methods summarized below:
 
 `render()` - renders just the main box body shell:
 
