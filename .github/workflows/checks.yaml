@@ -24,13 +24,13 @@ jobs:
           activate-environment: condaenv
       # - name: Create conda environment
       #   run: conda env create --name condaenv
-      # - name: Activate conda environment
-      #   run: conda activate condaenv
+      - name: Activate conda environment
+        run: conda activate condaenv
       - name: Install cadquery
         run: conda install -c conda-forge cadquery
       - name: Install pip dependencies
         run: pip install cqkit pytest
-      - name: List files
-        run: ls -alh
+      - name: Install package
+        run: pip install .
       - name: Run tests
         run: pytest tests
