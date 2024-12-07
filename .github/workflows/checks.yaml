@@ -1,0 +1,27 @@
+name: "checks"
+
+# Runs your workflow when activity on a pull request in the workflow's repository occurs.
+# If no activity types are specified, the workflow runs when a pull request is opened, reopened, or when the head branch of the pull request is updated.
+on: [ pull_request ]
+jobs:
+  checks:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ "3.12" ]
+    name: Test
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest cadquery cqkit
+      # - name: Run ${{ matrix.tox-env }} via Tox
+      #   run: |
+      #     tox -e ${{ matrix.tox-env }}
