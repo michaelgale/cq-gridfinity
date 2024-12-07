@@ -23,7 +23,5 @@ jobs:
         run: conda install -c conda-forge cadquery
       - name: Install pip dependencies
         run: pip install cqkit pytest
-      - name: Change directory
-        run: cd ..
       - name: Run tests
-        run: pytest tests
+        run: pytest ../tests
