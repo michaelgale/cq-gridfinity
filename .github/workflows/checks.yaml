@@ -15,6 +15,8 @@ jobs:
         os: ["ubuntu-latest"]
         python-version: ["3.11"]
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
@@ -26,4 +28,4 @@ jobs:
       - name: List files
         run: ls -alh
       - name: Run tests
-        run: pytest ../tests
+        run: pytest tests
