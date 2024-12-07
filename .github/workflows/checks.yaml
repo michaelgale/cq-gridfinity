@@ -20,4 +20,4 @@ jobs:
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: conda install cqgridfinity
+        run: conda install cqgridfinity -c conda-forge
