@@ -17,6 +17,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: condaenv
