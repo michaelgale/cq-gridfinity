@@ -1,4 +1,4 @@
-name: Run Tests with mamba
+name: Run Tests
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
       - main  # Runs on pull requests targeting the main branch
 
 jobs:
-  example-1:
-    name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
+  tests:
+    name: Test (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
