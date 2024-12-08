@@ -1,0 +1,37 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches:
+      - main  # Runs on pull requests targeting the main branch
+
+jobs:
+  tests:
+    name: Test (${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: true
+          activate-environment: cq
+      - name: Install cadquery
+        run: mamba install cadquery
+      - name: Install pip dependencies
+        run: pip install cqkit pytest
+      - name: Install current version of cq-gridfinity
+        run: pip install .
+      - name: Run tests
+        run: pytest tests
