@@ -16,14 +16,10 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest"]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
@@ -31,12 +27,11 @@ jobs:
           channels: conda-forge,defaults
           channel-priority: true
           activate-environment: cq
-          # environment-file: etc/example-environment.yml
       - name: Install cadquery
         run: mamba install cadquery
       - name: Install pip dependencies
         run: pip install cqkit pytest
-      - name: Install package
+      - name: Install current version of cq-gridfinity
         run: pip install .
       - name: Run tests
         run: pytest tests
