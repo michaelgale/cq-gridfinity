@@ -31,6 +31,8 @@ jobs:
         run: conda create --name cq
       - name: Initiate conda environment
         run: conda init
+      - name: Load modified bashrc
+        run: source ~/.bashrc
       - name: Activate conda environment
         run: source activate base && conda activate cq
       - name: Install cadquery
