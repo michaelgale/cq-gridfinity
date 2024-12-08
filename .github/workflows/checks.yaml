@@ -23,16 +23,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: condaenv
+          # activate-environment: cq
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-      # - name: Create conda environment
-      #   run: conda env create --name condaenv
-      # - name: Activate conda environment
-      #   run: conda activate condaenv
+      - name: Create conda environment
+        run: conda create --name cq
+      - name: Activate conda environment
+        run: conda activate cq
       - name: Install cadquery
-        run: conda install -c conda-forge cadquery
+        run: mamba install cadquery
       - name: Install pip dependencies
         run: pip install cqkit pytest
       - name: Install package
