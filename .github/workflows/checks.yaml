@@ -34,7 +34,7 @@ jobs:
       - name: Load modified bashrc
         run: source ~/.bashrc
       - name: Activate conda environment
-        run: source activate base && conda activate cq
+        run: conda activate cq
       - name: Install cadquery
         run: mamba install cadquery
       - name: Install pip dependencies
