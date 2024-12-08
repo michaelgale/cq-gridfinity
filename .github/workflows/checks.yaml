@@ -32,7 +32,7 @@ jobs:
       - name: Initiate conda environment
         run: conda init
       - name: Activate conda environment
-        run: conda activate cq
+        run: source activate base && conda activate cq
       - name: Install cadquery
         run: mamba install cadquery
       - name: Install pip dependencies
