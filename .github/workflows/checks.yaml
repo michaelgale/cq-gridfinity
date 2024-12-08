@@ -29,6 +29,8 @@ jobs:
           channels: conda-forge
       - name: Create conda environment
         run: conda create --name cq
+      - name: Initiate conda environment
+        run: conda init
       - name: Activate conda environment
         run: conda activate cq
       - name: Install cadquery
