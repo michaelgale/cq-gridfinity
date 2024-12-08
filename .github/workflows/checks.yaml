@@ -26,18 +26,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          # activate-environment: cq
-          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          channels: conda-forge
-      - name: Create conda environment
-        run: conda create --name cq
-      - name: Initiate conda environment
-        run: conda init
-      - name: Load modified bashrc
-        run: source ~/.bashrc
-      - name: Activate conda environment
-        run: conda activate cq
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: true
+          activate-environment: cq
+          # environment-file: etc/example-environment.yml
       - name: Install cadquery
         run: mamba install cadquery
       - name: Install pip dependencies
