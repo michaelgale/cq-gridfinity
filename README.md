@@ -9,6 +9,8 @@
 [![](https://img.shields.io/badge/CQ--kit-blue)](https://github.com/michaelgale/cq-kit)
 ![https://github.com/michaelgale/cq-kit/blob/master/LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)
 [![](https://img.shields.io/badge/code%20style-black-black.svg)](http://github.com/psf/black)
+[![Run Tests](https://github.com/michaelgale/cq-gridfinity/actions/workflows/checks.yaml/badge.svg)](https://github.com/michaelgale/cq-gridfinity/actions/workflows/checks.yaml)
+
 
 This repository contains a python library to build [Gridfinity](https://gridfinity.xyz) boxes, baseplates, and other objects based on the [CadQuery](https://github.com/CadQuery/cadquery) python library.  The Gridfinity system was created by [Zach Freedman](https://www.youtube.com/c/ZackFreedman) as a versatile system of modular organization and storage modules.  A vibrant community of user contributed modules and utilities has grown around the Gridfinity system.  This repository contains python classes to create gridfinity compatible parameterized components such as baseplates and boxes.
 
