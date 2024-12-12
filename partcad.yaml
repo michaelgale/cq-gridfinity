@@ -1,0 +1,240 @@
+partcad: ">=0.7.16"
+
+name: /pub/storage/workspace/gridfinity
+desc: Created by Zach Freedman as a versatile system of modular organization and storage modules.
+cover:
+  part: ruggedbox
+
+docs:
+  intro: |
+    This package defines the basic building blocks of the Gridfinity system.
+    Make use of the parameters to customize the parts to your needs.
+  footer: |
+    ## Implementation notes
+
+    This packages has a folder with PartCAD shims.
+    This folder contains wrappers for cqgridfinity main Python files
+    to make them compatible with CadQuery's CQGI interface that is used by PartCAD.
+    This is a non-intrusive alternative to refactoring cqgridfinity main Python files.
+    If cqgridfinity adopts CQGI, then these shims can be dropped.
+
+parts:
+  baseplate:
+    type: cadquery
+    path: cqgridfinity/shims/cqgi_gf_baseplate.py
+    parameters:
+      length_u:
+        type: int
+        default: 2
+      width_u:
+        type: int
+        default: 2
+      ext_depth:
+        type: float
+        default: 0.0
+      straight_bottom:
+        type: bool
+        default: False
+      corner_screws:
+        type: bool
+        default: False
+      corner_tab_size:
+        type: float
+        default: 21.0
+      csk_hole:
+        type: float
+        default: 5.0
+      csk_diam:
+        type: float
+        default: 10.0
+      csk_angle:
+        type: float
+        default: 82.0
+  ruggedbox:
+    type: cadquery
+    path: cqgridfinity/shims/cqgi_gf_ruggedbox.py
+    parameters:
+      length_u:
+        type: int
+        default: 4
+      width_u:
+        type: int
+        default: 4
+      height_u:
+        type: int
+        default: 4
+      lid_height:
+        type: float
+        default: 10.0
+      wall_vgrooves:
+        type: bool
+        default: True
+      front_handle:
+        type: bool
+        default: True
+      stackable:
+        type: bool
+        default: True
+      side_clasps:
+        type: bool
+        default: True
+      lid_baseplate:
+        type: bool
+        default: True
+      inside_baseplate:
+        type: bool
+        default: True
+      side_handles:
+        type: bool
+        default: True
+      front_label:
+        type: bool
+        default: True
+      label_length:
+        type: float
+        default: 0.0
+      label_height:
+        type: float
+        default: 0.0
+      label_th:
+        type: float
+        default: 0.8
+      back_feet:
+        type: bool
+        default: True
+      hinge_width:
+        type: float
+        default: 48.0
+      hinge_bolted:
+        type: bool
+        default: False
+      rib_style:
+        type: bool
+        default: False
+  box:
+    type: cadquery
+    path: cqgridfinity/shims/cqgi_gf_box.py
+    parameters:
+      length_u:
+        type: int
+        default: 2
+      width_u:
+        type: int
+        default: 2
+      height_u:
+        type: int
+        default: 2
+      length_div:
+        type: float
+        default: 0.0
+      width_div:
+        type: float
+        default: 0.0
+      scoops:
+        type: bool
+        default: False
+      labels:
+        type: bool
+        default: False
+      solid:
+        type: bool
+        default: False
+      holes:
+        type: bool
+        default: False
+      no_lip:
+        type: bool
+        default: False
+      solid_ratio:
+        type: float
+        default: 1.0
+      lite_style:
+        type: bool
+        default: False
+      unsupported_holes:
+        type: bool
+        default: False
+      label_width:
+        type: float
+        default: 12.0 # width of the label strip
+      label_height:
+        type: float
+        default: 10.0 # thickness of label overhang
+      label_lip_height:
+        type: float
+        default: 0.8 # thickness of label vertical lip
+      scoop_rad:
+        type: float
+        default: 12.0 # radius of optional interior scoops
+      fillet_interior:
+        type: bool
+        default: True
+      wall_th:
+        type: float
+        default: 1.0
+  drawerspacer:
+    type: cadquery
+    path: cqgridfinity/shims/cqgi_gf_drawerspacer.py
+    parameters:
+      length_u:
+        type: int
+        default: 2
+      width_u:
+        type: int
+        default: 2
+      length_th:
+        type: float
+        default: 10.0
+      width_th:
+        type: float
+        default: 10.0
+      thickness:
+        type: float
+        default: 5.0
+      chamf_rad:
+        type: float
+        default: 1.0
+      show_arrows:
+        type: bool
+        default: True
+      arrow_h:
+        type: float
+        default: 0.8
+      length_fill:
+        type: float
+        default: 0.0
+      width_fill:
+        type: float
+        default: 0.0
+      align_features:
+        type: bool
+        default: True
+      align_l:
+        type: float
+        default: 16.0
+      align_tol:
+        type: float
+        default: 0.15
+      align_min:
+        type: float
+        default: 8.0
+      min_margin:
+        type: float
+        default: 4.0
+      tolerance:
+        type: float
+        default: 0.5
+
+assemblies:
+  examples/demo1:
+    type: assy
+
+render:
+  svg:
+    prefix: cqgridfinity/shims
+    exclude:
+      - assemblies
+  readme:
+    path: cqgridfinity/shims/README.md
+    exclude:
+      - assemblies

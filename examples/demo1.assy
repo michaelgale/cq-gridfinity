@@ -1,0 +1,12 @@
+# This is a demo of multiple gridfinity parts put together using PartCAD.
+# Use `pc show -a examples/demo1` to view it in OCP CAD Viewer or
+# use `pc render -t png -a examples/demo1` to render a PNG image of this assembly.
+links:
+  - part: baseplate
+    name: baseplate
+  - part: box
+    name: box
+    location: [[100, 0, 0], [0, 0, 1], 0]
+  - part: drawerspacer
+    name: drawerspacerbox
+    location: [[-200, 0, 0], [0, 0, 1], 0]
