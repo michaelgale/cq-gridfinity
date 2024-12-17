@@ -68,7 +68,7 @@ class GridfinityBaseplate(GridfinityObject):
             if k in self.__dict__ and v is not None:
                 self.__dict__[k] = v
         if self.corner_screws:
-            self.ext_depth = max(self.ext_depth, 5.0)
+            self.ext_depth = max(self.ext_depth, 3.0)
 
     def _corner_pts(self):
         oxy = self.corner_tab_size / 2
