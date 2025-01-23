@@ -1,45 +1,62 @@
-FROM condaforge/mambaforge:latest
+FROM condaforge/mambaforge:23.3.1-1
+
+# Create non-root user
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Install system dependencies
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
-    git \
-    libgl1-mesa-dev \
-    xvfb \
-    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+        git=1:2.* \
+        libgl1-mesa-dev \
+        xvfb \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create conda environment
+# Create conda environment and install packages
 RUN mamba create -n cqdev python=3.12 -y \
-    && mamba init bash
-
-# Install CadQuery and dependencies via mamba
-RUN mamba install -n cqdev -c conda-forge -y \
-    cadquery=2.4 \
-    pytest \
-    black \
-    flake8 \
-    isort
+    && mamba init bash \
+    && mamba install -n cqdev -c conda-forge -y \
+        cadquery=2.4 \
+        pytest=8.* \
+        black=24.* \
+        flake8=7.* \
+        isort=5.* \
+    && mamba clean --all -f -y
 
 # Install pip dependencies
 SHELL ["/bin/bash", "-c"]
 RUN source /opt/conda/etc/profile.d/conda.sh \
     && conda activate cqdev \
-    && pip install --upgrade ezdxf \
-    && pip install cqkit importlib_metadata
+    && pip install --no-cache-dir \
+        ezdxf==1.* \
+        cqkit==1.* \
+        importlib_metadata
 
-# Create XDG runtime directory
-RUN mkdir -p /tmp/runtime-root
+# Set up X11 and OpenGL
+RUN mkdir -p /tmp/runtime-root \
+    && chown ${USERNAME}:${USERNAME} /tmp/runtime-root
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 ENV DISPLAY=:99
 ENV LIBGL_ALWAYS_INDIRECT=1
 
-# Activate conda environment by default
+# Configure conda environment
 ENV PATH=/opt/conda/envs/cqdev/bin:$PATH
-RUN echo "conda activate cqdev" >> ~/.bashrc
+RUN echo "conda activate cqdev" >> /home/${USERNAME}/.bashrc
 
 # Set up virtual framebuffer
-RUN printf '#!/bin/bash\nsource /opt/conda/etc/profile.d/conda.sh\nconda activate cqdev\nXvfb :99 -screen 0 1024x768x16 &\nsleep 1\nexec "$@"' > /usr/local/bin/entrypoint.sh \
-    && chmod +x /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Switch to non-root user
+USER ${USERNAME}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["sleep", "infinity"] 
