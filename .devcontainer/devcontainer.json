@@ -4,6 +4,8 @@
         "dockerfile": "Dockerfile",
         "context": ".."
     },
+    "workspaceFolder": "/workspaces/cq-gridfinity",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/cq-gridfinity,type=bind",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -25,5 +27,5 @@
         8080
     ],
     "postCreateCommand": "pip install -e .",
-    "remoteUser": "root"
+    "remoteUser": "vscode"
 }

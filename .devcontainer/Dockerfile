@@ -36,15 +36,9 @@ SHELL ["/bin/bash", "-c"]
 RUN source /opt/conda/etc/profile.d/conda.sh \
     && conda activate cqdev \
     && pip install --no-cache-dir \
-    ezdxf \
+    ezdxf==1.* \
     cqkit \
     importlib_metadata
-
-# Install package in development mode
-WORKDIR /workspaces/cq-gridfinity
-RUN source /opt/conda/etc/profile.d/conda.sh \
-    && conda activate cqdev \
-    && pip install -e .
 
 # Set up X11 and OpenGL
 RUN mkdir -p /tmp/runtime-root \
