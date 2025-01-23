@@ -1,0 +1,29 @@
+{
+    "name": "CQ Gridfinity Development",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "ms-python.flake8",
+                "ms-python.isort"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/conda/envs/cqdev/bin/python",
+                "python.testing.pytestEnabled": true,
+                "python.formatting.provider": "black",
+                "python.condaPath": "/opt/conda/bin/conda"
+            }
+        }
+    },
+    "forwardPorts": [
+        8080
+    ],
+    "postCreateCommand": "pip install -e .",
+    "remoteUser": "root"
+}
