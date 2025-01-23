@@ -195,7 +195,7 @@ class GridfinityBox(GridfinityObject):
                 bs = FlatEdgeSelector(self.floor_h)
                 if self.wall_th < 1.2:
                     r = self.safe_fillet(r, bs, 0.5)
-                elif self.wall_th < 1.5:
+                elif self.wall_th < 1.25:
                     r = self.safe_fillet(r, bs, 0.25)
 
             if not self.labels and self.has_dividers:
