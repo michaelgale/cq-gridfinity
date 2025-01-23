@@ -21,6 +21,7 @@ RUN mamba install -n cqdev -c conda-forge -y \
     isort
 
 # Install cqkit via pip
+SHELL ["/bin/bash", "-c"]
 RUN source /opt/conda/etc/profile.d/conda.sh \
     && conda activate cqdev \
     && pip install cqkit
@@ -33,7 +34,6 @@ ENV LIBGL_ALWAYS_INDIRECT=1
 
 # Activate conda environment by default
 ENV PATH=/opt/conda/envs/cqdev/bin:$PATH
-SHELL ["/bin/bash", "-c"]
 RUN echo "conda activate cqdev" >> ~/.bashrc
 
 # Set up virtual framebuffer
