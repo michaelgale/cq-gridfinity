@@ -20,11 +20,12 @@ RUN mamba install -n cqdev -c conda-forge -y \
     flake8 \
     isort
 
-# Install cqkit via pip
+# Install pip dependencies
 SHELL ["/bin/bash", "-c"]
 RUN source /opt/conda/etc/profile.d/conda.sh \
     && conda activate cqdev \
-    && pip install cqkit
+    && pip install --upgrade ezdxf \
+    && pip install cqkit importlib_metadata
 
 # Create XDG runtime directory
 RUN mkdir -p /tmp/runtime-root
