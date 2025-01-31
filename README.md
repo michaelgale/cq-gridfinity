@@ -53,6 +53,51 @@ $ cd cq-gridfinity
 $ pip install .
 ```
 
+## Development with VS Code Dev Container
+
+This project includes a development container configuration that provides a consistent development environment with all required dependencies pre-installed.
+
+### Prerequisites
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+2. Install [Visual Studio Code](https://code.visualstudio.com/)
+3. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) in VS Code
+
+### Getting Started
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/michaelgale/cq-gridfinity.git
+   cd cq-gridfinity
+   ```
+
+2. Open the project in VS Code:
+   ```bash
+   code .
+   ```
+
+3. When VS Code detects the dev container configuration, it will prompt you to "Reopen in Container". Click this prompt, or:
+   - Press `F1` or `Ctrl+Shift+P` (Cmd+Shift+P on Mac)
+   - Type "Dev Containers: Reopen in Container" and select it
+
+4. Wait for the container to build (this may take a few minutes the first time)
+
+### What's Included
+
+The development container comes with:
+- Python 3.12
+- CadQuery 2.4
+- All required dependencies (pytest, black, flake8, etc.)
+- A pre-configured environment for CAD development
+
+### Troubleshooting
+
+If you encounter issues:
+1. Ensure Docker is running
+2. Try rebuilding the container:
+   - Press `F1` or `Ctrl+Shift+P`
+   - Select "Dev Containers: Rebuild Container"
+
 ## Basic Usage
 
 After installation, the package can imported:
