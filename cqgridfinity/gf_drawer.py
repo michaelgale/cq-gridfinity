@@ -49,7 +49,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
         self.width_u = 1
         self.length_th = 10
         self.width_th = 10
-        self.thickness = GR_BASE_HEIGHT
+        self.thickness = self.c.GR_BASE_HEIGHT
         self.chamf_rad = 1.0
         self.show_arrows = True
         self.arrow_h = 0.8
@@ -60,7 +60,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
         self.align_tol = 0.15
         self.align_min = 8
         self.min_margin = 4
-        self.tolerance = GR_TOL
+        self.tolerance = self.c.GR_TOL
         self.front_and_back = True
         for k, v in kwargs.items():
             if k in self.__dict__:
@@ -74,8 +74,8 @@ class GridfinityDrawerSpacer(GridfinityObject):
         The geometry of all the spacer elements is then computed to securely
         centre the Gridfinity baseplate(s) inside the drawer footprint."""
         self.size = length, width
-        lu, wu = (math.floor(x / GRU) for x in (length, width))
-        lg, wg = (x * GRU for x in (lu, wu))
+        lu, wu = (math.floor(x / self.c.GRU) for x in (length, width))
+        lg, wg = (x * self.c.GRU for x in (lu, wu))
         lm, wm = (length - lg) / 2, (width - wg) / 2
         self.size_u = lu, wu
         self.width_th, self.length_th = lm - self.tolerance, wm - self.tolerance
@@ -120,19 +120,19 @@ class GridfinityDrawerSpacer(GridfinityObject):
                 if self.front_and_back:
                     print(
                         "Front/back spacers : %dU wide x %.2f mm +%.2f mm tolerance"
-                        % (self.length_fill / GRU, self.length_th, self.tolerance)
+                        % (self.length_fill / self.c.GRU, self.length_th, self.tolerance)
                     )
                 else:
                     print(
                         "Back spacer        : %dU wide x %.2f mm +%.2f mm tolerance"
-                        % (self.length_fill / GRU, self.fb_length_th, self.tolerance)
+                        % (self.length_fill / self.c.GRU, self.fb_length_th, self.tolerance)
                     )
             else:
                 print("Front/back spacers : not required")
             if self.wide_enough:
                 print(
                     "Left/right spacers : %dU deep x %.2f mm +%.2f mm tolerance"
-                    % (self.width_fill / GRU, self.width_th, self.tolerance)
+                    % (self.width_fill / self.c.GRU, self.width_th, self.tolerance)
                 )
                 if not self.front_and_back:
                     print(
@@ -143,7 +143,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
 
     @property
     def fillet_rad(self):
-        rads = [GR_RAD]
+        rads = [self.c.GR_RAD]
         if self.wide_enough:
             rads.append(self.width_th / 6)
         if self.deep_enough:
@@ -204,7 +204,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
                 .rect(sp_length, self.fb_length_th)
                 .extrude(self.thickness)
             )
-            er = min(GR_RAD, max(self.length_th, self.width_th) / 4)
+            er = min(self.c.GR_RAD, max(self.length_th, self.width_th) / 4)
             r = r.translate((sp_length / 2, self.fb_length_th / 2, 0))
             r = r.edges("|Z").edges("<XY").fillet(er)
             r = r.edges("|Z").fillet(self.fillet_rad)
@@ -215,7 +215,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
             rd = (
                 cq.Workplane("XY").rect(self.width_th, sp_width).extrude(self.thickness)
             )
-            er = min(GR_RAD, max(self.length_th, self.width_th) / 4)
+            er = min(self.c.GR_RAD, max(self.length_th, self.width_th) / 4)
             rd = rd.translate((self.width_th / 2, sp_width / 2, 0))
             rd = rd.edges("|Z").edges("<Y").fillet(er)
             rd = rd.edges("|Z").fillet(self.fillet_rad)
@@ -243,7 +243,7 @@ class GridfinityDrawerSpacer(GridfinityObject):
         x, y = self.align_l, self.fb_length_th / 2
         if not horz:
             y = self.width_th / 2
-        fr = min(GR_RAD / 2, y / 3)
+        fr = min(self.c.GR_RAD / 2, y / 3)
         if as_cutter:
             x += 2 * self.align_tol
             y += 2 * self.align_tol

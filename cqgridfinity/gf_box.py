@@ -29,6 +29,7 @@ import cadquery as cq
 from cqkit import HasZCoordinateSelector, VerticalEdgeSelector, FlatEdgeSelector
 from cqkit.cq_helpers import rounded_rect_sketch, composite_from_pts
 from cqgridfinity import *
+from cqgridfinity.constants import SQRT2
 
 
 class GridfinityBox(GridfinityObject):
@@ -85,8 +86,8 @@ class GridfinityBox(GridfinityObject):
         self.label_lip_height = 0.8  # thickness of label vertical lip
         self.scoop_rad = 14  # radius of optional interior scoops
         self.fillet_interior = True
-        self.wall_th = GR_WALL
-        self.hole_diam = GR_HOLE_D  # magnet/bolt hole diameter
+        self.wall_th = self.c.GR_WALL
+        self.hole_diam = self.c.GR_HOLE_D  # magnet/bolt hole diameter
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
@@ -101,8 +102,8 @@ class GridfinityBox(GridfinityObject):
                 self.length_u,
                 self.width_u,
                 self.height_u,
-                self.length - GR_TOL,
-                self.width - GR_TOL,
+                self.length - self.c.GR_TOL,
+                self.width - self.c.GR_TOL,
                 self.height,
             )
         )
@@ -111,7 +112,7 @@ class GridfinityBox(GridfinityObject):
         s.append("  %sWall thickness: %.2f mm  %s" % (ss, self.wall_th, sl))
         s.append(
             "  Floor height  : %.2f mm  Inside height: %.2f mm  Top reference height: %.2f mm"
-            % (self.floor_h + GR_BASE_HEIGHT, self.int_height, self.top_ref_height)
+            % (self.floor_h + self.c.GR_BASE_HEIGHT, self.int_height, self.top_ref_height)
         )
         if self.solid:
             s.append("  Solid filled box with fill ratio %.2f" % (self.solid_ratio))
@@ -127,7 +128,7 @@ class GridfinityBox(GridfinityObject):
                 % (self.label_width, self.label_height)
             )
         if self.length_div:
-            xl = (self.inner_l - GR_DIV_WALL * (self.length_div)) / (
+            xl = (self.inner_l - self.c.GR_DIV_WALL * (self.length_div)) / (
                 self.length_div + 1
             )
             s.append(
@@ -135,7 +136,7 @@ class GridfinityBox(GridfinityObject):
                 % (self.length_div, xl)
             )
         if self.width_div:
-            yl = (self.inner_w - GR_DIV_WALL * (self.width_div)) / (self.width_div + 1)
+            yl = (self.inner_w - self.c.GR_DIV_WALL * (self.width_div)) / (self.width_div + 1)
             s.append(
                 "  %dx widthwise divisions for %.2f mm compartment widths"
                 % (self.width_div, yl)
@@ -177,7 +178,7 @@ class GridfinityBox(GridfinityObject):
             if e is not None:
                 r = r.union(e)
         if not self.solid and self.fillet_interior:
-            heights = [GR_FLOOR]
+            heights = [self.c.GR_FLOOR]
             if self.labels:
                 heights.append(self.safe_label_height(backwall=True, from_bottom=True))
                 heights.append(self.safe_label_height(backwall=False, from_bottom=True))
@@ -200,13 +201,13 @@ class GridfinityBox(GridfinityObject):
 
             if not self.labels and self.has_dividers:
                 bs = VerticalEdgeSelector(
-                    GR_TOPSIDE_H, tolerance=0.05
-                ) & HasZCoordinateSelector(GRHU * self.height_u - GR_BASE_HEIGHT)
-                r = self.safe_fillet(r, bs, GR_TOPSIDE_H - EPS)
+                    self.c.GR_TOPSIDE_H, tolerance=0.05
+                ) & HasZCoordinateSelector(self.c.GRHU * self.height_u - self.c.GR_BASE_HEIGHT)
+                r = self.safe_fillet(r, bs, self.c.GR_TOPSIDE_H - self.c.EPS)
 
         if self.holes:
             r = self.render_holes(r)
-        r = r.translate((-self.half_l, -self.half_w, GR_BASE_HEIGHT))
+        r = r.translate((-self.half_l, -self.half_w, self.c.GR_BASE_HEIGHT))
         if self.unsupported_holes:
             r = self.render_hole_fillers(r)
         return r
@@ -216,14 +217,14 @@ class GridfinityBox(GridfinityObject):
         """The height of the top surface of a solid box or the floor
         height of an empty box."""
         if self.solid:
-            return self.max_height * self.solid_ratio + GR_BOT_H
+            return self.max_height * self.solid_ratio + self.c.GR_BOT_H
         if self.lite_style:
             return self.floor_h
-        return GR_BOT_H
+        return self.c.GR_BOT_H
 
     @property
     def bin_height(self):
-        return self.height - GR_BASE_HEIGHT
+        return self.height - self.c.GR_BASE_HEIGHT
 
     def safe_label_height(self, backwall=False, from_bottom=False):
         lw = self.label_width
@@ -234,15 +235,15 @@ class GridfinityBox(GridfinityObject):
         if backwall:
             yl -= self.lip_width
         if yl < 0:
-            lh = self.max_height - 1.5 * GR_FILLET - 0.1
-        elif yl < 1.5 * GR_FILLET:
-            lh -= 1.5 * GR_FILLET - yl + 0.1
+            lh = self.max_height - 1.5 * self.c.GR_FILLET - 0.1
+        elif yl < 1.5 * self.c.GR_FILLET:
+            lh -= 1.5 * self.c.GR_FILLET - yl + 0.1
         if from_bottom:
             ws = math.sin(math.atan2(self.label_height, self.label_width))
             if backwall:
-                lh = self.max_height + GR_FLOOR - lh + ws * self.wall_th
+                lh = self.max_height + self.c.GR_FLOOR - lh + ws * self.wall_th
             else:
-                lh = self.max_height + GR_FLOOR - lh + ws * GR_DIV_WALL
+                lh = self.max_height + self.c.GR_FLOOR - lh + ws * self.c.GR_DIV_WALL
         return lh
 
     @property
@@ -258,13 +259,13 @@ class GridfinityBox(GridfinityObject):
 
     def render_interior(self, force_solid=False):
         """Renders the interior cutting solid of the box."""
-        wall_u = self.wall_th - GR_WALL
+        wall_u = self.wall_th - self.c.GR_WALL
         wall_h = self.int_height + wall_u
-        under_h = ((GR_UNDER_H - wall_u) * SQRT2, 45)
-        profile = GR_NO_PROFILE if self.no_lip else [under_h, *GR_LIP_PROFILE[1:]]
+        under_h = ((self.c.GR_UNDER_H - wall_u) * SQRT2, 45)
+        profile = self.c.GR_NO_PROFILE if self.no_lip else [under_h, *self.c.GR_LIP_PROFILE[1:]]
         profile = [wall_h, *profile]
         if self.int_height < 0:
-            profile = [self.height - GR_BOT_H]
+            profile = [self.height - self.c.GR_BOT_H]
         rci = self.extrude_profile(
             rounded_rect_sketch(*self.inner_dim, self.inner_rad), profile
         )
@@ -301,14 +302,14 @@ class GridfinityBox(GridfinityObject):
         return obj.intersect(self.solid_shell())
 
     def base_interior(self):
-        profile = [GR_BASE_HEIGHT, *GR_BOX_PROFILE]
-        zo = GR_BASE_HEIGHT + GR_BASE_CLR
+        profile = [self.c.GR_BASE_HEIGHT, *self.c.GR_BOX_PROFILE]
+        zo = self.c.GR_BASE_HEIGHT + self.c.GR_BASE_CLR
         if self.int_height < 0:
-            h = self.bin_height - GR_BASE_HEIGHT
+            h = self.bin_height - self.c.GR_BASE_HEIGHT
             profile = [h, *profile]
             zo += h
         r = self.extrude_profile(
-            rounded_rect_sketch(GRU - GR_TOL, GRU - GR_TOL, self.outer_rad),
+            rounded_rect_sketch(self.c.GRU - self.c.GR_TOL, self.c.GRU - self.c.GR_TOL, self.outer_rad),
             profile,
         )
         rx = r.faces("<Z").shell(-self.wall_th)
@@ -318,22 +319,22 @@ class GridfinityBox(GridfinityObject):
     def render_shell(self, as_solid=False):
         """Renders the box shell without any added features."""
         r = self.extrude_profile(
-            rounded_rect_sketch(GRU, GRU, self.outer_rad + GR_BASE_CLR), GR_BOX_PROFILE
+            rounded_rect_sketch(self.c.GRU, self.c.GRU, self.outer_rad + self.c.GR_BASE_CLR), self.c.GR_BOX_PROFILE
         )
-        r = r.translate((0, 0, -GR_BASE_CLR))
+        r = r.translate((0, 0, -self.c.GR_BASE_CLR))
         r = r.mirror(mirrorPlane="XY")
         r = composite_from_pts(r, self.grid_centres)
         rs = rounded_rect_sketch(*self.outer_dim, self.outer_rad)
         rw = (
             cq.Workplane("XY")
             .placeSketch(rs)
-            .extrude(self.bin_height - GR_BASE_CLR)
-            .translate((*self.half_dim, GR_BASE_CLR))
+            .extrude(self.bin_height - self.c.GR_BASE_CLR)
+            .translate((*self.half_dim, self.c.GR_BASE_CLR))
         )
         rc = (
             cq.Workplane("XY")
             .placeSketch(rs)
-            .extrude(-GR_BASE_HEIGHT - 1)
+            .extrude(-self.c.GR_BASE_HEIGHT - 1)
             .translate((*self.half_dim, 0.5))
         )
         rc = rc.intersect(r).union(rw)
@@ -346,7 +347,7 @@ class GridfinityBox(GridfinityObject):
         if self.length_div > 0 and not self.solid:
             wall_w = (
                 cq.Workplane("XY")
-                .rect(GR_DIV_WALL, self.outer_w)
+                .rect(self.c.GR_DIV_WALL, self.outer_w)
                 .extrude(self.max_height)
                 .translate((0, 0, self.floor_h))
             )
@@ -360,7 +361,7 @@ class GridfinityBox(GridfinityObject):
         if self.width_div > 0 and not self.solid:
             wall_l = (
                 cq.Workplane("XY")
-                .rect(self.outer_l, GR_DIV_WALL)
+                .rect(self.outer_l, self.c.GR_DIV_WALL)
                 .extrude(self.max_height)
                 .translate((0, 0, self.floor_h))
             )
@@ -384,12 +385,12 @@ class GridfinityBox(GridfinityObject):
         srad = min(self.scoop_rad, self.int_height - 0.1)
         rs = cq.Sketch().rect(srad, srad).vertices(">X and >Y").circle(srad, mode="s")
         rsc = cq.Workplane("YZ").placeSketch(rs).extrude(self.inner_l)
-        rsc = rsc.translate((0, 0, srad / 2 + GR_FLOOR))
+        rsc = rsc.translate((0, 0, srad / 2 + self.c.GR_FLOOR))
         yo = -self.half_in + srad / 2
         # offset front wall scoop by top lip overhang if applicable
         if not self.no_lip and not self.lite_style:
             yo += self.under_h
-        zo = -GR_BOT_H + self.wall_th if self.lite_style else 0
+        zo = -self.c.GR_BOT_H + self.wall_th if self.lite_style else 0
         rs = rsc.translate((-self.half_in, yo, zo))
         # intersect to prevent solids sticking out of rounded corners
         r = rs.intersect(self.interior_solid)
@@ -401,7 +402,7 @@ class GridfinityBox(GridfinityObject):
                 for y in range(self.width_div)
             ]
             rs = composite_from_pts(rsc, pts)
-            r = r.union(rs.translate((0, GR_DIV_WALL / 2 + srad / 2, zo)))
+            r = r.union(rs.translate((0, self.c.GR_DIV_WALL / 2 + srad / 2, zo)))
             r = r.intersect(self.render_shell(as_solid=True))
         return r
 
@@ -443,7 +444,7 @@ class GridfinityBox(GridfinityObject):
             rsc = rsc.translate((0, -self.label_width, self.floor_h + self.max_height))
             yl = self.inner_w / (self.width_div + 1)
             pts = [
-                (-self.half_in, (y + 1) * yl - self.half_in + GR_DIV_WALL / 2)
+                (-self.half_in, (y + 1) * yl - self.half_in + self.c.GR_DIV_WALL / 2)
                 for y in range(self.width_div)
             ]
             r = r.union(composite_from_pts(rsc, pts))
@@ -452,24 +453,24 @@ class GridfinityBox(GridfinityObject):
     def render_holes(self, obj):
         if not self.holes:
             return obj
-        h = GR_HOLE_H
+        h = self.c.GR_HOLE_H
         if self.unsupported_holes:
-            h += GR_HOLE_SLICE
+            h += self.c.GR_HOLE_SLICE
         return (
             obj.faces("<Z")
             .workplane()
             .pushPoints(self.hole_centres)
-            .cboreHole(GR_BOLT_D, self.hole_diam, h, depth=GR_BOLT_H)
+            .cboreHole(self.c.GR_BOLT_D, self.hole_diam, h, depth=self.c.GR_BOLT_H)
         )
 
     def render_hole_fillers(self, obj):
         rc = (
             cq.Workplane("XY")
             .rect(self.hole_diam / 2, self.hole_diam)
-            .extrude(GR_HOLE_SLICE)
+            .extrude(self.c.GR_HOLE_SLICE)
         )
         xo = self.hole_diam / 2
-        rs = composite_from_pts(rc, [(-xo, 0, GR_HOLE_H), (xo, 0, GR_HOLE_H)])
+        rs = composite_from_pts(rc, [(-xo, 0, self.c.GR_HOLE_H), (xo, 0, self.c.GR_HOLE_H)])
         rs = composite_from_pts(rs, self.hole_centres)
         return obj.union(rs.translate((-self.half_l, self.half_w, 0)))
 

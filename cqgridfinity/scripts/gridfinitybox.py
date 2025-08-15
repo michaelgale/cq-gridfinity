@@ -192,7 +192,7 @@ def main():
     if argsd["solid"]:
         print(
             "  solid height ratio: %.2f  top height: %.2f mm / %.2f mm"
-            % (solid_ratio, box.top_ref_height, box.max_height + GR_BOT_H)
+            % (solid_ratio, box.top_ref_height, box.max_height + self.c.GR_BOT_H)
         )
     s = []
     if argsd["unsupported"]:
