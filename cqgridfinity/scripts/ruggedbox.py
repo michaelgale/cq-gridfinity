@@ -354,8 +354,8 @@ def main():
     print(
         "  Exterior dim: %.1f mm x %.1f mm x %.1f mm"
         % (
-            box.box_length + 2 * (GR_RBOX_CWALL - GR_RBOX_WALL),
-            box.box_width + 2 * (GR_RBOX_CWALL - GR_RBOX_WALL),
+            box.box_length + 2 * (self.c.GR_RBOX_CWALL - self.c.GR_RBOX_WALL),
+            box.box_width + 2 * (self.c.GR_RBOX_CWALL - self.c.GR_RBOX_WALL),
             box.box_height + box.lid_height,
         )
     )

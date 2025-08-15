@@ -30,6 +30,8 @@ from OCP.BRepMesh import BRepMesh_IncrementalMesh
 from OCP.StlAPI import StlAPI_Writer
 import cadquery as cq
 from cadquery import exporters
+from cqgridfinity.constants import GridfinityConfig, SQRT2
+import cqgridfinity.constants as constants
 
 from cqgridfinity import *
 from cqkit import export_step_file
@@ -52,12 +54,13 @@ class GridfinityObject:
     for derived Gridfinity object classes.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, config: GridfinityConfig | None = None, **kwargs):
         self.length_u = 1
         self.width_u = 1
         self.height_u = 1
         self._cq_obj = None
         self._obj_label = None
+        self.c = config or constants._c
         for k, v in kwargs.items():
             if k in self.__dict__:
                 self.__dict__[k] = v
@@ -70,46 +73,46 @@ class GridfinityObject:
 
     @property
     def length(self):
-        return self.length_u * GRU
+        return self.length_u * self.c.GRU
 
     @property
     def width(self):
-        return self.width_u * GRU
+        return self.width_u * self.c.GRU
 
     @property
     def height(self):
-        return 3.8 + GRHU * self.height_u
+        return 3.8 + self.c.GRHU * self.height_u
 
     @property
     def int_height(self):
-        h = self.height - GR_LIP_H - GR_BOT_H
+        h = self.height - self.c.GR_LIP_H - self.c.GR_BOT_H
         if self.lite_style:
             return h + self.wall_th
         return h
 
     @property
     def max_height(self):
-        return self.int_height + GR_UNDER_H + GR_TOPSIDE_H
+        return self.int_height + self.c.GR_UNDER_H + self.c.GR_TOPSIDE_H
 
     @property
     def floor_h(self):
         if self.lite_style:
-            return GR_FLOOR - self.wall_th
-        return GR_FLOOR
+            return self.c.GR_FLOOR - self.wall_th
+        return self.c.GR_FLOOR
 
     @property
     def lip_width(self):
         if self.no_lip:
             return self.wall_th
-        return GR_UNDER_H + self.wall_th
+        return self.c.GR_UNDER_H + self.wall_th
 
     @property
     def outer_l(self):
-        return self.length_u * GRU - GR_TOL
+        return self.length_u * self.c.GRU - self.c.GR_TOL
 
     @property
     def outer_w(self):
-        return self.width_u * GRU - GR_TOL
+        return self.width_u * self.c.GRU - self.c.GR_TOL
 
     @property
     def outer_dim(self):
@@ -129,11 +132,11 @@ class GridfinityObject:
 
     @property
     def half_l(self):
-        return (self.length_u - 1) * GRU2
+        return (self.length_u - 1) * self.c.GRU2
 
     @property
     def half_w(self):
-        return (self.width_u - 1) * GRU2
+        return (self.width_u - 1) * self.c.GRU2
 
     @property
     def half_dim(self):
@@ -141,11 +144,11 @@ class GridfinityObject:
 
     @property
     def half_in(self):
-        return GRU2 - self.wall_th - GR_TOL / 2
+        return self.c.GRU2 - self.wall_th - self.c.GR_TOL / 2
 
     @property
     def outer_rad(self):
-        return GR_RAD - GR_TOL / 2
+        return self.c.GR_RAD - self.c.GR_TOL / 2
 
     @property
     def inner_rad(self):
@@ -153,18 +156,18 @@ class GridfinityObject:
 
     @property
     def under_h(self):
-        return GR_UNDER_H - (self.wall_th - GR_WALL)
+        return self.c.GR_UNDER_H - (self.wall_th - self.c.GR_WALL)
 
     @property
     def safe_fillet_rad(self):
         if not any([self.scoops, self.labels, self.length_div, self.width_div]):
-            return GR_FILLET
-        return min(GR_FILLET, (GR_UNDER_H + GR_WALL) - self.wall_th - 0.05)
+            return self.c.GR_FILLET
+        return min(self.c.GR_FILLET, (self.c.GR_UNDER_H + self.c.GR_WALL) - self.wall_th - 0.05)
 
     @property
     def grid_centres(self):
         return [
-            (x * GRU, y * GRU)
+            (x * self.c.GRU, y * self.c.GRU)
             for x in range(self.length_u)
             for y in range(self.width_u)
         ]
@@ -172,7 +175,7 @@ class GridfinityObject:
     @property
     def hole_centres(self):
         return [
-            (x * GRU - GR_HOLE_DIST * i, -(y * GRU - GR_HOLE_DIST * j))
+            (x * self.c.GRU - self.c.GR_HOLE_DIST * i, -(y * self.c.GRU - self.c.GR_HOLE_DIST * j))
             for x in range(self.length_u)
             for y in range(self.width_u)
             for i in (-1, 1)
@@ -224,7 +227,7 @@ class GridfinityObject:
                     fn = fn + "x%d" % (self.width_div)
                 else:
                     fn = fn + "_div_x%d" % (self.width_div)
-            if abs(self.wall_th - GR_WALL) > 1e-3:
+            if abs(self.wall_th - self.c.GR_WALL) > 1e-3:
                 fn = fn + "_%.2f" % (self.wall_th)
             if self.no_lip:
                 fn = fn + "_basic"

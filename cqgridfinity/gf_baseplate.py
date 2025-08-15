@@ -79,20 +79,20 @@ class GridfinityBaseplate(GridfinityObject):
         ]
 
     def render(self):
-        profile = GR_BASE_PROFILE if not self.straight_bottom else GR_STR_BASE_PROFILE
+        profile = self.c.GR_BASE_PROFILE if not self.straight_bottom else self.c.GR_STR_BASE_PROFILE
         if self.ext_depth > 0:
             profile = [*profile, self.ext_depth]
         rc = self.extrude_profile(
-            rounded_rect_sketch(GRU_CUT, GRU_CUT, GR_RAD), profile
+            rounded_rect_sketch(self.c.GRU_CUT, self.c.GRU_CUT, self.c.GR_RAD), profile
         )
-        rc = rotate_x(rc, 180).translate((GRU2, GRU2, GR_BASE_HEIGHT + self.ext_depth))
+        rc = rotate_x(rc, 180).translate((self.c.GRU2, self.c.GRU2, self.c.GR_BASE_HEIGHT + self.ext_depth))
         rc = recentre(composite_from_pts(rc, self.grid_centres), "XY")
         r = (
             cq.Workplane("XY")
             .rect(self.length, self.width)
-            .extrude(GR_BASE_HEIGHT + self.ext_depth)
+            .extrude(self.c.GR_BASE_HEIGHT + self.ext_depth)
             .edges("|Z")
-            .fillet(GR_RAD)
+            .fillet(self.c.GR_RAD)
             .faces(">Z")
             .cut(rc)
         )
@@ -104,5 +104,5 @@ class GridfinityBaseplate(GridfinityObject):
             )
             r = r.union(recentre(composite_from_pts(rs, self._corner_pts()), "XY"))
             bs = VerticalEdgeSelector(self.ext_depth) & HasZCoordinateSelector(0)
-            r = r.edges(bs).fillet(GR_RAD)
+            r = r.edges(bs).fillet(self.c.GR_RAD)
         return r
